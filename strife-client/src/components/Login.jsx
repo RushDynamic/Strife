@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Typography, TextField, Button, Card, CardContent, CardHeader, Container } from '@material-ui/core';
-import useStyles from '../styles.js';
+import useStyles from './styles/login-styles.js';
 
 function Login() {
     const classes = useStyles();
