@@ -4,7 +4,7 @@ import { handleUserRegistration, handleUserLogin, handleUserLogout } from '../co
 const router = express.Router();
 
 router.post('/register', handleUserRegistration);
-router.get('/login', handleUserLogin);
+router.post('/login', handleUserLogin);
 router.get('/logout', handleUserLogout);
 
 export default router;

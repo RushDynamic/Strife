@@ -17,17 +17,17 @@ export async function registerUser(userInfo) {
         });
 
         const savedUser = await newAccount.save();
-        const user = ({ username: savedUser.username, accessToken: "" });
+        const user = { username: savedUser.username, accessToken: "" };
         console.log("User registered successfully");
         return ({ success: true, user: user });
     }
-    catch (err) {
-        return ({ success: false, duplicate: err.duplicate });
+    catch (ex) {
+        console.log("An error occurred: ", ex);
+        return ({ success: false, duplicate: ex.duplicate });
     }
-
 }
 
-async function checkIfUserExists(username) {
+export async function checkIfUserExists(username) {
     return await Account.findOne({
         username: username
     });

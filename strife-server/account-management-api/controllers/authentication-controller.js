@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
 import { registerUser } from '../services/registration-service.js';
+import { loginUser } from '../services/login-service.js';
 
 export async function handleUserRegistration(req, res) {
     const userInfo = ({
@@ -8,14 +8,15 @@ export async function handleUserRegistration(req, res) {
         password: req.body.password
     });
     try {
-        if (await registerUser(userInfo) == true) {
+        const registrationResponse = await registerUser(userInfo);
+        if (registrationResponse.success == true) {
             res.status(200).json({
                 success: true,
-                username: registrationResult.user.username,
-                accessToken: registrationResult.user.accessToken // send generated access token here
-            })
+                username: registrationResponse.user.username,
+                accessToken: registrationResponse.user.accessToken // send generated access token here
+            });
         }
-        if (registrationResult.success == false && registrationResult.duplicate == true) {
+        if (registrationResponse.success == false && registrationResponse.duplicate == true) {
             res.status(400).json({
                 duplicate: true,
                 success: false,
@@ -23,7 +24,8 @@ export async function handleUserRegistration(req, res) {
             });
         }
     }
-    catch (err) {
+    catch (ex) {
+        console.log("An exception occured during registration: ", ex);
         res.status(400).json({
             duplicate: false,
             success: false,
@@ -34,16 +36,42 @@ export async function handleUserRegistration(req, res) {
 
 
 
-export function handleUserLogin(req, res) {
-    res.status(200).send("Entered: handleUserRegistration()");
+export async function handleUserLogin(req, res) {
+    const userInfo = {
+        username: req.body.username,
+        password: req.body.password
+    };
+    try {
+        const loginResponse = await loginUser(userInfo);
+        console.log("loginResponse: ", loginResponse);
+        if (loginResponse.success == true) {
+            res.status(200).json({
+                username: loginResponse.user.username,
+                accessToken: loginResponse.user.accessToken
+            });
+        }
+        if (loginResponse.success == false && loginResponse.validUser == false) {
+            res.status(400).json({
+                success: false,
+                validUser: false
+            })
+        }
+        else if (loginResponse.success == false) {
+            res.status(400).json({
+                success: false,
+                validUser: true
+            })
+        }
+    }
+    catch (ex) {
+        console.log("An exception occured during login: ", ex);
+        res.status(400).json({
+            success: false,
+            validUser: true
+        });
+    }
 }
 
 export function handleUserLogout(req, res) {
     res.status(200).send("Entered: handleUserRegistration()");
-}
-
-async function hashPassword(rawPassword) {
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(rawPassword, salt);
-    return hashedPassword;
 }
