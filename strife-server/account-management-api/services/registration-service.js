@@ -3,8 +3,6 @@ import Account from '../models/account-model.js';
 
 export async function registerUser(userInfo) {
     try {
-        // const userUniqueResult = await checkIfUserExists(userInfo.username);
-        // console.log("userUniqueResult", userUniqueResult);
         if (await checkIfUserExists(userInfo.username) != null) {
             // Username already exists
             throw { duplicate: true };

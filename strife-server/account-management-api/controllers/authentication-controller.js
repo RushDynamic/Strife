@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import Account from '../models/account-model.js';
 import { registerUser } from '../services/registration-service.js';
 
 export async function handleUserRegistration(req, res) {
@@ -9,8 +8,7 @@ export async function handleUserRegistration(req, res) {
         password: req.body.password
     });
     try {
-        const registrationResult = await registerUser(userInfo);
-        if (registrationResult.success == true) {
+        if (await registerUser(userInfo) == true) {
             res.status(200).json({
                 success: true,
                 username: registrationResult.user.username,
