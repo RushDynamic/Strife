@@ -1,44 +1,37 @@
 import bcrypt from 'bcrypt';
 import Account from '../models/account-model.js';
+import { registerUser } from '../services/registration-service.js';
 
-export function handleUserRegistration(req, res) {
-    Account.findOne({
-        username: req.body.username
-    }).then((result) => {
-        if (result != null) {
-            // Username already exists
+export async function handleUserRegistration(req, res) {
+    const userInfo = ({
+        email: req.body.email,
+        username: req.body.username,
+        password: req.body.password
+    });
+    try {
+        const registrationResult = await registerUser(userInfo);
+        if (registrationResult.success == true) {
+            res.status(200).json({
+                success: true,
+                username: registrationResult.user.username,
+                accessToken: registrationResult.user.accessToken // send generated access token here
+            })
+        }
+        if (registrationResult.success == false && registrationResult.duplicate == true) {
             res.status(400).json({
                 duplicate: true,
                 success: false,
                 msg: "Username unavailable"
             });
         }
-
-        // Proceed if username is valid
-        hashPassword(req.body.password)
-            .then((hashedPassword) => {
-                const newAccount = new Account({
-                    email: req.body.email,
-                    username: req.body.username,
-                    password: hashedPassword
-                });
-
-                newAccount.save()
-                    .then((savedUser) => {
-                        const username = savedUser.username;
-                        // TODO: Generate access and refresh tokens here
-                        res.status(200).json({
-                            username: username,
-                            accessToken: "" // send generated access token here
-                        })
-                        console.log("User registered successfully");
-                    })
-            })
-    })
-        .catch((err) => res.status(400).json({
-            msg: "An error occured during registration",
-            success: false
-        }))
+    }
+    catch (err) {
+        res.status(400).json({
+            duplicate: false,
+            success: false,
+            msg: "Error occured during registration"
+        });
+    }
 }
 
 
