@@ -3,7 +3,7 @@ import { handleUserRegistration, handleUserLogin, handleUserLogout } from '../co
 
 const router = express.Router();
 
-router.get('/register', handleUserRegistration);
+router.post('/register', handleUserRegistration);
 router.get('/login', handleUserLogin);
 router.get('/logout', handleUserLogout);
 
