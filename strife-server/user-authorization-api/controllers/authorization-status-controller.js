@@ -25,16 +25,19 @@ export async function handleGenerateRefreshToken(req, res) {
     });
 }
 
-export function handleGenerateAll(req, res) {
+export async function handleGenerateAll(req, res) {
+    if (req.body.username == null || req.body.username == "") return res.status(500).json({
+        success: false
+    });
     const accessToken = generateAccessToken(req.body.username);
-    const refreshToken = generateRefreshToken(req.body.username);
-    if (refreshToken == null || accessToken == null) return res.status(500).json({
+    const authToken = await generateRefreshToken(req.body.username);
+    if (authToken.refreshToken == null || accessToken == null) return res.status(500).json({
         success: false,
     });
     return res.status(200).json({
         success: true,
         accessToken: accessToken,
-        refreshToken: refreshToken
+        refreshToken: authToken.refreshToken
     });
 }
 
