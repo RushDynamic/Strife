@@ -10,6 +10,7 @@ export async function handleUserRegistration(req, res) {
     try {
         const registrationResponse = await registerUser(userInfo);
         if (registrationResponse.success == true) {
+            res.cookie('refreshToken', registrationResponse.user.refreshToken, { sameSite: 'strict', path: '/', httpOnly: true });
             res.status(200).json({
                 success: true,
                 username: registrationResponse.user.username,
@@ -45,6 +46,8 @@ export async function handleUserLogin(req, res) {
         const loginResponse = await loginUser(userInfo);
         console.log("loginResponse: ", loginResponse);
         if (loginResponse.success == true) {
+            // TODO: Set refresh token in HttpOnly cookie here
+            res.cookie('refreshToken', loginResponse.user.refreshToken, { sameSite: 'strict', path: '/', httpOnly: true });
             res.status(200).json({
                 username: loginResponse.user.username,
                 accessToken: loginResponse.user.accessToken

@@ -1,6 +1,9 @@
 import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from '../services/auth-service.js';
 
 export function handleGenerateAccessToken(req, res) {
+    if (req.body.username == null || req.body.username == "") return res.status(500).json({
+        success: false
+    });
     const accessToken = generateAccessToken(req.body.username);
     if (accessToken == null) return res.status(500).json({
         success: false,
