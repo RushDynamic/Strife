@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { generateAccessToken } from '../clients/user-authorization-api-client.js';
 import Account from '../models/account-model.js';
 
 export async function registerUser(userInfo) {
@@ -17,7 +18,9 @@ export async function registerUser(userInfo) {
         });
 
         const savedUser = await newAccount.save();
-        const user = { username: savedUser.username, accessToken: "" };
+        // TODO: Generate new access and refresh tokens here
+        const accessTokenResponse = await generateAccessToken(userInfo.username);
+        const user = { username: savedUser.username, accessToken: accessTokenResponse.accessToken };
         console.log("User registered successfully");
         return ({ success: true, user: user });
     }
