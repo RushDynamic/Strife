@@ -58,11 +58,13 @@ export function handleVerifyAccessToken(req, res) {
 }
 
 export async function handleVerifyRefreshToken(req, res) {
-    const verificationResult = await verifyRefreshToken(req.body.username, req.body.refreshToken);
-    if (verificationResult) {
+    const verificationResult = await verifyRefreshToken(req.body.refreshToken);
+    console.log("handleVerifyRefreshToken().verificationResult: ", verificationResult)
+    if (verificationResult.success) {
         res.status(200).json({
             success: true,
-            refreshToken: req.body.refreshToken
+            refreshToken: req.body.refreshToken,
+            username: verificationResult.username
         })
     }
     else {

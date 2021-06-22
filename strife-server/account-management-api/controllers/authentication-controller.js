@@ -1,5 +1,5 @@
 import { registerUser } from '../services/registration-service.js';
-import { loginUser } from '../services/login-service.js';
+import { loginUser, checkLoggedIn } from '../services/login-service.js';
 
 export async function handleUserRegistration(req, res) {
     const userInfo = ({
@@ -7,6 +7,7 @@ export async function handleUserRegistration(req, res) {
         username: req.body.username,
         password: req.body.password
     });
+    console.log("UserInfo: ", userInfo);
     try {
         const registrationResponse = await registerUser(userInfo);
         if (registrationResponse.success == true) {
@@ -77,4 +78,24 @@ export async function handleUserLogin(req, res) {
 
 export function handleUserLogout(req, res) {
     res.status(200).send("Entered: handleUserRegistration()");
+}
+
+export async function handleCheckLoggedIn(req, res) {
+    const refreshToken = req.cookies.refreshToken;
+    const isUserLoggedIn = await checkLoggedIn(refreshToken);
+    console.log("isUserLoggedIn: ", isUserLoggedIn);
+    if (isUserLoggedIn.success) {
+        res.status(200).json({
+            success: true,
+            username: isUserLoggedIn.username,
+            accessToken: isUserLoggedIn.accessToken
+        });
+    }
+    else {
+        res.status(401).json({
+            success: false,
+            username: null,
+            accessToken: null
+        });
+    }
 }

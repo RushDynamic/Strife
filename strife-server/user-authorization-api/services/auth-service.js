@@ -27,18 +27,17 @@ export function verifyAccessToken(accessToken) {
     }
 }
 
-export async function verifyRefreshToken(username, refreshToken) {
+export async function verifyRefreshToken(refreshToken) {
     const storedRefreshToken = await AuthToken.findOne({
         refreshToken: refreshToken
     });
     if (storedRefreshToken == null) return false;
-    if (storedRefreshToken.username != username) return false;
     try {
         jwt.verify(storedRefreshToken.refreshToken, process.env.REFRESH_TOKEN_SECRET);
-        return true;
+        return { success: true, username: storedRefreshToken.username };
     }
     catch (err) {
         console.log("An error occured: ", err);
-        return false;
+        return { success: false, username: null };
     }
 }

@@ -37,3 +37,28 @@ export async function generateAll(name) {
 
     return await generateAllResponse.json();
 }
+
+export async function validateAccessToken(accessToken) {
+    const validateAccessTokenResponse = await fetch('http://localhost:3002/auth/verify/access', {
+        method: 'POST',
+        body: JSON.stringify({
+            accessToken: accessToken
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    const validateAccessTokenData = await validateAccessTokenResponse.json();
+    return validateAccessTokenData.success;
+}
+
+export async function validateRefreshToken(refreshToken) {
+    const validateRefreshTokenResponse = await fetch('http://localhost:3002/auth/verify/refresh', {
+        method: 'POST',
+        body: JSON.stringify({
+            refreshToken: refreshToken
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    return await validateRefreshTokenResponse.json();
+}

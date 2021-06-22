@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { generateAll } from '../clients/user-authorization-api-client.js';
+import { generateAccessToken, generateAll, validateRefreshToken } from '../clients/user-authorization-api-client.js';
 import { checkIfUserExists } from './registration-service.js';
 
 export async function loginUser(userInfo) {
@@ -24,4 +24,13 @@ export async function loginUser(userInfo) {
         console.log("An exception occurred during login: ", ex)
         return ({ success: false, validUser: ex.validUser });
     }
+}
+
+export async function checkLoggedIn(refreshToken) {
+    //TODO: Call user-auth client to get response back and send it to the controller
+    if (refreshToken == null || refreshToken == "") return false;
+    const rtVerificationResult = await validateRefreshToken(refreshToken);
+    if (!rtVerificationResult.success) return ({ success: false });
+    const newAccessToken = await generateAccessToken(rtVerificationResult.username);
+    return ({ success: true, username: rtVerificationResult.username, accessToken: newAccessToken.accessToken });
 }
