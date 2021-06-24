@@ -19,11 +19,14 @@ io.on('connect', socket => {
         }
         io.emit('new-user-online', Array.from(onlineUsers.keys()));
         console.log("Online Users: ", onlineUsers);
+        const newUserAnnouncementMsg = `User ${username} has joined`;
+        socket.broadcast.emit('system-msg', newUserAnnouncementMsg)
     })
     console.log("New connection ", socket.id)
     socket.on('add-msg', (message, socketid) => {
+        const newMsg = { message: message, avatar: null, systemMsg: false };
         console.log(`${socketid} says: ${message}`);
-        socket.broadcast.emit('echo-msg', message, socketid);
+        socket.broadcast.emit('echo-msg', newMsg, socketid);
     })
 })
 

@@ -20,6 +20,7 @@ export default function Chat() {
     const divRef = useRef(null);
     const history = useHistory();
     const [onlineUsersList, setOnlineUsersList] = useState([]);
+    const newMsg = { message: "", avatar: null, systemMsg: false };
     const dummyMessageRows = [
         { message: "Hey there", avatar: <AccountCircleIcon />, systemMsg: false },
         { message: "whatsup", avatar: <AccountCircleIcon />, systemMsg: false },
@@ -44,21 +45,27 @@ export default function Chat() {
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {
                     // TODO: Send announcement to server
-                    const announcement = { message: `User ${isUserLoggedIn.username} has joined`, avatar: null, systemMsg: true }
+                    //const announcement = { message: `User ${isUserLoggedIn.username} has joined`, avatar: null, systemMsg: true }
                     // Send username to server
                     socket.current.emit("username", isUserLoggedIn.username);
-                    updateMessageList(announcement);
+                    // updateMessageList(announcement);
                 });
 
                 socket.current.on("echo-msg", (echoMessage, socketid) => {
                     console.log(`echo message: ${echoMessage} user: ${socketid}`);
-                    const newMsg = { message: `${socketid}: ${echoMessage}`, avatar: <AccountCircleIcon />, systemMsg: false }
-                    updateMessageList(newMsg);
+                    updateMessageList(echoMessage);
                 });
 
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
                     console.log("newOnlineUsersList: ", newOnlineUsersList);
                     setOnlineUsersList(newOnlineUsersList);
+                });
+
+                socket.current.on('system-msg', (systemMsg) => {
+                    newMsg.message = systemMsg;
+                    newMsg.avatar = null;
+                    newMsg.systemMsg = true;
+                    updateMessageList(newMsg);
                 })
             }
             else {
@@ -70,9 +77,11 @@ export default function Chat() {
     }, [])
 
     function sendMessage(msgData) {
-        socket.current.emit('add-msg', msgData.message, user.username);
-        updateMessageList(msgData);
-        console.log("Added a new message");
+        if (!msgData.message.match(/^ *$/) && msgData.message != null) {
+            socket.current.emit('add-msg', msgData.message, user.username);
+            updateMessageList(msgData);
+            console.log("Added a new message");
+        }
     }
 
     function updateMessageList(msgData) {
