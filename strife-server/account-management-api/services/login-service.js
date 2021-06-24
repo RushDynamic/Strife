@@ -27,7 +27,7 @@ export async function loginUser(userInfo) {
 }
 
 export async function checkLoggedIn(refreshToken) {
-    //TODO: Call user-auth client to get response back and send it to the controller
+    // If the refresh token is valid, return the username and a new auth token
     if (refreshToken == null || refreshToken == "") return false;
     const rtVerificationResult = await validateRefreshToken(refreshToken);
     if (!rtVerificationResult.success) return ({ success: false });

@@ -50,6 +50,7 @@ export async function handleUserLogin(req, res) {
             // TODO: Set refresh token in HttpOnly cookie here
             res.cookie('refreshToken', loginResponse.user.refreshToken, { sameSite: 'strict', path: '/', httpOnly: true });
             res.status(200).json({
+                success: true,
                 username: loginResponse.user.username,
                 accessToken: loginResponse.user.accessToken
             });
@@ -83,7 +84,6 @@ export function handleUserLogout(req, res) {
 export async function handleCheckLoggedIn(req, res) {
     const refreshToken = req.cookies.refreshToken;
     const isUserLoggedIn = await checkLoggedIn(refreshToken);
-    console.log("isUserLoggedIn: ", isUserLoggedIn);
     if (isUserLoggedIn.success) {
         res.status(200).json({
             success: true,
