@@ -4,9 +4,9 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 import useStyles from '../styles/chat-styles.js';
 
-function OnlineUsers() {
+function OnlineUsers(props) {
     const classes = useStyles();
-
+    console.log("Online users: ", props.onlineUsers);
     function createData(name, calories, fat, carbs, protein) {
         return { name, calories, fat, carbs, protein };
     }
@@ -47,10 +47,10 @@ function OnlineUsers() {
                             <ListItemText primary="Online Users" />
                         </ListItem>
                         {
-                            rows.map(row => (
+                            props.onlineUsers.map(onlineUser => (
                                 <ListItem>
                                     <ListItemAvatar><AccountCircleIcon /></ListItemAvatar>
-                                    <ListItemText primary={row.name} />
+                                    <ListItemText primary={onlineUser} />
                                     <ListItemIcon><ChatBubbleIcon /></ListItemIcon>
                                 </ListItem>
                             ))
