@@ -2,14 +2,15 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
-import { Typography } from '@material-ui/core';
+import { Typography, Divider } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import OnlineUsers from './OnlineUsers.jsx'
+import OnlineUsers from './OnlineUsers.jsx';
+import FriendsList from './FriendsList.jsx';
 import Header from './Header.jsx';
 import MessageBox from './MessageBox.jsx';
 import CreateMessage from './CreateMessage.jsx';
+import ChatMenu from './ChatMenu.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
 
@@ -44,11 +45,8 @@ export default function Chat() {
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {
-                    // TODO: Send announcement to server
-                    //const announcement = { message: `User ${isUserLoggedIn.username} has joined`, avatar: null, systemMsg: true }
                     // Send username to server
                     socket.current.emit("username", isUserLoggedIn.username);
-                    // updateMessageList(announcement);
                 });
 
                 socket.current.on("echo-msg", (echoMessage, socketid) => {
@@ -61,6 +59,7 @@ export default function Chat() {
                     setOnlineUsersList(newOnlineUsersList);
                 });
 
+                // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
                     newMsg.message = systemMsg;
                     newMsg.avatar = null;
@@ -97,11 +96,16 @@ export default function Chat() {
                 <Header />
             </Grid>
 
-            <Grid item xs={2} style={{ height: '80vh' }}>
+            <Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                 <OnlineUsers onlineUsers={onlineUsersList} />
+                <div style={{ height: '20vh' }}>
+                    <Divider />
+                </div>
+                <FriendsList userFriends={onlineUsersList} />
             </Grid>
             <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
-                <Paper style={{ height: '10vh' }}><Typography>Menu Options</Typography></Paper>
+                {/* <Paper style={{ height: '10vh' }}><Typography>Menu Options</Typography></Paper> */}
+                <ChatMenu />
                 <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                     {
                         msgList.map((message) => {

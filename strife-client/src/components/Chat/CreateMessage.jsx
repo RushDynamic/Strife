@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import chatSyles from '../styles/chat-styles';
 import { TextField, IconButton } from '@material-ui/core';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
-import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
+import SendIcon from '@material-ui/icons/Send';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 export default function CreateMessage(props) {
@@ -26,7 +26,7 @@ export default function CreateMessage(props) {
             <div className={classes.createMessageContainer}>
                 <TextField id="filled-basic" value={msgText} label="Say something" variant="filled" fullWidth onKeyDown={handleOnKeyDown} autoComplete="off" onChange={event => setMsgText(event.target.value)} />
                 <IconButton style={{ marginLeft: '15px' }} onClick={() => props.addMessage(newMsg)}>
-                    <InsertEmoticonIcon />
+                    <SendIcon />
                 </IconButton>
                 <IconButton style={{ marginLeft: '15px' }}>
                     <NoteAddIcon />

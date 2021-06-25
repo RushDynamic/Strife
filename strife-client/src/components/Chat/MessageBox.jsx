@@ -8,7 +8,7 @@ export default function MessageBox(props) {
     return (
         <>
             <div className={classes.messageBoxContainer}>
-                <Paper style={{ borderRadius: '0 15px 15px 15px' }}>
+                <Paper elevation={0} style={{ borderRadius: '0 15px 15px 15px' }}>
                     <ListItem>
                         <ListItemAvatar>
                             {props.message.avatar}
