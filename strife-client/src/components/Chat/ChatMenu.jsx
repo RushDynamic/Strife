@@ -44,6 +44,9 @@ function ChatMenu() {
                         Cancel
                     </Button>
                     <Button onClick={() => {
+                        // TODO: Add input validation for username
+                        // TODO: Accept Enter key as input
+                        // TODO: Separate logic into different handler method
                         addFriend(user.username, friendUsername);
                         setOpenAddFriend(false);
                     }} color="primary">
