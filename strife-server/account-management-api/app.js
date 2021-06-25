@@ -6,6 +6,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import authenticationRoutes from './routes/authentication-routes.js';
+import friendRoutes from './routes/friend-routes.js';
 
 const app = express();
 
@@ -23,3 +24,4 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(cookieParser());
 app.use(express.json());
 app.use('/account', authenticationRoutes);
+app.use('/user', friendRoutes);
