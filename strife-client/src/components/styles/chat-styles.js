@@ -14,6 +14,10 @@ const chatStyles = makeStyles({
         margin: '5px',
     },
 
+    announcementMsg: {
+        margin: '15px',
+    },
+
     createMessageContainer: {
         marginTop: '10px',
         display: 'flex'

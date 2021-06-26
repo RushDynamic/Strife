@@ -3,6 +3,7 @@ import { Typography } from '@material-ui/core';
 import chatStyles from '../styles/chat-styles.js';
 import CreateMessage from './CreateMessage.jsx';
 import MessageBox from './MessageBox.jsx';
+import Announcement from './Announcement.jsx';
 
 function ChatBox(props) {
     // For automatically scrolling to the bottom of the chat
@@ -23,7 +24,7 @@ function ChatBox(props) {
                 {
                     props.msgList.map((message) => {
                         if (message.systemMsg) {
-                            return (<Typography>Announcement: {message.message}</Typography>)
+                            return (<Announcement msg={message.message} />)
                         }
                         return (<MessageBox message={message} />)
                     })
