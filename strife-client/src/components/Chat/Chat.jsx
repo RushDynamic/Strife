@@ -11,6 +11,8 @@ import Header from './Header.jsx';
 import MessageBox from './MessageBox.jsx';
 import CreateMessage from './CreateMessage.jsx';
 import ChatMenu from './ChatMenu.jsx';
+import ChatBox from './ChatBox.jsx';
+import LandingChatBox from './LandingChatBox.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
 
@@ -18,10 +20,9 @@ export default function Chat() {
     const classes = chatStyles();
     const socket = useRef();
     const { user, setUser } = useContext(UserContext);
-    const divRef = useRef(null);
     const history = useHistory();
     const [onlineUsersList, setOnlineUsersList] = useState([]);
-    const newMsg = { message: "", avatar: null, systemMsg: false };
+    const [friendsList, setFriendsList] = useState([]);
     const dummyMessageRows = [
         { message: "Hey there", avatar: <AccountCircleIcon />, systemMsg: false },
         { message: "whatsup", avatar: <AccountCircleIcon />, systemMsg: false },
@@ -30,10 +31,6 @@ export default function Chat() {
         { message: "Heheeeeere", avatar: <AccountCircleIcon />, systemMsg: false },
     ]
     const [msgList, setMsgList] = useState(dummyMessageRows)
-
-    useEffect(() => {
-        divRef.current.scrollIntoView({ behavior: 'smooth' });
-    });
 
     useEffect(() => {
         (async function () {
@@ -50,22 +47,26 @@ export default function Chat() {
                 });
 
                 socket.current.on("echo-msg", (echoMessage, socketid) => {
-                    console.log(`echo message: ${echoMessage} user: ${socketid}`);
+                    //console.log(`echo message: ${echoMessage} user: ${socketid}`);
                     updateMessageList(echoMessage);
                 });
 
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
-                    console.log("newOnlineUsersList: ", newOnlineUsersList);
+                    //console.log("newOnlineUsersList: ", newOnlineUsersList);
                     setOnlineUsersList(newOnlineUsersList);
                 });
 
                 // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
-                    newMsg.message = systemMsg;
-                    newMsg.avatar = null;
-                    newMsg.systemMsg = true;
+                    const newMsg = { message: systemMsg, avatar: null, systemMsg: true }
                     updateMessageList(newMsg);
                 })
+
+                // Receive friends list from server
+                socket.current.on('friends-list', (friendsListFromServer) => {
+                    console.log("friendsListFromServer:", friendsListFromServer);
+                    setFriendsList(friendsListFromServer);
+                });
             }
             else {
                 console.log("You're NOT logged in!");
@@ -92,21 +93,19 @@ export default function Chat() {
             maxHeight: '100vh', margin: 0,
             width: '100%',
         }}>
-            <Grid item xs={12} style={{ height: '20vh' }}>
+            <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
                 <Header />
             </Grid>
 
             <Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                 <OnlineUsers onlineUsers={onlineUsersList} />
-                <div style={{ height: '20vh' }}>
-                    <Divider />
-                </div>
-                <FriendsList userFriends={onlineUsersList} />
+                <Divider />
+                <FriendsList friendsList={friendsList} />
             </Grid>
             <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                 {/* <Paper style={{ height: '10vh' }}><Typography>Menu Options</Typography></Paper> */}
-                <ChatMenu />
-                <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
+                {/* <ChatMenu /> */}
+                {/* <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                     {
                         msgList.map((message) => {
                             if (message.systemMsg) {
@@ -115,11 +114,13 @@ export default function Chat() {
                             return (<MessageBox message={message} />)
                         })
                     }
-                    <div ref={divRef} />
+                    <div ref={bottomOfChatDiv} />
                 </div>
                 <div>
                     <CreateMessage addMessage={sendMessage} />
-                </div>
+                </div> */}
+                {/* <LandingChatBox /> */}
+                <ChatBox msgList={msgList} sendMessage={sendMessage} targetUser={"RushDynamic"} />
             </Grid>
         </Grid>
     );

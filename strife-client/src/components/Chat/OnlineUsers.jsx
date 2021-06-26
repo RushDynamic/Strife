@@ -19,7 +19,7 @@ function OnlineUsers(props) {
                         {
                             props.onlineUsers.map(onlineUser => (
                                 <ListItem>
-                                    <ListItemAvatar><AccountCircleIcon /></ListItemAvatar>
+                                    <ListItemAvatar><AccountCircleIcon style={{ color: 'green' }} /></ListItemAvatar>
                                     <ListItemText primary={onlineUser} />
                                     <ListItemIcon><ChatBubbleIcon /></ListItemIcon>
                                 </ListItem>

@@ -2,7 +2,12 @@ import { makeStyles } from "@material-ui/core";
 
 const chatStyles = makeStyles({
     headerContainer: {
-        textAlign: 'center'
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        height: '20vh',
+        backgroundColor: '#2a2a72', backgroundImage: 'linear-gradient(115deg, #2a2a72 0%, #009ffd 74%)'
     },
 
     messageBoxContainer: {
@@ -15,9 +20,11 @@ const chatStyles = makeStyles({
     },
 
     chatMenuContainer: {
-        height: '8vh',
+        height: '5vh',
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     chatMenuIcon: {
         margin: '2vh',

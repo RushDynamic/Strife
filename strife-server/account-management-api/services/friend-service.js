@@ -24,12 +24,29 @@ export async function addFriend(username, friendUsername) {
             return ({ success: true });
         }
         else {
-            console.log("You're already friends with that user!");
+            console.log("Already friends with that user!");
             return ({ success: false, alreadyFriends: true });
         }
     }
     catch (ex) {
         console.log("An error occurred while adding friend:", ex.toString());
         return ({ success: false, alreadyFriends: false });
+    }
+}
+
+export async function fetchFriends(username) {
+    try {
+        if (username == null || username.trim().length == 0) {
+            return ({ success: false, friendsList: [] });
+        }
+        const friend = await Friend.findOne({
+            username: username
+        });
+
+        return ({ success: true, friendsList: friend.friends });
+    }
+    catch (ex) {
+        console.log("An error occurred while fetching friends:", ex.toString());
+        return ({ success: false, friendsList: [] });
     }
 }

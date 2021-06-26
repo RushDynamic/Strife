@@ -6,7 +6,7 @@ import useStyles from '../styles/chat-styles.js';
 
 function FriendsList(props) {
     const classes = useStyles();
-    console.log("Online users: ", props.userFriends);
+    console.log("Friends list: ", props.friendsList);
     function createData(name, calories, fat, carbs, protein) {
         return { name, calories, fat, carbs, protein };
     }
@@ -37,6 +37,10 @@ function FriendsList(props) {
 
     ];
 
+    function returnAvatar(status) {
+        if (status == "offline") return (<AccountCircleIcon />);
+        else return (<AccountCircleIcon style={{ color: 'green' }} />);
+    }
 
     return (
         <>
@@ -47,10 +51,10 @@ function FriendsList(props) {
                             <ListItemText primary="Friends" />
                         </ListItem>
                         {
-                            rows.map(row => (
+                            props.friendsList.map(friend => (
                                 <ListItem>
-                                    <ListItemAvatar><AccountCircleIcon /></ListItemAvatar>
-                                    <ListItemText primary={row.name} />
+                                    <ListItemAvatar>{returnAvatar(friend.status)}</ListItemAvatar>
+                                    <ListItemText primary={friend.username} style={{ fontFamily: "'Rubik', sans-serif" }} />
                                     <ListItemIcon><ChatBubbleIcon /></ListItemIcon>
                                 </ListItem>
                             ))
