@@ -5,6 +5,7 @@ import { io } from 'socket.io-client';
 import { Typography, Divider, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import Grid from '@material-ui/core/Grid';
+import Loading from './Loading.jsx';
 import OnlineUsers from './Sidebar/OnlineUsers.jsx';
 import FriendsList from './Sidebar/FriendsList.jsx';
 import Header from './Header/Header.jsx';
@@ -19,6 +20,8 @@ export default function Chat() {
     const socket = useRef();
     const { user, setUser } = useContext(UserContext);
     const history = useHistory();
+    const [loadingStages, setLoadingStages] = useState([]);
+    const [loaded, setLoaded] = useState(false);
     const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
     const [onlineUsersList, setOnlineUsersList] = useState([]);
     const [friendsList, setFriendsList] = useState([]);
@@ -26,17 +29,30 @@ export default function Chat() {
     const [msgList, setMsgList] = useState([])
 
     useEffect(() => {
+        // TODO: Probably find a better way to do this
+        if (loadingStages.includes("loggedIn")
+            && loadingStages.includes("socketConnected")
+            && loadingStages.includes("fetchedOnlineUsers")
+            && loadingStages.includes("fetchedFriendsList")) {
+            setLoaded(true);
+        }
+    }, [loadingStages])
+
+    useEffect(() => {
         (async function () {
             const isUserLoggedIn = await checkLoggedIn();
             console.log("isUserLoggedIn: ", isUserLoggedIn);
             if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
                 console.log("You're logged in!");
+                setLoadingStages(oldList => [...oldList, "loggedIn"]);
+
                 setUser({ username: isUserLoggedIn.username, accessToken: isUserLoggedIn.accessToken });
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {
                     // Send username to server
                     socket.current.emit("username", isUserLoggedIn.username);
+                    setLoadingStages(oldList => [...oldList, "socketConnected"]);
                     setSocketConnected(true);
                 });
 
@@ -49,6 +65,7 @@ export default function Chat() {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
                     requestFriendsList(isUserLoggedIn.username);
                     setOnlineUsersList(newOnlineUsersList);
+                    setLoadingStages(oldList => [...oldList, "fetchedOnlineUsers"]);
                 });
 
                 // Receive announcements from the server
@@ -61,6 +78,7 @@ export default function Chat() {
                 socket.current.on('friends-list', (friendsListFromServer) => {
                     console.log("friendsListFromServer:", friendsListFromServer);
                     setFriendsList(friendsListFromServer);
+                    setLoadingStages(oldList => [...oldList, "fetchedFriendsList"]);
                 });
 
                 socket.current.on('receive-msg-history', (msgHistory) => {
@@ -141,17 +159,18 @@ export default function Chat() {
                 <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
                     <Header requestFriendsList={requestFriendsList} />
                 </Grid>
-
-                <Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-                    {/* <OnlineUsers onlineUsers={onlineUsersList} hidden={true} />
-                <Divider /> */}
+                {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                     <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
                 </Grid>
-                <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
-                    {
-                        recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipientUsername={recipient} senderUsername={user.username} />
-                    }
-                </Grid>
+                    <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
+                        {
+                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipientUsername={recipient} senderUsername={user.username} />
+                        }
+                    </Grid></> :
+                    <Grid item xs={12} style={{ height: '80vh' }}>
+                        <Loading />
+                    </Grid>
+                }
             </Grid>
         </div>
     );
