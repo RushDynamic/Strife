@@ -1,12 +1,15 @@
 import React, { useContext, useState } from 'react';
-import chatStyles from '../styles/chat-styles.js';
-import { Button, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar } from '@material-ui/core';
+import chatStyles from '../../../styles/chat-styles.js';
+import { Button, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, AppBar, Tabs, Tab } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import FaceIcon from '@material-ui/icons/Face';
 import Paper from '@material-ui/core/Paper';
-import { UserContext } from '../../UserContext.js';
-import { addFriend } from '../../services/friend-service.js';
+import EditAvatar from './EditProfile/EditAvatar.jsx';
+import ChangePassword from './EditProfile/ChangePassword.jsx';
+import { UserContext } from '../../../../UserContext.js';
+import { addFriend } from '../../../../services/friend-service.js';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -15,9 +18,15 @@ function Alert(props) {
 function ChatMenu() {
     const { user } = useContext(UserContext);
     const [openAddFriend, setOpenAddFriend] = useState(false);
+    const [openEditProfile, setOpenEditProfile] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
     const [friendUsername, setFriendUsername] = useState("");
     const [addFriendStatus, setAddFriendStatus] = useState({ failure: false, success: false, msg: "An error occurred while adding friend" });
     const classes = chatStyles();
+
+    function handleTabChange(event, value) {
+        setTabValue(value);
+    }
 
     async function handleAddFriendClick() {
         // TODO: Accept Enter key as input
@@ -46,8 +55,13 @@ function ChatMenu() {
                     <IconButton className={classes.chatMenuIcon}>
                         <GroupAddIcon />
                     </IconButton>
+                    <IconButton className={classes.chatMenuIcon}>
+                        <FaceIcon onClick={() => setOpenEditProfile(true)} />
+                    </IconButton>
                 </div>
             </Paper>
+
+            {/* For add friend */}
             <Dialog open={openAddFriend} onClose={() => setOpenAddFriend(false)} autoFocus={false}>
                 <DialogTitle>Add new friend</DialogTitle>
                 <DialogContent>
@@ -82,6 +96,30 @@ function ChatMenu() {
                     {addFriendStatus.msg}
                 </Alert>
             </Snackbar>
+
+            {/* For edit profile */}
+            <Dialog open={openEditProfile} onClose={() => setOpenEditProfile(false)} autoFocus={false}>
+                <DialogTitle>Edit Profile</DialogTitle>
+                <DialogContent>
+                    <div className={classes.editProfileContainer} style={{ display: 'flex' }}>
+                        <Tabs value={tabValue} onChange={handleTabChange} orientation="vertical" variant="scrollable" style={{ borderRight: `1px solid #cfcfcf` }}>
+                            <Tab label="Edit Avatar" />
+                            <Tab label="Change Password" />
+                            <Tab label="Change Theme" />
+                        </Tabs>
+                        <EditAvatar value={tabValue} index={0} />
+                        <ChangePassword value={tabValue} index={1} />
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenEditProfile(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={() => { }} color="primary">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

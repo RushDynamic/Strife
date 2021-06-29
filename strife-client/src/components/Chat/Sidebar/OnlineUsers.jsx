@@ -2,7 +2,7 @@ import React from 'react';
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
-import useStyles from '../styles/chat-styles.js';
+import useStyles from '../../styles/chat-styles.js';
 
 function OnlineUsers(props) {
     const classes = useStyles();
@@ -11,7 +11,6 @@ function OnlineUsers(props) {
         <>
             <Paper>
                 <div className={classes.onlineUsersContainer} style={{ maxHeight: '38vh', overflow: 'auto' }}>
-
                     <List>
                         <ListItem>
                             <ListItemText primary="Online Users" />
@@ -25,7 +24,6 @@ function OnlineUsers(props) {
                                 </ListItem>
                             ))
                         }
-
                     </List>
                 </div>
             </Paper>

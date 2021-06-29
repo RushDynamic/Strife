@@ -2,15 +2,12 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
-import { Typography, Divider } from '@material-ui/core';
+import { Typography, Divider, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import Grid from '@material-ui/core/Grid';
-import OnlineUsers from './OnlineUsers.jsx';
-import FriendsList from './FriendsList.jsx';
-import Header from './Header.jsx';
-import MessageBox from './MessageBox.jsx';
-import CreateMessage from './CreateMessage.jsx';
-import ChatMenu from './ChatMenu.jsx';
+import OnlineUsers from './Sidebar/OnlineUsers.jsx';
+import FriendsList from './Sidebar/FriendsList.jsx';
+import Header from './Header/Header.jsx';
 import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
 import chatStyles from '../styles/chat-styles.js';
@@ -18,19 +15,15 @@ import { UserContext } from '../../UserContext.js';
 
 export default function Chat() {
     const classes = chatStyles();
+    const [socketConnected, setSocketConnected] = useState(false);
     const socket = useRef();
     const { user, setUser } = useContext(UserContext);
     const history = useHistory();
+    const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
     const [onlineUsersList, setOnlineUsersList] = useState([]);
     const [friendsList, setFriendsList] = useState([]);
-    const dummyMessageRows = [
-        { message: "Hey there", avatar: <AccountCircleIcon />, systemMsg: false },
-        { message: "whatsup", avatar: <AccountCircleIcon />, systemMsg: false },
-        { message: "yyyy", avatar: <AccountCircleIcon />, systemMsg: true },
-        { message: "asde", avatar: <AccountCircleIcon />, systemMsg: false },
-        { message: "Heheeeeere", avatar: <AccountCircleIcon />, systemMsg: false },
-    ]
-    const [msgList, setMsgList] = useState(dummyMessageRows)
+    const [recipient, setRecipient] = useState("");
+    const [msgList, setMsgList] = useState([])
 
     useEffect(() => {
         (async function () {
@@ -44,6 +37,7 @@ export default function Chat() {
                 socket.current.on("connect", () => {
                     // Send username to server
                     socket.current.emit("username", isUserLoggedIn.username);
+                    setSocketConnected(true);
                 });
 
                 socket.current.on("echo-msg", (echoMessage, socketid) => {
@@ -53,6 +47,7 @@ export default function Chat() {
 
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
+                    socket.current.emit('request-friends-list', isUserLoggedIn.username);
                     setOnlineUsersList(newOnlineUsersList);
                 });
 
@@ -67,6 +62,16 @@ export default function Chat() {
                     console.log("friendsListFromServer:", friendsListFromServer);
                     setFriendsList(friendsListFromServer);
                 });
+
+                socket.current.on('receive-msg-history', (msgHistory) => {
+                    console.log("Received msg history from server: ", msgHistory);
+                    setMsgList(msgHistory);
+                });
+
+                socket.current.on('chat-already-open', () => {
+                    // Show error dialog here
+                    setShowChatAlreadyOpen(true);
+                })
             }
             else {
                 console.log("You're NOT logged in!");
@@ -76,36 +81,70 @@ export default function Chat() {
         })();
     }, [])
 
+    useEffect(() => {
+        setMsgList([]);
+        // TODO: Only start listening for recipient change after socket has finished connecting
+        if (socketConnected) {
+            socket.current.emit('request-msg-history', user.username, recipient);
+            console.log("Requesting msg history for user", recipient);
+        }
+    }, [recipient])
+
     function sendMessage(msgData) {
+        console.log('sendMessage, msgData:', msgData);
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData.message, user.username);
+            socket.current.emit('add-msg', msgData.message, user.username, msgData.recipientUsername);
             updateMessageList(msgData);
             console.log("Added a new message");
         }
     }
 
     function updateMessageList(msgData) {
+        console.log(msgList);
         setMsgList(oldList => [...oldList, msgData]);
     }
 
     return (
-        <Grid container spacing={2} style={{
-            maxHeight: '100vh', margin: 0,
-            width: '100%',
-        }}>
-            <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
-                <Header />
-            </Grid>
+        <div>
+            <Dialog open={showChatAlreadyOpen} style={{
+                backdropFilter: "blur(15px)",
+                backgroundColor: 'rgba(0,0,30,0.4)'
+            }}>
+                <DialogTitle style={{
+                    fontWeight: 'bold',
+                    fontFamily: "'Syne', sans-serif",
+                    fontVariant: 'small-caps',
+                    letterSpacing: '15px'
+                }}>uh oh</DialogTitle>
+                <DialogContent>
+                    <div style={{ margin: '50px' }}>
+                        <Typography variant="h3" style={{
+                            fontWeight: 'bold',
+                            fontFamily: "'Syne', sans-serif"
+                        }}>You already have Strife open somewhere</Typography>
+                        <Typography style={{
+                            fontFamily: "'Rubik', sans-serif"
+                        }}>You can only run one instance of Strife at a time :c</Typography>
+                    </div>
+                </DialogContent>
+            </Dialog>
+            <Grid container spacing={2} style={{
+                maxHeight: '100vh', margin: 0,
+                width: '100%',
+            }}>
+                <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
+                    <Header />
+                </Grid>
 
-            <Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-                <OnlineUsers onlineUsers={onlineUsersList} />
-                <Divider />
-                <FriendsList friendsList={friendsList} />
-            </Grid>
-            <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
-                {/* <Paper style={{ height: '10vh' }}><Typography>Menu Options</Typography></Paper> */}
-                {/* <ChatMenu /> */}
-                {/* <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
+                <Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+                    {/* <OnlineUsers onlineUsers={onlineUsersList} hidden={true} />
+                <Divider /> */}
+                    <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
+                </Grid>
+                <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
+                    {/* <Paper style={{ height: '10vh' }}><Typography>Menu Options</Typography></Paper> */}
+                    {/* <ChatMenu /> */}
+                    {/* <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                     {
                         msgList.map((message) => {
                             if (message.systemMsg) {
@@ -119,9 +158,11 @@ export default function Chat() {
                 <div>
                     <CreateMessage addMessage={sendMessage} />
                 </div> */}
-                {/* <LandingChatBox /> */}
-                <ChatBox msgList={msgList} sendMessage={sendMessage} targetUser={"RushDynamic"} />
+                    {
+                        recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipientUsername={recipient} senderUsername={user.username} />
+                    }
+                </Grid>
             </Grid>
-        </Grid>
+        </div>
     );
 }

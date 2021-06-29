@@ -1,7 +1,7 @@
 import React from 'react';
-import useStyles from '../styles/chat-styles';
+import useStyles from '../../styles/chat-styles';
 import { Typography } from '@material-ui/core';
-import ChatMenu from './ChatMenu.jsx';
+import ChatMenu from './ChatMenu/ChatMenu.jsx';
 
 export default function Header() {
     const classes = useStyles();

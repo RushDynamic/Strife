@@ -11,12 +11,12 @@ export default function CreateMessage(props) {
     const [newMsg, setNewMsg] = useState({ message: "", avatar: null, systemMsg: false });
 
     useEffect(() => {
-        setNewMsg({ message: msgText, avatar: <AccountCircleIcon />, systemMsg: false })
+        setNewMsg({ message: msgText, avatar: <AccountCircleIcon />, systemMsg: false, recipientUsername: props.recipientUsername, senderUsername: props.senderUsername })
     }, [msgText])
 
     function handleOnKeyDown(e) {
         if (e.keyCode == 13) {
-            props.addMessage(newMsg)
+            props.sendMessage(newMsg)
             setMsgText("");
         }
     }
@@ -25,10 +25,10 @@ export default function CreateMessage(props) {
         <>
             <div className={classes.createMessageContainer}>
                 <TextField id="filled-basic" value={msgText} label="Say something" variant="filled" fullWidth onKeyDown={handleOnKeyDown} autoComplete="off" onChange={event => setMsgText(event.target.value)} autoFocus />
-                <IconButton style={{ marginLeft: '15px' }} onClick={() => props.addMessage(newMsg)}>
+                <IconButton style={{ marginLeft: '15px' }} onClick={() => props.sendMessage(newMsg)} style={{ backgroundColor: 'transparent' }}>
                     <SendIcon />
                 </IconButton>
-                <IconButton style={{ marginLeft: '15px' }}>
+                <IconButton style={{ marginLeft: '15px' }} style={{ backgroundColor: 'transparent' }}>
                     <NoteAddIcon />
                 </IconButton>
             </div>
