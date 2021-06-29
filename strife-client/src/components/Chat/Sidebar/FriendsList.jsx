@@ -1,5 +1,6 @@
 import React from 'react';
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton } from '@material-ui/core';
+import NoFriends from './NoFriends.jsx';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 import useStyles from '../../styles/chat-styles.js';
@@ -28,7 +29,7 @@ function FriendsList(props) {
         <>
             <Paper elevation={2}>
                 <div className={classes.onlineUsersContainer} style={{ overflow: 'auto' }}>
-                    <List>
+                    {props.friendsList.length > 0 ? <List>
                         <ListItem>
                             <ListItemText primary="Friends" />
                         </ListItem>
@@ -42,7 +43,8 @@ function FriendsList(props) {
                             ))
                         }
 
-                    </List>
+                    </List> : <NoFriends />}
+
                 </div>
             </Paper>
 
