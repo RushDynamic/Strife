@@ -47,7 +47,7 @@ export default function Chat() {
 
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
-                    socket.current.emit('request-friends-list', isUserLoggedIn.username);
+                    requestFriendsList(isUserLoggedIn.username);
                     setOnlineUsersList(newOnlineUsersList);
                 });
 
@@ -68,8 +68,8 @@ export default function Chat() {
                     setMsgList(msgHistory);
                 });
 
+                // Receive error from server if user is already online elsewhere
                 socket.current.on('chat-already-open', () => {
-                    // Show error dialog here
                     setShowChatAlreadyOpen(true);
                 })
             }
@@ -90,6 +90,10 @@ export default function Chat() {
         }
     }, [recipient])
 
+    function requestFriendsList(username) {
+        socket.current.emit('request-friends-list', username);
+    }
+
     function sendMessage(msgData) {
         console.log('sendMessage, msgData:', msgData);
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
@@ -105,6 +109,7 @@ export default function Chat() {
     }
 
     return (
+        // Show error dialog if multiple instances of Strife are running (user is already online)
         <div>
             <Dialog open={showChatAlreadyOpen} style={{
                 backdropFilter: "blur(15px)",
@@ -117,8 +122,9 @@ export default function Chat() {
                     letterSpacing: '15px'
                 }}>uh oh</DialogTitle>
                 <DialogContent>
-                    <div style={{ margin: '50px' }}>
-                        <Typography variant="h3" style={{
+                    <div style={{ margin: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <img src={process.env.PUBLIC_URL + '/images/uhoh.svg'} height="150" width="150" />
+                        <Typography variant="h4" style={{
                             fontWeight: 'bold',
                             fontFamily: "'Syne', sans-serif"
                         }}>You already have Strife open somewhere</Typography>
@@ -133,7 +139,7 @@ export default function Chat() {
                 width: '100%',
             }}>
                 <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
-                    <Header />
+                    <Header requestFriendsList={requestFriendsList} />
                 </Grid>
 
                 <Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -142,22 +148,6 @@ export default function Chat() {
                     <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
                 </Grid>
                 <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
-                    {/* <Paper style={{ height: '10vh' }}><Typography>Menu Options</Typography></Paper> */}
-                    {/* <ChatMenu /> */}
-                    {/* <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
-                    {
-                        msgList.map((message) => {
-                            if (message.systemMsg) {
-                                return (<Typography>Announcement: {message.message}</Typography>)
-                            }
-                            return (<MessageBox message={message} />)
-                        })
-                    }
-                    <div ref={bottomOfChatDiv} />
-                </div>
-                <div>
-                    <CreateMessage addMessage={sendMessage} />
-                </div> */}
                     {
                         recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipientUsername={recipient} senderUsername={user.username} />
                     }

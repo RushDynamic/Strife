@@ -15,7 +15,7 @@ function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-function ChatMenu() {
+function ChatMenu(props) {
     const { user } = useContext(UserContext);
     const [openAddFriend, setOpenAddFriend] = useState(false);
     const [openEditProfile, setOpenEditProfile] = useState(false);
@@ -29,14 +29,13 @@ function ChatMenu() {
     }
 
     async function handleAddFriendClick() {
-        // TODO: Accept Enter key as input
-        // TODO: Add input validation for username
         if (friendUsername == null || friendUsername.trim().length == 0) {
             setAddFriendStatus({ failure: true, msg: "Please enter a valid username!" })
         }
         else {
             setOpenAddFriend(false);
             await addFriend(user.username, friendUsername, setAddFriendStatus);
+            props.requestFriendsList(user.username);
         }
     }
 
