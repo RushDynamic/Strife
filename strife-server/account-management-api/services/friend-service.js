@@ -7,6 +7,13 @@ export async function addFriend(username, friendUsername) {
             return ({ success: false, alreadyFriends: false });
         }
 
+        const friendAcc = await Account.findOne({
+            username: friendUsername
+        });
+        if (friendAcc == null) {
+            return ({ success: false, alreadyFriends: false });
+        }
+
         // Add to requesting user's friend's list
         var friend = await Friend.findOne({
             username: username
