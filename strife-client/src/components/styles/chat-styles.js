@@ -7,7 +7,8 @@ const chatStyles = makeStyles({
         justifyContent: 'space-around',
         alignItems: 'center',
         height: '20vh',
-        backgroundColor: '#2a2a72', backgroundImage: 'linear-gradient(115deg, #2a2a72 0%, #009ffd 74%)'
+        background: '#181818',
+        // backgroundColor: '#2a2a72', backgroundImage: 'linear-gradient(115deg, #2a2a72 0%, #009ffd 74%)'
     },
 
     messageBoxContainer: {
@@ -36,6 +37,14 @@ const chatStyles = makeStyles({
 
     onlineUsersContainer: {
         marginBottom: '10px'
+    },
+
+    nonSelectable: {
+        '-webkit-user-select': 'none',
+        '-khtml-user-select': 'none',
+        '-moz-user-select': 'none',
+        '-o-user-select': 'none',
+        'user-select': 'none',
     }
 });
 

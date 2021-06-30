@@ -9,7 +9,7 @@ export default function Header(props) {
     return (
         <>
             <div className={classes.headerContainer}>
-                <Typography variant="h2" style={{ fontVariant: 'small-caps', letterSpacing: '5px', fontFamily: "'Syne', sans-serif" }}>Strife</Typography>
+                <Typography variant="h2" style={{ letterSpacing: '2px', fontFamily: "'Syne', sans-serif" }}>strife</Typography>
                 {/* TODO: Add login/logout/control buttons under the header */}
                 <ChatMenu requestFriendsList={props.requestFriendsList} />
             </div>
