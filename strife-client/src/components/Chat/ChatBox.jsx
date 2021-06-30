@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Typography } from '@material-ui/core';
+import { Typography, Divider } from '@material-ui/core';
 import chatStyles from '../styles/chat-styles.js';
 import CreateMessage from './CreateMessage.jsx';
 import MessageBox from './MessageBox.jsx';
@@ -16,10 +16,16 @@ function ChatBox(props) {
     const classes = chatStyles();
     return (
         <>
-            <div>
-                <Typography>
-                    Talking to: {props.recipientUsername}
+            <div className={classes.talkingToContainer} style={{ display: 'flex', alignItems: 'center' }}>
+                <img src={props.recipient.avatar} style={{ borderRadius: '50%', margin: '15px' }} height="50px" width="50px" />
+                <Typography variant="h4" style={{
+                    fontWeight: 'bold',
+                    fontFamily: "'Syne', sans-serif",
+                    letterSpacing: '2px'
+                }}>
+                    {props.recipient.username}
                 </Typography>
+                <Divider />
             </div>
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                 {
@@ -33,7 +39,7 @@ function ChatBox(props) {
                 <div ref={bottomOfChatDiv} />
             </div>
             <div>
-                <CreateMessage sendMessage={props.sendMessage} recipientUsername={props.recipientUsername} senderUsername={props.senderUsername} />
+                <CreateMessage sendMessage={props.sendMessage} recipient={props.recipient} senderUsername={props.senderUsername} />
             </div>
         </>
     );

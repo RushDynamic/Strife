@@ -3,15 +3,15 @@ import chatSyles from '../styles/chat-styles';
 import { TextField, IconButton } from '@material-ui/core';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 import SendIcon from '@material-ui/icons/Send';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 export default function CreateMessage(props) {
     const classes = chatSyles();
     const [msgText, setMsgText] = useState("");
-    const [newMsg, setNewMsg] = useState({ message: "", avatar: null, systemMsg: false });
+    // TODO: Remove this default avatar URL and fetch user's own avatar
+    const [newMsg, setNewMsg] = useState({ message: "", avatar: "http://localhost:3001/images/default_avatar.jpg", systemMsg: false });
 
     useEffect(() => {
-        setNewMsg({ message: msgText, avatar: <AccountCircleIcon />, systemMsg: false, recipientUsername: props.recipientUsername, senderUsername: props.senderUsername })
+        setNewMsg({ message: msgText, avatar: "http://localhost:3001/images/default_avatar.jpg", systemMsg: false, recipientUsername: props.recipient.username, senderUsername: props.senderUsername })
     }, [msgText])
 
     function handleOnKeyDown(e) {

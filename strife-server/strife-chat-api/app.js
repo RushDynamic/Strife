@@ -36,19 +36,20 @@ io.on('connect', socket => {
     });
 
     console.log("New connection ", socket.id)
-    socket.on('add-msg', (message, senderUsername, recipientUsername) => {
+    socket.on('add-msg', (message, senderUsername, recipientUsername, msgTimestamp) => {
         const newMsg = {
             message: message,
-            avatar: null,
+            avatar: "http://localhost:3001/images/default_avatar.jpg",
             systemMsg: false,
             senderUsername: senderUsername,
-            recipientUsername: recipientUsername
+            recipientUsername: recipientUsername,
+            timestamp: msgTimestamp
         };
 
         // Send message to only a particular user
-        socket.to(onlineUsersMap.get(recipientUsername)).emit('echo-msg', newMsg, senderUsername);
+        socket.to(onlineUsersMap.get(recipientUsername)).emit('echo-msg', newMsg);
         console.log(`${senderUsername} says: ${message} to ${recipientUsername}`);
-        updateMsgList(message, senderUsername, recipientUsername);
+        updateMsgList(newMsg);
     })
 
     // For sending the chat history back to the requested user
@@ -76,19 +77,19 @@ io.on('connect', socket => {
     })
 })
 
-function updateMsgList(message, senderUsername, recipientUsername) {
-    if (userMessagesMap.has(senderUsername)) {
-        if (userMessagesMap.get(senderUsername).has(recipientUsername)) {
-            userMessagesMap.get(senderUsername).get(recipientUsername).push({ message: message, senderUsername: senderUsername, timestamp: new Date().getTime() });
+function updateMsgList(newMsg) {
+    if (userMessagesMap.has(newMsg.senderUsername)) {
+        if (userMessagesMap.get(newMsg.senderUsername).has(newMsg.recipientUsername)) {
+            userMessagesMap.get(newMsg.senderUsername).get(newMsg.recipientUsername).push(newMsg);
         }
         else {
-            messagesMap = new Map().set(recipientUsername, [{ message: message, senderUsername: senderUsername, timestamp: new Date().getTime() }]);
-            userMessagesMap.get(senderUsername).set(messagesMap)
+            messagesMap = new Map().set(newMsg.recipientUsername, [newMsg]);
+            userMessagesMap.get(newMsg.senderUsername).set(messagesMap)
         }
     }
     else {
-        messagesMap = new Map().set(recipientUsername, [{ message: message, senderUsername: senderUsername, timestamp: new Date().getTime() }]);
-        userMessagesMap.set(senderUsername, messagesMap);
+        messagesMap = new Map().set(newMsg.recipientUsername, [newMsg]);
+        userMessagesMap.set(newMsg.senderUsername, messagesMap);
     }
     //getMsgList(senderUsername, recipientUsername);
     //console.log("UserMessagesMap:", userMessagesMap.get(senderUsername));
@@ -110,7 +111,7 @@ function getMsgList(senderUsername, recipientUsername) {
         }
     }
     msgList = msgList.sort((a, b) => a.timestamp - b.timestamp);
-    //console.log(msgList);
+    //console.log("msgList:", msgList);
     return msgList;
 }
 
@@ -129,22 +130,22 @@ async function fetchFriendsList(username) {
 }
 
 function getOnlineFriends(friendsList) {
-    return friendsList.filter(value => Array.from(onlineUsersMap.keys()).includes(value));
+    return friendsList.filter(value => Array.from(onlineUsersMap.keys()).includes(value.username)).map((result) => result.username);
 }
 
 function prepareFriendsList(friendsList) {
     const onlineFriends = getOnlineFriends(friendsList);
     const friendsListWithStatus = [];
     friendsList.map(friend => {
-        var friendStatus = { username: "", status: "" };
-        if (onlineFriends.includes(friend)) {
-            friendStatus = { username: friend, status: "online" };
+
+        var friendStatus = { username: "", avatar: "", status: "" };
+        if (onlineFriends.includes(friend.username)) {
+            friendStatus = { username: friend.username, avatar: friend.avatar, status: "online" };
         }
         else {
-            friendStatus = { username: friend, status: "offline" };
+            friendStatus = { username: friend.username, avatar: friend.avatar, status: "offline" };
         }
         friendsListWithStatus.push(friendStatus);
     });
-    //console.log("friendsListWithStatus:", friendsListWithStatus);
     return friendsListWithStatus;
 }

@@ -5,6 +5,8 @@ import cors from 'cors';
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import path from 'path';
+const __dirname = path.resolve();
 import authenticationRoutes from './routes/authentication-routes.js';
 import friendRoutes from './routes/friend-routes.js';
 
@@ -19,7 +21,7 @@ mongoose.connect(process.env.MONGODB_CONNECTION_URI, { useNewUrlParser: true, us
     .catch((err) => {
         console.log(`Error occured during app startup: ${err}`);
     });
-
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(cookieParser());
 app.use(express.json());

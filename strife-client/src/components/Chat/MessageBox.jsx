@@ -1,5 +1,6 @@
 import React from 'react';
-import { ListItem, ListItemAvatar, ListItemText, Paper } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
+import Avatar from './Avatar.jsx';
 import chatStyles from '../styles/chat-styles.js';
 
 export default function MessageBox(props) {
@@ -11,7 +12,7 @@ export default function MessageBox(props) {
                 <Paper elevation={0} style={{ borderRadius: '0 15px 15px 15px' }}>
                     <div className={classes.outerMessageBoxContainer} style={{ display: 'flex', alignItems: 'center' }}>
                         <div className={classes.avatarMessageBoxContainer} style={{ padding: '10px' }}>
-                            {props.message.avatar}
+                            <Avatar avatarUrl={props.message.avatar} />
                         </div>
                         <div className={classes.innerMessageBoxContainer} style={{ padding: '10px' }}>
                             <div className={classes.usernameMessageBox} style={{
@@ -26,19 +27,9 @@ export default function MessageBox(props) {
                                 fontSize: '1rem'
                             }}>
                                 {props.message.message}
-
                             </div>
                         </div>
                     </div>
-                    {/* <ListItem>
-                        <ListItemAvatar>
-                            {props.message.avatar}
-                        </ListItemAvatar>
-                        <ListItemText style={{ whiteSpace: 'normal' }}>
-                            {props.message.message}
-                        </ListItemText>
-                    </ListItem> */}
-
                 </Paper>
             </div>
         </>

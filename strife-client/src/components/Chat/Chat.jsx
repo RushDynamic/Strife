@@ -16,10 +16,10 @@ import { UserContext } from '../../UserContext.js';
 
 export default function Chat() {
     const classes = chatStyles();
-    const [socketConnected, setSocketConnected] = useState(false);
-    const socket = useRef();
-    const { user, setUser } = useContext(UserContext);
     const history = useHistory();
+    const socket = useRef();
+    const [socketConnected, setSocketConnected] = useState(false);
+    const { user, setUser } = useContext(UserContext);
     const [loadingStages, setLoadingStages] = useState([]);
     const [loaded, setLoaded] = useState(false);
     const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
@@ -56,7 +56,7 @@ export default function Chat() {
                     setSocketConnected(true);
                 });
 
-                socket.current.on("echo-msg", (echoMessage, socketid) => {
+                socket.current.on("echo-msg", (echoMessage) => {
                     //console.log(`echo message: ${echoMessage} user: ${socketid}`);
                     updateMessageList(echoMessage);
                 });
@@ -81,6 +81,7 @@ export default function Chat() {
                     setLoadingStages(oldList => [...oldList, "fetchedFriendsList"]);
                 });
 
+                // Receive msg history from server
                 socket.current.on('receive-msg-history', (msgHistory) => {
                     console.log("Received msg history from server: ", msgHistory);
                     setMsgList(msgHistory);
@@ -103,8 +104,8 @@ export default function Chat() {
         setMsgList([]);
         // TODO: Only start listening for recipient change after socket has finished connecting
         if (socketConnected) {
-            socket.current.emit('request-msg-history', user.username, recipient);
-            console.log("Requesting msg history for user", recipient);
+            socket.current.emit('request-msg-history', user.username, recipient.username);
+            console.log("Requesting msg history for user", recipient.username);
         }
     }, [recipient])
 
@@ -115,14 +116,14 @@ export default function Chat() {
     function sendMessage(msgData) {
         console.log('sendMessage, msgData:', msgData);
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData.message, user.username, msgData.recipientUsername);
+            socket.current.emit('add-msg', msgData.message, user.username, msgData.recipientUsername, new Date().getTime());
             updateMessageList(msgData);
             console.log("Added a new message");
         }
     }
 
     function updateMessageList(msgData) {
-        console.log(msgList);
+        //console.log(msgList);
         setMsgList(oldList => [...oldList, msgData]);
     }
 
@@ -164,7 +165,7 @@ export default function Chat() {
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipientUsername={recipient} senderUsername={user.username} />
+                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipient={recipient} senderUsername={user.username} />
                         }
                     </Grid></> :
                     <Grid item xs={12} style={{ height: '80vh' }}>

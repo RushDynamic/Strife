@@ -1,4 +1,5 @@
 import Friend from '../models/friend-model.js';
+import Account from '../models/account-model.js';
 
 export async function addFriend(username, friendUsername) {
     try {
@@ -43,7 +44,23 @@ export async function fetchFriends(username) {
             username: username
         });
 
-        return ({ success: true, friendsList: friend.friends });
+        // TODO: Find better way to fetch avatar URLs
+        const friendDetails = await Account.find().where('username').in(friend.friends).exec();
+        const avatarUrls = new Map();
+        friendDetails.map((friend) => {
+            avatarUrls.set(friend.username, friend.avatar);
+        });
+        const friendsList = [];
+        friend.friends.map((friendUsername) => {
+            if (avatarUrls.has(friendUsername)) {
+                friendsList.push({ username: friendUsername, avatar: avatarUrls.get(friendUsername) });
+            }
+            else {
+                // Push default avatar URL
+                friendsList.push({ username: friendUsername, avatar: "https://cdn0.iconfinder.com/data/icons/user-pictures/100/male-128.png" })
+            }
+        })
+        return ({ success: true, friendsList: friendsList });
     }
     catch (ex) {
         console.log("An error occurred while fetching friends:", ex.toString());
