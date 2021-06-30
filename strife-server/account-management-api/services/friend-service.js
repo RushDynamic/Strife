@@ -6,6 +6,8 @@ export async function addFriend(username, friendUsername) {
         if (username == null || username.length == 0 || friendUsername == null || friendUsername.length == 0) {
             return ({ success: false, alreadyFriends: false });
         }
+
+        // Add to requesting user's friend's list
         var friend = await Friend.findOne({
             username: username
         });
@@ -19,8 +21,20 @@ export async function addFriend(username, friendUsername) {
         }
         if (!friend.friends.includes(friendUsername)) {
             friend.friends.push(friendUsername);
-            const newFriendsList = await friend.save();
-            console.log(newFriendsList.friends);
+            await friend.save();
+
+            // Add requesting user to target's friendlist as well
+            var targetUser = await Friend.findOne({
+                username: friendUsername
+            });
+            if (targetUser == null) {
+                targetUser = new Friend({
+                    username: friendUsername,
+                    friends: []
+                });
+            }
+            targetUser.friends.push(username);
+            await targetUser.save();
             console.log("Successfully added friend for user", username);
             return ({ success: true });
         }

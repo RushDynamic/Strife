@@ -63,7 +63,7 @@ export default function Chat() {
 
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
-                    requestFriendsList(isUserLoggedIn.username);
+                    requestFriendsList([isUserLoggedIn.username]);
                     setOnlineUsersList(newOnlineUsersList);
                     setLoadingStages(oldList => [...oldList, "fetchedOnlineUsers"]);
                 });
@@ -109,8 +109,8 @@ export default function Chat() {
         }
     }, [recipient])
 
-    function requestFriendsList(username) {
-        socket.current.emit('request-friends-list', username);
+    function requestFriendsList(usernameList) {
+        socket.current.emit('request-friends-list', usernameList);
     }
 
     function sendMessage(msgData) {

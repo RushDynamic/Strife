@@ -59,13 +59,8 @@ io.on('connect', socket => {
     });
 
     // Send updated friendslist everytime a user connects/disconnects
-    socket.on('request-friends-list', (username) => {
-        fetchFriendsList(username)
-            .then((friends) => {
-                const onlineFriends = prepareFriendsList(friends.friendsList);
-                socket.emit('friends-list', onlineFriends);
-            })
-            .catch((err) => console.log("An error occurred while sending friends list", err));
+    socket.on('request-friends-list', (usernameList) => {
+        sendUpdatedFriendsList(usernameList, socket);
     })
 
     socket.on('disconnect', () => {
@@ -76,6 +71,22 @@ io.on('connect', socket => {
         io.emit('new-user-online', Array.from(onlineUsersMap.keys()));
     })
 })
+
+function sendUpdatedFriendsList(usernameList, socket) {
+    usernameList.map((username) => {
+        fetchFriendsList(username)
+            .then((friends) => {
+                const onlineFriends = prepareFriendsList(friends.friendsList);
+                if (onlineUsersMap.get(username) == socket.id) {
+                    socket.emit('friends-list', onlineFriends);
+                }
+                else {
+                    socket.to(onlineUsersMap.get(username)).emit('friends-list', onlineFriends);
+                }
+            })
+            .catch((err) => console.log("An error occurred while sending friends list", err));
+    })
+}
 
 function updateMsgList(newMsg) {
     if (userMessagesMap.has(newMsg.senderUsername)) {

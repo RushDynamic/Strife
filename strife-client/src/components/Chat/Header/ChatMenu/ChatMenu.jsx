@@ -35,7 +35,7 @@ function ChatMenu(props) {
         else {
             setOpenAddFriend(false);
             await addFriend(user.username, friendUsername, setAddFriendStatus);
-            props.requestFriendsList(user.username);
+            props.requestFriendsList([user.username, friendUsername]);
         }
     }
 
