@@ -17,8 +17,8 @@ function ChatBox(props) {
     return (
         <>
             <div className={classes.talkingToContainer} style={{ display: 'flex', alignItems: 'center' }}>
-                <img src={props.recipient.avatar} style={{ borderRadius: '50%', margin: '15px' }} height="50px" width="50px" />
-                <Typography variant="h4" style={{
+                <img className={classes.expandFastOnHover} src={props.recipient.avatar} style={{ borderRadius: '20%', margin: '15px' }} height="50px" width="50px" />
+                <Typography variant="h5" style={{
                     fontWeight: 'bold',
                     fontFamily: "'Syne', sans-serif",
                     letterSpacing: '2px'
@@ -30,10 +30,12 @@ function ChatBox(props) {
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                 {
                     props.msgList.map((message) => {
-                        if (message.systemMsg) {
-                            return (<Announcement msg={message.message} />)
+                        if (props.recipient.username == message.senderUsername || props.recipient.username == message.recipientUsername) {
+                            if (message.systemMsg) {
+                                return (<Announcement msg={message.message} />)
+                            }
+                            return (<MessageBox message={message} />)
                         }
-                        return (<MessageBox message={message} />)
                     })
                 }
                 <div ref={bottomOfChatDiv} />

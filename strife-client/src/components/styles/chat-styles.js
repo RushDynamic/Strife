@@ -53,9 +53,16 @@ const chatStyles = makeStyles({
     },
 
     expandOnHover: {
-        transition: '2s',
+        transition: '1.5s',
         '&:hover': {
             transform: 'scale(1.1) translateY(-5px)'
+        }
+    },
+
+    expandFastOnHover: {
+        transition: '0.5s',
+        '&:hover': {
+            transform: 'scale(2)'
         }
     }
 });
