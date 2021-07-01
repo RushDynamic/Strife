@@ -55,7 +55,7 @@ io.on('connect', socket => {
     // For sending the chat history back to the requested user
     socket.on('request-msg-history', (senderUsername, recipientUsername) => {
         const msgList = getMsgList(senderUsername, recipientUsername);
-        socket.emit('receive-msg-history', msgList);
+        socket.emit('receive-msg-history', msgList, recipientUsername);
     });
 
     // Send updated friendslist everytime a user connects/disconnects
@@ -67,6 +67,7 @@ io.on('connect', socket => {
         updateOnlineUsers({ removeUser: true }, socket.username, socket.id);
         const userLeftAnnouncementMsg = `User ${socket.username} has left`;
         socket.broadcast.emit('system-msg', userLeftAnnouncementMsg)
+
         // Send updated onlineUsers list to all users
         io.emit('new-user-online', Array.from(onlineUsersMap.keys()));
     })
@@ -103,7 +104,7 @@ function updateMsgList(newMsg) {
         userMessagesMap.set(newMsg.senderUsername, messagesMap);
     }
     //getMsgList(senderUsername, recipientUsername);
-    //console.log("UserMessagesMap:", userMessagesMap.get(senderUsername));
+    //console.log("Updated UserMessagesMap:", userMessagesMap.get(newMsg.senderUsername));
 }
 
 function getMsgList(senderUsername, recipientUsername) {
@@ -122,7 +123,6 @@ function getMsgList(senderUsername, recipientUsername) {
         }
     }
     msgList = msgList.sort((a, b) => a.timestamp - b.timestamp);
-    //console.log("msgList:", msgList);
     return msgList;
 }
 
@@ -157,6 +157,10 @@ function prepareFriendsList(friendsList) {
             friendStatus = { username: friend.username, avatar: friend.avatar, status: "offline" };
         }
         friendsListWithStatus.push(friendStatus);
+    });
+    friendsListWithStatus.sort((a) => {
+        if (a.status == "offline") return 1;
+        else return -1;
     });
     return friendsListWithStatus;
 }
