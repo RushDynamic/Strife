@@ -33,6 +33,11 @@ const chatStyles = makeStyles({
     },
     chatMenuIcon: {
         margin: '2vh',
+        cursor: 'pointer',
+        transition: '0.5s',
+        '&:hover': {
+            transform: 'scale(1.1) translateY(-5px)'
+        }
     },
 
     onlineUsersContainer: {
@@ -44,7 +49,14 @@ const chatStyles = makeStyles({
         '-khtml-user-select': 'none',
         '-moz-user-select': 'none',
         '-o-user-select': 'none',
-        'user-select': 'none',
+        'user-select': 'none'
+    },
+
+    expandOnHover: {
+        transition: '2s',
+        '&:hover': {
+            transform: 'scale(1.1) translateY(-5px)'
+        }
     }
 });
 

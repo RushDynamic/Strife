@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import chatStyles from '../../../styles/chat-styles.js';
-import { Button, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, AppBar, Tabs, Tab } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, AppBar, Tabs, Tab } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -48,15 +48,9 @@ function ChatMenu(props) {
         <>
             <Paper>
                 <div className={classes.chatMenuContainer}>
-                    <IconButton className={classes.chatMenuIcon}>
-                        <PersonAddIcon onClick={() => setOpenAddFriend(true)} />
-                    </IconButton>
-                    <IconButton className={classes.chatMenuIcon}>
-                        <GroupAddIcon />
-                    </IconButton>
-                    <IconButton className={classes.chatMenuIcon}>
-                        <FaceIcon onClick={() => setOpenEditProfile(true)} />
-                    </IconButton>
+                    <PersonAddIcon onClick={() => setOpenAddFriend(true)} className={classes.chatMenuIcon} />
+                    <GroupAddIcon className={classes.chatMenuIcon} />
+                    <FaceIcon onClick={() => setOpenEditProfile(true)} className={classes.chatMenuIcon} />
                 </div>
             </Paper>
 
