@@ -26,13 +26,13 @@ export default function Chat() {
     const [onlineUsersList, setOnlineUsersList] = useState([]);
     const [friendsList, setFriendsList] = useState([]);
     const [recipient, setRecipient] = useState("");
+    // TODO: Convert msgList into a hashmap
     const [msgList, setMsgList] = useState([])
 
     useEffect(() => {
         // TODO: Probably find a better way to do this
         if (loadingStages.includes("loggedIn")
             && loadingStages.includes("socketConnected")
-            && loadingStages.includes("fetchedOnlineUsers")
             && loadingStages.includes("fetchedFriendsList")) {
             setLoaded(true);
         }
@@ -65,7 +65,6 @@ export default function Chat() {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
                     requestFriendsList([isUserLoggedIn.username]);
                     setOnlineUsersList(newOnlineUsersList);
-                    setLoadingStages(oldList => [...oldList, "fetchedOnlineUsers"]);
                 });
 
                 // Receive announcements from the server

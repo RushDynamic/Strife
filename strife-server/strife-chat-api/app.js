@@ -19,7 +19,7 @@ io.on('connect', socket => {
         }
         else {
             updateOnlineUsers({ addUser: true }, username, socket.id);
-            io.emit('new-user-online', Array.from(onlineUsersMap.keys()));
+            socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
             // console.log("Online Users: ", onlineUsersMap);
             socket.username = username;
             const newUserAnnouncementMsg = `User ${username} has joined`;
@@ -69,7 +69,7 @@ io.on('connect', socket => {
         socket.broadcast.emit('system-msg', userLeftAnnouncementMsg)
 
         // Send updated onlineUsers list to all users
-        io.emit('new-user-online', Array.from(onlineUsersMap.keys()));
+        socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
     })
 })
 
