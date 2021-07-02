@@ -13,5 +13,5 @@ export async function registerUser(currentUserData) {
     if (registrationData.success == true) {
         return ({ username: registrationData.username, accessToken: registrationData.accessToken });
     }
-    return false;
+    return { success: false, duplicate: registrationData.duplicate };
 }
