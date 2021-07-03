@@ -19,7 +19,7 @@ export async function checkLoggedIn() {
     });
     const loggedInData = await loggedInResponse.json();
     if (loggedInData.success == true) {
-        return ({ username: loggedInData.username, accessToken: loggedInData.accessToken });
+        return ({ username: loggedInData.username, avatar: loggedInData.avatar, accessToken: loggedInData.accessToken });
     }
     return ({ username: null });
 }

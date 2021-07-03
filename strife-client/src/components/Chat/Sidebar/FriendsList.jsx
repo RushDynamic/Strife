@@ -1,7 +1,6 @@
 import React from 'react';
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography } from '@material-ui/core';
 import NoFriends from './NoFriends.jsx';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 import useStyles from '../../styles/chat-styles.js';
 import Avatar from '../Avatar.jsx';
@@ -54,9 +53,7 @@ function FriendsList(props) {
                                 </ListItem>
                             ))
                         }
-
                     </List> : <NoFriends />}
-
                 </div>
             </Paper>
 

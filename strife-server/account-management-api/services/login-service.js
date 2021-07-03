@@ -32,5 +32,6 @@ export async function checkLoggedIn(refreshToken) {
     const rtVerificationResult = await validateRefreshToken(refreshToken);
     if (!rtVerificationResult.success) return ({ success: false });
     const newAccessToken = await generateAccessToken(rtVerificationResult.username);
-    return ({ success: true, username: rtVerificationResult.username, accessToken: newAccessToken.accessToken });
+    const user = await checkIfUserExists(rtVerificationResult.username);
+    return ({ success: true, username: rtVerificationResult.username, avatar: user.avatar, accessToken: newAccessToken.accessToken });
 }

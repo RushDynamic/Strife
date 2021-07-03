@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
-import { Typography, Divider, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { Typography, Dialog, DialogContent, DialogTitle } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Loading from './Loading.jsx';
-import OnlineUsers from './Sidebar/OnlineUsers.jsx';
 import FriendsList from './Sidebar/FriendsList.jsx';
 import Header from './Header/Header.jsx';
 import ChatBox from './ChatBox.jsx';
@@ -46,7 +44,7 @@ export default function Chat() {
                 console.log("You're logged in!");
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
 
-                setUser({ username: isUserLoggedIn.username, accessToken: isUserLoggedIn.accessToken });
+                setUser({ username: isUserLoggedIn.username, avatar: isUserLoggedIn.avatar, accessToken: isUserLoggedIn.accessToken });
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {
@@ -115,7 +113,7 @@ export default function Chat() {
     function sendMessage(msgData) {
         console.log('sendMessage, msgData:', msgData);
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData.message, user.username, msgData.recipientUsername, new Date().getTime());
+            socket.current.emit('add-msg', msgData, new Date().getTime());
             updateMessageList(msgData);
             console.log("Added a new message");
         }
@@ -164,7 +162,7 @@ export default function Chat() {
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipient={recipient} senderUsername={user.username} />
+                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipient={recipient} sender={user} />
                         }
                     </Grid></> :
                     <Grid item xs={12} style={{ height: '80vh' }}>

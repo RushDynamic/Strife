@@ -36,19 +36,19 @@ io.on('connect', socket => {
     });
 
     console.log("New connection ", socket.id)
-    socket.on('add-msg', (message, senderUsername, recipientUsername, msgTimestamp) => {
+    socket.on('add-msg', (msgData, msgTimestamp) => {
         const newMsg = {
-            message: message,
-            avatar: "http://localhost:3001/images/default_avatar.jpg",
+            message: msgData.message,
+            avatar: msgData.avatar,
             systemMsg: false,
-            senderUsername: senderUsername,
-            recipientUsername: recipientUsername,
+            senderUsername: msgData.senderUsername,
+            recipientUsername: msgData.recipientUsername,
             timestamp: msgTimestamp
         };
 
         // Send message to only a particular user
-        socket.to(onlineUsersMap.get(recipientUsername)).emit('echo-msg', newMsg);
-        console.log(`${senderUsername} says: ${message} to ${recipientUsername}`);
+        socket.to(onlineUsersMap.get(msgData.recipientUsername)).emit('echo-msg', newMsg);
+        console.log(`${msgData.senderUsername} says: "${msgData.message}" to ${msgData.recipientUsername}`);
         updateMsgList(newMsg);
     })
 

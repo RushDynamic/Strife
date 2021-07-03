@@ -11,8 +11,14 @@ export default function CreateMessage(props) {
     const [newMsg, setNewMsg] = useState({ message: "", avatar: "http://localhost:3001/images/default_avatar.jpg", systemMsg: false });
 
     useEffect(() => {
-        setNewMsg({ message: msgText, avatar: "http://localhost:3001/images/default_avatar.jpg", systemMsg: false, recipientUsername: props.recipient.username, senderUsername: props.senderUsername })
-    }, [msgText])
+        setNewMsg({
+            message: msgText,
+            avatar: props.sender.avatar,
+            systemMsg: false,
+            recipientUsername: props.recipient.username,
+            senderUsername: props.sender.username
+        })
+    }, [msgText]);
 
     function handleOnKeyDown(e) {
         if (e.keyCode == 13) {
@@ -24,7 +30,17 @@ export default function CreateMessage(props) {
     return (
         <>
             <div className={classes.createMessageContainer}>
-                <TextField id="filled-basic" value={msgText} label="Say something" variant="filled" fullWidth onKeyDown={handleOnKeyDown} autoComplete="off" onChange={event => setMsgText(event.target.value)} autoFocus />
+                <TextField
+                    id="filled-basic"
+                    value={msgText}
+                    label="Say something"
+                    variant="filled"
+                    fullWidth
+                    onKeyDown={handleOnKeyDown}
+                    autoComplete="off"
+                    onChange={event => setMsgText(event.target.value)}
+                    autoFocus
+                />
                 <IconButton style={{ marginLeft: '15px' }} onClick={() => props.sendMessage(newMsg)} style={{ backgroundColor: 'transparent' }}>
                     <SendIcon />
                 </IconButton>

@@ -16,8 +16,8 @@ function ChatBox(props) {
     const classes = chatStyles();
     return (
         <>
-            <div className={classes.talkingToContainer} style={{ display: 'flex', alignItems: 'center' }}>
-                <img className={classes.expandFastOnHover} src={props.recipient.avatar} style={{ borderRadius: '20%', margin: '15px' }} height="50px" width="50px" />
+            <div className={classes.talkingToContainer} style={{ display: 'flex', alignItems: 'center' }} >
+                <img hidden={props.recipient.room} className={classes.expandFastOnHover} src={props.recipient.avatar} style={{ borderRadius: '20%', margin: '15px' }} height="50px" width="50px" />
                 <Typography variant="h5" style={{
                     fontWeight: 'bold',
                     fontFamily: "'Syne', sans-serif",
@@ -28,6 +28,7 @@ function ChatBox(props) {
                 <Divider />
             </div>
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
+
                 {
                     props.msgList.map((message) => {
                         if (props.recipient.username == message.senderUsername || props.recipient.username == message.recipientUsername) {
@@ -38,10 +39,10 @@ function ChatBox(props) {
                         }
                     })
                 }
-                <div ref={bottomOfChatDiv} />
+                < div ref={bottomOfChatDiv} />
             </div>
             <div>
-                <CreateMessage sendMessage={props.sendMessage} recipient={props.recipient} senderUsername={props.senderUsername} />
+                <CreateMessage sendMessage={props.sendMessage} recipient={props.recipient} sender={props.sender} />
             </div>
         </>
     );

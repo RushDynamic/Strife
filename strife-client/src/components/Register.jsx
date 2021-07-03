@@ -50,7 +50,7 @@ function Register() {
 
     return (
         <>
-            <video src="http://localhost:3000/media/bgclips/clip1_mop_guy.mp4" muted loop autoPlay={true} style={{ position: 'absolute', height: '100%', width: '100%', objectFit: 'cover', opacity: 0.5, top: 0, left: 0 }}></video>
+            <video src="http://localhost:3000/media/bgclips/clip1_mop_guy.mp4" muted loop autoPlay={true} style={{ position: 'absolute', height: '100%', width: '100%', objectFit: 'cover', opacity: 0.2, top: 0, left: 0 }}></video>
 
             <div className={classes.loginContainer}>
                 <div className={classes.loginPanelLeft}>

@@ -10,6 +10,7 @@ export default function Header(props) {
         <>
             <div className={classes.headerContainer}>
                 <Typography className={classes.nonSelectable} variant="h2" style={{ paddingTop: '20px', letterSpacing: '1px', fontFamily: "'Syncopate', sans-serif" }}>strife</Typography>
+                Version: 1.0.5 (PRE-ALPHA)
                 {/* TODO: Add login/logout/control buttons under the header */}
                 <ChatMenu requestFriendsList={props.requestFriendsList} />
             </div>

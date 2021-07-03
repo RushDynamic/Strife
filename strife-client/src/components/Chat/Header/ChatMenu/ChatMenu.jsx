@@ -10,15 +10,17 @@ import EditAvatar from './EditProfile/EditAvatar.jsx';
 import ChangePassword from './EditProfile/ChangePassword.jsx';
 import { UserContext } from '../../../../UserContext.js';
 import { addFriend } from '../../../../services/friend-service.js';
+import { editAvatar } from '../../../../services/profile-service.js'
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 function ChatMenu(props) {
-    const { user } = useContext(UserContext);
-    const [openAddFriend, setOpenAddFriend] = useState(false);
+    const { user, setUser } = useContext(UserContext);
     const [openEditProfile, setOpenEditProfile] = useState(false);
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [openAddFriend, setOpenAddFriend] = useState(false);
     const [tabValue, setTabValue] = useState(0);
     const [friendUsername, setFriendUsername] = useState("");
     const [addFriendStatus, setAddFriendStatus] = useState({ failure: false, success: false, msg: "An error occurred while adding friend" });
@@ -44,6 +46,17 @@ function ChatMenu(props) {
             handleAddFriendClick();
         }
     }
+
+    async function handleSaveButtonClicked() {
+        if (avatarFile != null) {
+            console.log("Changing avatar");
+            const result = await editAvatar(avatarFile, user.username);
+            console.log("Result:", result);
+            setUser({ ...user, avatar: result.filePath });
+        }
+        setOpenEditProfile(false)
+    }
+
     return (
         <>
             <Paper>
@@ -100,7 +113,7 @@ function ChatMenu(props) {
                             <Tab label="Change Password" />
                             <Tab label="Change Theme" />
                         </Tabs>
-                        <EditAvatar value={tabValue} index={0} />
+                        <EditAvatar value={tabValue} index={0} avatarFile={avatarFile} setAvatarFile={setAvatarFile} currentAvatar={user.avatar} />
                         <ChangePassword value={tabValue} index={1} />
                     </div>
                 </DialogContent>
@@ -108,7 +121,7 @@ function ChatMenu(props) {
                     <Button onClick={() => setOpenEditProfile(false)} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={() => { }} color="primary">
+                    <Button onClick={handleSaveButtonClicked} color="primary">
                         Save
                     </Button>
                 </DialogActions>

@@ -2,4 +2,7 @@
 strife-server/strife-chat-api/node_modules/*
 strife-server/account-management-api/node_modules/*
 strife-server/user-authorization-api/node_modules/*
+strife-server/account-management-api/
+strife-server/account-management-api/public/images/*
+strife-client/public/media/*
 *.env

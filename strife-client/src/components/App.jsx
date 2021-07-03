@@ -8,7 +8,7 @@ import { CssBaseline } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 function App() {
-  const [user, setUser] = useState({ username: null, accessToken: null });
+  const [user, setUser] = useState({ username: null, avatarUrl: null, accessToken: null });
 
   const darkTheme = createMuiTheme({
     palette: {
