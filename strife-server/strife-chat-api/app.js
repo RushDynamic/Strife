@@ -23,7 +23,7 @@ io.on('connect', socket => {
             // console.log("Online Users: ", onlineUsersMap);
             socket.username = username;
             const newUserAnnouncementMsg = `User ${username} has joined`;
-            socket.broadcast.emit('system-msg', newUserAnnouncementMsg)
+            //socket.broadcast.emit('system-msg', newUserAnnouncementMsg)
 
             // Send friends list
             fetchFriendsList(username)
@@ -66,7 +66,7 @@ io.on('connect', socket => {
     socket.on('disconnect', () => {
         updateOnlineUsers({ removeUser: true }, socket.username, socket.id);
         const userLeftAnnouncementMsg = `User ${socket.username} has left`;
-        socket.broadcast.emit('system-msg', userLeftAnnouncementMsg)
+        //socket.broadcast.emit('system-msg', userLeftAnnouncementMsg)
 
         // Send updated onlineUsers list to all users
         socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
@@ -95,8 +95,9 @@ function updateMsgList(newMsg) {
             userMessagesMap.get(newMsg.senderUsername).get(newMsg.recipientUsername).push(newMsg);
         }
         else {
-            messagesMap = new Map().set(newMsg.recipientUsername, [newMsg]);
-            userMessagesMap.get(newMsg.senderUsername).set(messagesMap)
+            var msgMap = userMessagesMap.get(newMsg.senderUsername);
+            msgMap.set(newMsg.recipientUsername, [newMsg]);
+            userMessagesMap.get(newMsg.senderUsername).set(msgMap)
         }
     }
     else {
