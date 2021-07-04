@@ -9,6 +9,7 @@ function ChatBox(props) {
 
     // For automatically scrolling to the bottom of the chat
     const bottomOfChatDiv = useRef(null);
+    var processedMsgList = [];
     useEffect(() => {
         bottomOfChatDiv.current.scrollIntoView({ behavior: 'smooth' });
     });
@@ -28,14 +29,23 @@ function ChatBox(props) {
                 <Divider />
             </div>
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
-
                 {
-                    props.msgList.map((message) => {
-                        if (props.recipient.username == message.senderUsername || props.recipient.username == message.recipientUsername) {
-                            if (message.systemMsg) {
-                                return (<Announcement msg={message.message} />)
+                    props.msgList.map((message, index) => {
+                        if (!processedMsgList.includes(index)) {
+                            var newIndex = index + 1;
+                            var combinedMsgList = [message.message];
+                            while ((newIndex <= props.msgList.length - 1) && (props.msgList[newIndex].senderUsername == message.senderUsername)) {
+                                combinedMsgList.push(props.msgList[newIndex].message);
+                                processedMsgList.push(newIndex);
+                                newIndex++;
                             }
-                            return (<MessageBox message={message} />)
+                            if (props.recipient.username == message.senderUsername || props.recipient.username == message.recipientUsername) {
+                                if (message.systemMsg) {
+                                    return (<Announcement msg={message.message} />)
+                                }
+                                return (<MessageBox message={message} combinedMsgList={combinedMsgList} />)
+                            }
+
                         }
                     })
                 }
