@@ -8,7 +8,7 @@ function RoomsList(props) {
     const classes = useStyles();
 
     function handleChatButtonOnClick(roomname) {
-        props.joinRoom(roomname, props.username);
+        props.manageRooms("join", roomname);
         props.setRecipient({ username: roomname, isRoom: true });
     }
 
