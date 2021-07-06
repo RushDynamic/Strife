@@ -76,9 +76,11 @@ io.on('connect', socket => {
 
     //Create a room
     socket.on('create-room', (roomname, username) => {
+        console.log('Creating room:', roomname);
         if (!onlineRoomsMap.has(roomname)) {
             socket.join(roomname);
             onlineRoomsMap.set(roomname, [username]);
+            io.emit('rooms-list', Array.from(onlineRoomsMap.keys()));
         }
     })
 

@@ -113,9 +113,16 @@ export default function Chat() {
         }
     }, [recipient])
 
-    function joinRoom(roomname) {
-        console.log('Joining room:', roomname);
-        socket.current.emit('join-room', roomname, user.username);
+    function manageRooms(action, roomname) {
+        switch (action) {
+            case 'join': console.log('Joining room:', roomname);
+                socket.current.emit('join-room', roomname, user.username);
+                break;
+
+            case 'create': console.log('Creating room:', roomname);
+                socket.current.emit('create-room', roomname, user.username);
+                break;
+        }
     }
 
     function requestFriendsList(usernameList) {
@@ -165,10 +172,10 @@ export default function Chat() {
                 width: '100%',
             }}>
                 <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
-                    <Header requestFriendsList={requestFriendsList} />
+                    <Header setRecipient={setRecipient} requestFriendsList={requestFriendsList} manageRooms={manageRooms} />
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-                    <RoomsList roomsList={onlineRoomsList} setRecipient={setRecipient} joinRoom={joinRoom} username={user.username} />
+                    <RoomsList roomsList={onlineRoomsList} setRecipient={setRecipient} manageRooms={manageRooms} />
                     <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>

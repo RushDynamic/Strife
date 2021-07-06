@@ -19,11 +19,13 @@ function Alert(props) {
 function ChatMenu(props) {
     const { user, setUser } = useContext(UserContext);
     const [openEditProfile, setOpenEditProfile] = useState(false);
-    const [avatarFile, setAvatarFile] = useState(null);
-    const [openAddFriend, setOpenAddFriend] = useState(false);
     const [tabValue, setTabValue] = useState(0);
+    const [avatarFile, setAvatarFile] = useState(null);
     const [friendUsername, setFriendUsername] = useState("");
+    const [openAddFriend, setOpenAddFriend] = useState(false);
     const [addFriendStatus, setAddFriendStatus] = useState({ failure: false, success: false, msg: "An error occurred while adding friend" });
+    const [openCreateRoom, setOpenCreateRoom] = useState(false);
+    const [roomname, setRoomname] = useState("");
     const classes = chatStyles();
 
     function handleTabChange(event, value) {
@@ -47,6 +49,24 @@ function ChatMenu(props) {
         }
     }
 
+    async function handleCreateRoomClick() {
+        if (roomname == null || roomname.trim().length == 0) {
+            // throw error msg
+        }
+        else {
+            setOpenCreateRoom(false);
+            props.manageRooms("create", roomname);
+            props.manageRooms("join", roomname);
+            props.setRecipient({ username: roomname, isRoom: true });
+        }
+    }
+
+    function handleCreateRoomOnKeyDown(e) {
+        if (e.keyCode == 13) {
+            handleCreateRoomClick();
+        }
+    }
+
     async function handleSaveButtonClicked() {
         if (avatarFile != null) {
             console.log("Changing avatar");
@@ -62,7 +82,7 @@ function ChatMenu(props) {
             <Paper>
                 <div className={classes.chatMenuContainer}>
                     <PersonAddIcon onClick={() => setOpenAddFriend(true)} className={classes.chatMenuIcon} />
-                    <GroupAddIcon className={classes.chatMenuIcon} />
+                    <GroupAddIcon onClick={() => setOpenCreateRoom(true)} className={classes.chatMenuIcon} />
                     <FaceIcon onClick={() => setOpenEditProfile(true)} className={classes.chatMenuIcon} />
                 </div>
             </Paper>
@@ -92,6 +112,33 @@ function ChatMenu(props) {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* For create room */}
+            <Dialog open={openCreateRoom} onClose={() => setOpenCreateRoom(false)} autoFocus={false}>
+                <DialogTitle>Create a new room</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Enter a cool name for the room.
+                    </DialogContentText>
+                    <TextField
+                        id="roomname"
+                        label="Room name"
+                        onChange={event => setRoomname(event.target.value)}
+                        onKeyDown={handleCreateRoomOnKeyDown}
+                        fullWidth
+                        autoFocus={true}
+                        autoComplete="off"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenCreateRoom(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={() => handleCreateRoomClick()} color="primary">
+                        Create
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <Snackbar open={addFriendStatus.failure} autoHideDuration={3000} onClose={() => setAddFriendStatus({ failure: false, msg: addFriendStatus.msg })}>
                 <Alert severity="error">
                     {addFriendStatus.msg}
@@ -111,7 +158,6 @@ function ChatMenu(props) {
                         <Tabs value={tabValue} onChange={handleTabChange} orientation="vertical" variant="scrollable" style={{ borderRight: `1px solid #cfcfcf` }}>
                             <Tab label="Edit Avatar" />
                             <Tab label="Change Password" />
-                            <Tab label="Change Theme" />
                         </Tabs>
                         <EditAvatar value={tabValue} index={0} avatarFile={avatarFile} setAvatarFile={setAvatarFile} currentAvatar={user.avatar} />
                         <ChangePassword value={tabValue} index={1} />
