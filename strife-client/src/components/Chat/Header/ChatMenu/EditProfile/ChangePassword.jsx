@@ -1,14 +1,13 @@
 import React from 'react';
-import { Typography, TextField } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 
 function ChangePassword(props) {
 
     return (
         <div hidden={props.value !== props.index}>
-            <Typography>
-                Change your password:
+            <Typography style={{ padding: '15px' }}>
+                Under construction
             </Typography>
-            <TextField />
         </div>
     );
 }

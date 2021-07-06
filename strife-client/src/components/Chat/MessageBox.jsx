@@ -33,6 +33,7 @@ export default function MessageBox(props) {
                                 {props.message.senderUsername}
                             </div>
                             <div style={{
+                                fontStyle: 'italic',
                                 paddingLeft: '5px',
                                 fontFamily: "'Rubik', sans-serif",
                                 fontSize: '0.6rem'
