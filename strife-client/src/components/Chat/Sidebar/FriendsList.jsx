@@ -16,7 +16,7 @@ function FriendsList(props) {
 
     function returnChatButton(friend) {
         if (friend.status == "offline") return (<ListItemIcon><IconButton disabled><ChatBubbleIcon /></IconButton></ListItemIcon>);
-        else return (<ListItemIcon onClick={() => props.setRecipient({ username: friend.username, avatar: friend.avatar })}><IconButton><ChatBubbleIcon /></IconButton></ListItemIcon>);
+        else return (<ListItemIcon onClick={() => props.setRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false })}><IconButton><ChatBubbleIcon /></IconButton></ListItemIcon>);
     }
 
     return (

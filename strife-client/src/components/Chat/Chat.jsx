@@ -5,6 +5,7 @@ import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Loading from './Loading.jsx';
+import RoomsList from './Sidebar/RoomsList.jsx';
 import FriendsList from './Sidebar/FriendsList.jsx';
 import Header from './Header/Header.jsx';
 import ChatBox from './ChatBox.jsx';
@@ -21,6 +22,7 @@ export default function Chat() {
     const [loadingStages, setLoadingStages] = useState([]);
     const [loaded, setLoaded] = useState(false);
     const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
+    const [onlineRoomsList, setOnlineRoomsList] = useState([]);
     const [onlineUsersList, setOnlineUsersList] = useState([]);
     const [friendsList, setFriendsList] = useState([]);
     const [recipient, setRecipient] = useState("");
@@ -84,6 +86,12 @@ export default function Chat() {
                     setMsgList(msgHistory);
                 });
 
+                // Receive rooms map from server
+                socket.current.on('rooms-list', (roomsList) => {
+                    setOnlineRoomsList(roomsList);
+                    console.log(roomsList);
+                });
+
                 // Receive error from server if user is already online elsewhere
                 socket.current.on('chat-already-open', () => {
                     setShowChatAlreadyOpen(true);
@@ -101,21 +109,23 @@ export default function Chat() {
         setMsgList([]);
         // TODO: Only start listening for recipient change after socket has finished connecting
         if (socketConnected) {
-            socket.current.emit('request-msg-history', user.username, recipient.username);
-            console.log("Requesting msg history for user", recipient.username);
+            socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
         }
     }, [recipient])
+
+    function joinRoom(roomname) {
+        console.log('Joining room:', roomname);
+        socket.current.emit('join-room', roomname, user.username);
+    }
 
     function requestFriendsList(usernameList) {
         socket.current.emit('request-friends-list', usernameList);
     }
 
     function sendMessage(msgData) {
-        console.log('sendMessage, msgData:', msgData);
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
             socket.current.emit('add-msg', msgData, new Date().getTime());
             updateMessageList(msgData);
-            console.log("Added a new message");
         }
     }
 
@@ -158,6 +168,7 @@ export default function Chat() {
                     <Header requestFriendsList={requestFriendsList} />
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+                    <RoomsList roomsList={onlineRoomsList} setRecipient={setRecipient} joinRoom={joinRoom} username={user.username} />
                     <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>

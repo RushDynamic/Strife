@@ -8,7 +8,13 @@ export default function CreateMessage(props) {
     const classes = chatSyles();
     const [msgText, setMsgText] = useState("");
     // TODO: Remove this default avatar URL and fetch user's own avatar
-    const [newMsg, setNewMsg] = useState({ message: "", avatar: "http://localhost:3001/images/default_avatar.jpg", systemMsg: false });
+    const [newMsg, setNewMsg] = useState({
+        message: "",
+        avatar: props.sender.avatar,
+        systemMsg: false,
+        recipientUsername: props.recipient.username,
+        senderUsername: props.sender.username
+    });
 
     useEffect(() => {
         setNewMsg({
@@ -16,7 +22,8 @@ export default function CreateMessage(props) {
             avatar: props.sender.avatar,
             systemMsg: false,
             recipientUsername: props.recipient.username,
-            senderUsername: props.sender.username
+            senderUsername: props.sender.username,
+            isRoom: props.recipient.isRoom
         })
     }, [msgText]);
 

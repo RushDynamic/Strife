@@ -6,6 +6,7 @@ const io = require("socket.io")(5000, {
     }
 })
 
+var onlineRoomsMap = new Map();
 var onlineUsersMap = new Map();
 var userMessagesMap = new Map();
 var messagesMap = new Map();
@@ -32,6 +33,8 @@ io.on('connect', socket => {
                     socket.emit('friends-list', onlineFriends);
                 })
                 .catch((err) => console.log("An error occurred while sending friends list", err));
+
+            socket.emit('rooms-list', Array.from(onlineRoomsMap.keys()));
         }
     });
 
@@ -43,24 +46,48 @@ io.on('connect', socket => {
             systemMsg: false,
             senderUsername: msgData.senderUsername,
             recipientUsername: msgData.recipientUsername,
+            isRoom: msgData.isRoom,
             timestamp: msgTimestamp
         };
 
-        // Send message to only a particular user
-        socket.to(onlineUsersMap.get(msgData.recipientUsername)).emit('echo-msg', newMsg);
+        // Check if recipient is a room
+        if (msgData.isRoom) {
+            // Send to all users in room
+            socket.to(msgData.recipientUsername).emit('echo-msg', newMsg);
+        }
+        else {
+            // Send message to only a particular user
+            socket.to(onlineUsersMap.get(msgData.recipientUsername)).emit('echo-msg', newMsg);
+        }
         console.log(`${msgData.senderUsername} says: "${msgData.message}" to ${msgData.recipientUsername}`);
         updateMsgList(newMsg);
     })
 
     // For sending the chat history back to the requested user
-    socket.on('request-msg-history', (senderUsername, recipientUsername) => {
-        const msgList = getMsgList(senderUsername, recipientUsername);
+    socket.on('request-msg-history', (senderUsername, recipientUsername, isRoom) => {
+        const msgList = getMsgList(senderUsername, recipientUsername, isRoom);
         socket.emit('receive-msg-history', msgList, recipientUsername);
     });
 
     // Send updated friendslist everytime a user connects/disconnects
     socket.on('request-friends-list', (usernameList) => {
         sendUpdatedFriendsList(usernameList, socket);
+    })
+
+    //Create a room
+    socket.on('create-room', (roomname, username) => {
+        if (!onlineRoomsMap.has(roomname)) {
+            socket.join(roomname);
+            onlineRoomsMap.set(roomname, [username]);
+        }
+    })
+
+    // Join a room when user clicks on Chat button
+    socket.on('join-room', (roomname, username) => {
+        if (onlineRoomsMap.has(roomname) && !onlineRoomsMap.get(roomname).includes(username)) {
+            socket.join(roomname);
+            onlineRoomsMap.get(roomname).push(username);
+        }
     })
 
     socket.on('disconnect', () => {
@@ -90,7 +117,17 @@ function sendUpdatedFriendsList(usernameList, socket) {
 }
 
 function updateMsgList(newMsg) {
-    if (userMessagesMap.has(newMsg.senderUsername)) {
+    // TODO: Clean up and optimize this code
+    if (newMsg.isRoom) {
+        if (userMessagesMap.has(newMsg.recipientUsername)) {
+            // Get the msgMap for that particular room
+            userMessagesMap.get(newMsg.recipientUsername).push(newMsg);
+        }
+        else {
+            userMessagesMap.set(newMsg.recipientUsername, [newMsg]);
+        }
+    }
+    else if (userMessagesMap.has(newMsg.senderUsername)) {
         if (userMessagesMap.get(newMsg.senderUsername).has(newMsg.recipientUsername)) {
             userMessagesMap.get(newMsg.senderUsername).get(newMsg.recipientUsername).push(newMsg);
         }
@@ -108,22 +145,26 @@ function updateMsgList(newMsg) {
     //console.log("Updated UserMessagesMap:", userMessagesMap.get(newMsg.senderUsername));
 }
 
-function getMsgList(senderUsername, recipientUsername) {
+function getMsgList(senderUsername, recipientUsername, isRoom) {
     // TODO: Clean up this code
     var msgList = [];
+    if (isRoom) {
+        msgList = userMessagesMap.get(recipientUsername);
+    }
+    else {
+        if (userMessagesMap.has(senderUsername)) {
+            if (userMessagesMap.get(senderUsername).has(recipientUsername)) {
+                msgList = userMessagesMap.get(senderUsername).get(recipientUsername)
+            }
+        }
+        if (userMessagesMap.has(recipientUsername)) {
+            if (userMessagesMap.get(recipientUsername).has(senderUsername)) {
+                msgList = msgList.concat(userMessagesMap.get(recipientUsername).get(senderUsername));
+            }
+        }
+    }
     //console.log(userMessagesMap);
-    if (userMessagesMap.has(senderUsername)) {
-        if (userMessagesMap.get(senderUsername).has(recipientUsername)) {
-            msgList = userMessagesMap.get(senderUsername).get(recipientUsername)
-        }
-    }
-
-    if (userMessagesMap.has(recipientUsername)) {
-        if (userMessagesMap.get(recipientUsername).has(senderUsername)) {
-            msgList = msgList.concat(userMessagesMap.get(recipientUsername).get(senderUsername));
-        }
-    }
-    msgList = msgList.sort((a, b) => a.timestamp - b.timestamp);
+    msgList = msgList != undefined && msgList.length > 0 ? msgList.sort((a, b) => a.timestamp - b.timestamp) : [];
     return msgList;
 }
 
