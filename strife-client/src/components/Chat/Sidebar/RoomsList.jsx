@@ -8,8 +8,13 @@ function RoomsList(props) {
     const classes = useStyles();
 
     function handleChatButtonOnClick(roomname) {
-        props.manageRooms("join", roomname);
-        props.setRecipient({ username: roomname, isRoom: true });
+        props.manageRooms("join", roomname, isUserInRoom);
+    }
+
+    function isUserInRoom(status, roomname) {
+        if (status) {
+            props.setRecipient({ username: roomname, isRoom: true });
+        }
     }
 
     return (
@@ -39,7 +44,7 @@ function RoomsList(props) {
                                 padding: '15px',
                                 fontFamily: "'Syne', sans-serif",
                                 fontSize: '0.9rem',
-                            }} >There are no rooms online right now</Typography> :
+                            }} >You have not joined any online rooms right now</Typography> :
                                 props.roomsList.map(room => (
                                     <ListItem>
                                         <ListItemAvatar><PeopleIcon /></ListItemAvatar>

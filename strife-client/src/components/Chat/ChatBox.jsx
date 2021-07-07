@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Typography, Divider } from '@material-ui/core';
+import React, { useEffect, useRef } from 'react';
+import { Typography, Divider, IconButton } from '@material-ui/core';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import chatStyles from '../styles/chat-styles.js';
 import CreateMessage from './CreateMessage.jsx';
 import MessageBox from './MessageBox.jsx';
@@ -16,6 +17,11 @@ function ChatBox(props) {
         bottomOfChatDiv.current.scrollIntoView({ behavior: 'smooth' });
     });
 
+    function handleLeaveRoomClicked() {
+        props.manageRooms("leave", props.recipient.username);
+        props.setRecipient("");
+    }
+
     const classes = chatStyles();
     return (
         <>
@@ -25,12 +31,14 @@ function ChatBox(props) {
                     fontWeight: 'bold',
                     fontFamily: "'Syne', sans-serif",
                     letterSpacing: '2px',
-                    margin: '15px'
+                    margin: '15px',
+                    marginBottom: '15px'
                 }}>
                     {props.recipient.username}
                 </Typography>
-                <Divider />
+                {props.recipient.isRoom && <IconButton><ExitToAppIcon onClick={handleLeaveRoomClicked} /></IconButton>}
             </div>
+            <Divider light={true} style={{ width: '100%' }} />
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                 {
                     // TODO: Clean and optimize this block

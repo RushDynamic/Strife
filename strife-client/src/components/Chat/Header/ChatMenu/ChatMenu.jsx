@@ -2,12 +2,14 @@ import React, { useContext, useState } from 'react';
 import chatStyles from '../../../styles/chat-styles.js';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, AppBar, Tabs, Tab } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import FaceIcon from '@material-ui/icons/Face';
 import Paper from '@material-ui/core/Paper';
-import EditAvatar from './EditProfile/EditAvatar.jsx';
-import ChangePassword from './EditProfile/ChangePassword.jsx';
+import JoinRoom from './RoomsMenu/JoinRoom.jsx';
+import CreateRoom from './RoomsMenu/CreateRoom.jsx';
+import EditAvatar from './EditProfileMenu/EditAvatar.jsx';
+import ChangePassword from './EditProfileMenu/ChangePassword.jsx';
 import { UserContext } from '../../../../UserContext.js';
 import { addFriend } from '../../../../services/friend-service.js';
 import { editAvatar } from '../../../../services/profile-service.js'
@@ -19,17 +21,22 @@ function Alert(props) {
 function ChatMenu(props) {
     const { user, setUser } = useContext(UserContext);
     const [openEditProfile, setOpenEditProfile] = useState(false);
-    const [tabValue, setTabValue] = useState(0);
+    const [profileTabValue, setProfileTabValue] = useState(0);
+    const [roomsTabValue, setRoomsTabValue] = useState(0);
     const [avatarFile, setAvatarFile] = useState(null);
     const [friendUsername, setFriendUsername] = useState("");
     const [openAddFriend, setOpenAddFriend] = useState(false);
     const [addFriendStatus, setAddFriendStatus] = useState({ failure: false, success: false, msg: "An error occurred while adding friend" });
-    const [openCreateRoom, setOpenCreateRoom] = useState(false);
+    const [openRoomsMenu, setOpenRoomsMenu] = useState(false);
     const [roomname, setRoomname] = useState("");
     const classes = chatStyles();
 
-    function handleTabChange(event, value) {
-        setTabValue(value);
+    function handleProfileTabChange(event, value) {
+        setProfileTabValue(value);
+    }
+
+    function handleRoomsTabChange(event, value) {
+        setRoomsTabValue(value);
     }
 
     async function handleAddFriendClick() {
@@ -49,15 +56,13 @@ function ChatMenu(props) {
         }
     }
 
-    async function handleCreateRoomClick() {
+    function handleCreateRoomClick() {
         if (roomname == null || roomname.trim().length == 0) {
             // throw error msg
         }
         else {
-            setOpenCreateRoom(false);
-            props.manageRooms("create", roomname);
-            props.manageRooms("join", roomname);
-            props.setRecipient({ username: roomname, isRoom: true });
+            setOpenRoomsMenu(false);
+            props.manageRooms("create", roomname, isRoomCreated);
         }
     }
 
@@ -67,7 +72,35 @@ function ChatMenu(props) {
         }
     }
 
-    async function handleSaveButtonClicked() {
+    function isRoomCreated(status) {
+        if (status) {
+            props.manageRooms("join", roomname, isUserInRoom);
+        }
+    }
+
+    function isUserInRoom(status, roomname) {
+        if (status) {
+            props.setRecipient({ username: roomname, isRoom: true });
+        }
+    }
+
+    function handleJoinRoomClick() {
+        if (roomname == null || roomname.trim().length == 0) {
+            // throw error msg
+        }
+        else {
+            setOpenRoomsMenu(false);
+            props.manageRooms("join", roomname, isUserInRoom);
+        }
+    }
+
+    function handleJoinRoomOnKeyDown(e) {
+        if (e.keyCode == 13) {
+            handleJoinRoomClick();
+        }
+    }
+
+    async function handleProfileSaveButtonClicked() {
         if (avatarFile != null) {
             console.log("Changing avatar");
             const result = await editAvatar(avatarFile, user.username);
@@ -82,7 +115,7 @@ function ChatMenu(props) {
             <Paper>
                 <div className={classes.chatMenuContainer}>
                     <PersonAddIcon onClick={() => setOpenAddFriend(true)} className={classes.chatMenuIcon} />
-                    <GroupAddIcon onClick={() => setOpenCreateRoom(true)} className={classes.chatMenuIcon} />
+                    <PeopleAltIcon onClick={() => setOpenRoomsMenu(true)} className={classes.chatMenuIcon} />
                     <FaceIcon onClick={() => setOpenEditProfile(true)} className={classes.chatMenuIcon} />
                 </div>
             </Paper>
@@ -112,33 +145,6 @@ function ChatMenu(props) {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {/* For create room */}
-            <Dialog open={openCreateRoom} onClose={() => setOpenCreateRoom(false)} autoFocus={false}>
-                <DialogTitle>Create a new room</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Enter a cool name for the room.
-                    </DialogContentText>
-                    <TextField
-                        id="roomname"
-                        label="Room name"
-                        onChange={event => setRoomname(event.target.value)}
-                        onKeyDown={handleCreateRoomOnKeyDown}
-                        fullWidth
-                        autoFocus={true}
-                        autoComplete="off"
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenCreateRoom(false)} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={() => handleCreateRoomClick()} color="primary">
-                        Create
-                    </Button>
-                </DialogActions>
-            </Dialog>
             <Snackbar open={addFriendStatus.failure} autoHideDuration={3000} onClose={() => setAddFriendStatus({ failure: false, msg: addFriendStatus.msg })}>
                 <Alert severity="error">
                     {addFriendStatus.msg}
@@ -150,24 +156,39 @@ function ChatMenu(props) {
                 </Alert>
             </Snackbar>
 
+            {/* For rooms */}
+            <Dialog open={openRoomsMenu} onClose={() => setOpenRoomsMenu(false)} autoFocus={false}>
+                <DialogTitle>Rooms</DialogTitle>
+                <DialogContent>
+                    <div className={classes.roomsMenuContainer} style={{ display: 'flex' }}>
+                        <Tabs value={roomsTabValue} onChange={handleRoomsTabChange} orientation="vertical" variant="scrollable" style={{ borderRight: `1px solid #cfcfcf` }}>
+                            <Tab label="Join" />
+                            <Tab label="Create" />
+                        </Tabs>
+                        <JoinRoom value={roomsTabValue} handleOnKeyDown={handleJoinRoomOnKeyDown} setRoomname={setRoomname} index={0} />
+                        <CreateRoom value={roomsTabValue} index={1} handleOnKeyDown={handleCreateRoomOnKeyDown} setRoomname={setRoomname} />
+                    </div>
+                </DialogContent>
+            </Dialog>
+
             {/* For edit profile */}
             <Dialog open={openEditProfile} onClose={() => setOpenEditProfile(false)} autoFocus={false}>
                 <DialogTitle>Edit Profile</DialogTitle>
                 <DialogContent>
                     <div className={classes.editProfileContainer} style={{ display: 'flex' }}>
-                        <Tabs value={tabValue} onChange={handleTabChange} orientation="vertical" variant="scrollable" style={{ borderRight: `1px solid #cfcfcf` }}>
+                        <Tabs value={profileTabValue} onChange={handleProfileTabChange} orientation="vertical" variant="scrollable" style={{ borderRight: `1px solid #cfcfcf` }}>
                             <Tab label="Edit Avatar" />
                             <Tab label="Change Password" />
                         </Tabs>
-                        <EditAvatar value={tabValue} index={0} avatarFile={avatarFile} setAvatarFile={setAvatarFile} currentAvatar={user.avatar} />
-                        <ChangePassword value={tabValue} index={1} />
+                        <EditAvatar value={profileTabValue} index={0} avatarFile={avatarFile} setAvatarFile={setAvatarFile} currentAvatar={user.avatar} />
+                        <ChangePassword value={profileTabValue} index={1} />
                     </div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEditProfile(false)} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={handleSaveButtonClicked} color="primary">
+                    <Button onClick={handleProfileSaveButtonClicked} color="primary">
                         Save
                     </Button>
                 </DialogActions>

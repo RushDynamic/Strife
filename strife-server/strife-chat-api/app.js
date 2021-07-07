@@ -9,6 +9,7 @@ const io = require("socket.io")(5000, {
 var onlineRoomsMap = new Map();
 var onlineUsersMap = new Map();
 var userMessagesMap = new Map();
+var userRoomsMap = new Map();
 var messagesMap = new Map();
 
 // io.emit
@@ -34,7 +35,8 @@ io.on('connect', socket => {
                 })
                 .catch((err) => console.log("An error occurred while sending friends list", err));
 
-            socket.emit('rooms-list', Array.from(onlineRoomsMap.keys()));
+            // Send user's roomslist
+            socket.emit('rooms-list', userRoomsMap.get(username));
         }
     });
 
@@ -75,27 +77,39 @@ io.on('connect', socket => {
     })
 
     //Create a room
-    socket.on('create-room', (roomname, username) => {
+    socket.on('create-room', (roomname, username, callback) => {
         console.log('Creating room:', roomname);
         if (!onlineRoomsMap.has(roomname)) {
-            socket.join(roomname);
-            onlineRoomsMap.set(roomname, [username]);
-            io.emit('rooms-list', Array.from(onlineRoomsMap.keys()));
+            onlineRoomsMap.set(roomname, []);
+            callback({
+                status: "success"
+            });
+        }
+        else {
+            callback({
+                status: "failure"
+            })
         }
     })
 
     // Join a room when user clicks on Chat button
-    socket.on('join-room', (roomname, username) => {
-        if (onlineRoomsMap.has(roomname) && !onlineRoomsMap.get(roomname).includes(username)) {
-            socket.join(roomname);
-            onlineRoomsMap.get(roomname).push(username);
-        }
+    socket.on('join-room', (roomname, username, callback) => {
+        updateRoomsList("join", roomname, username, socket, callback);
     })
+
+    // Leave room
+    socket.on('leave-room', (roomname, username) => {
+        console.log(`Leaving room ${roomname}`, username);
+        updateRoomsList("leave", roomname, username, socket);
+    });
 
     socket.on('disconnect', () => {
         updateOnlineUsers({ removeUser: true }, socket.username, socket.id);
         const userLeftAnnouncementMsg = `User ${socket.username} has left`;
         //socket.broadcast.emit('system-msg', userLeftAnnouncementMsg)
+
+        // Leave all connected rooms
+        leaveAllRooms(socket.username, socket);
 
         // Send updated onlineUsers list to all users
         socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
@@ -107,15 +121,76 @@ function sendUpdatedFriendsList(usernameList, socket) {
         fetchFriendsList(username)
             .then((friends) => {
                 const onlineFriends = prepareFriendsList(friends.friendsList);
-                if (onlineUsersMap.get(username) == socket.id) {
-                    socket.emit('friends-list', onlineFriends);
-                }
-                else {
-                    socket.to(onlineUsersMap.get(username)).emit('friends-list', onlineFriends);
-                }
+                if (onlineUsersMap.get(username) == socket.id) socket.emit('friends-list', onlineFriends);
+                else socket.to(onlineUsersMap.get(username)).emit('friends-list', onlineFriends);
             })
             .catch((err) => console.log("An error occurred while sending friends list", err));
     })
+}
+
+function updateRoomsList(action, roomname, username, socket, callback) {
+    switch (action) {
+        case 'join':
+            if (onlineRoomsMap.has(roomname)) {
+                socket.join(roomname);
+                if (!onlineRoomsMap.get(roomname).includes(username)) {
+                    onlineRoomsMap.get(roomname).push(username);
+                }
+
+                // Update userRoomsMap as well
+                var userRoomsList = [];
+                if (userRoomsMap.has(username)) userRoomsList = userRoomsMap.get(username);
+                if (!userRoomsList.includes(roomname)) {
+                    userRoomsList.push(roomname);
+                    userRoomsMap.set(username, userRoomsList);
+                }
+                callback({
+                    status: "success"
+                });
+            }
+            else {
+                callback({
+                    status: "failure"
+                });
+            }
+            break;
+        case 'leave':
+            if (onlineRoomsMap.has(roomname) && onlineRoomsMap.get(roomname).includes(username)) {
+                socket.leave(roomname);
+                var onlineUsersInRoom = onlineRoomsMap.get(roomname);
+                onlineUsersInRoom = onlineUsersInRoom.filter(user => user != username);
+
+                // Disband room if no one is online
+                if (onlineUsersInRoom.length == 0) onlineRoomsMap.delete(roomname);
+                else onlineRoomsMap.set(roomname, onlineUsersInRoom);
+
+                // Update userRoomsMap as well
+                var userRoomsList = [];
+                if (userRoomsMap.has(username)) userRoomsList = userRoomsMap.get(username);
+                userRoomsList = userRoomsList.filter(room => room != roomname);
+                userRoomsMap.set(username, userRoomsList);
+            }
+            break;
+    }
+    //console.log("userRoomsMap:", userRoomsMap);
+    //console.log("onlineRoomsMap:", onlineRoomsMap);
+    socket.emit('rooms-list', userRoomsMap.get(username));
+}
+
+function leaveAllRooms(username, socket) {
+    if (userRoomsMap.has(username)) {
+        const userRoomsList = userRoomsMap.get(username);
+        userRoomsList.map(room => {
+            socket.leave(room);
+            var onlineUsersInRoom = onlineRoomsMap.get(room);
+            onlineUsersInRoom = onlineUsersInRoom.filter(user => user != username);
+
+            // Disband room if no one is online
+            if (onlineUsersInRoom.length == 0) onlineRoomsMap.delete(room);
+            else onlineRoomsMap.set(room, onlineUsersInRoom);
+        });
+        userRoomsMap.delete(username);
+    }
 }
 
 function updateMsgList(newMsg) {

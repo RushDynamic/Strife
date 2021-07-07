@@ -113,14 +113,22 @@ export default function Chat() {
         }
     }, [recipient])
 
-    function manageRooms(action, roomname) {
+    function manageRooms(action, roomname, callback) {
         switch (action) {
             case 'join': console.log('Joining room:', roomname);
-                socket.current.emit('join-room', roomname, user.username);
+                socket.current.emit('join-room', roomname, user.username, (response) => {
+                    callback(response.status == "success", roomname);
+                });
                 break;
 
             case 'create': console.log('Creating room:', roomname);
-                socket.current.emit('create-room', roomname, user.username);
+                socket.current.emit('create-room', roomname, user.username, (response) => {
+                    callback(response.status == "success");
+                });
+                break;
+
+            case 'leave': console.log('Leaving room:', roomname);
+                socket.current.emit('leave-room', roomname, user.username);
                 break;
         }
     }
@@ -175,12 +183,12 @@ export default function Chat() {
                     <Header setRecipient={setRecipient} requestFriendsList={requestFriendsList} manageRooms={manageRooms} />
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-                    <RoomsList roomsList={onlineRoomsList} setRecipient={setRecipient} manageRooms={manageRooms} />
+                    <RoomsList roomsList={onlineRoomsList != null ? onlineRoomsList : []} setRecipient={setRecipient} manageRooms={manageRooms} />
                     <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipient={recipient} sender={user} />
+                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipient={recipient} setRecipient={setRecipient} sender={user} manageRooms={manageRooms} />
                         }
                     </Grid></> :
                     <Grid item xs={12} style={{ height: '80vh' }}>
