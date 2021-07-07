@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
-import { Typography, Dialog, DialogContent, DialogTitle } from '@material-ui/core';
+import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Loading from './Loading.jsx';
 import RoomsList from './Sidebar/RoomsList.jsx';
@@ -23,7 +23,7 @@ export default function Chat() {
     const [loaded, setLoaded] = useState(false);
     const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
     const [onlineRoomsList, setOnlineRoomsList] = useState([]);
-    const [onlineUsersList, setOnlineUsersList] = useState([]);
+    const [onlineMembers, setOnlineMembers] = useState(new Map());
     const [friendsList, setFriendsList] = useState([]);
     const [recipient, setRecipient] = useState("");
     // TODO: Convert msgList into a hashmap
@@ -64,7 +64,6 @@ export default function Chat() {
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
                     requestFriendsList([isUserLoggedIn.username]);
-                    setOnlineUsersList(newOnlineUsersList);
                 });
 
                 // Receive announcements from the server
@@ -92,6 +91,11 @@ export default function Chat() {
                     console.log(roomsList);
                 });
 
+                // Receive updated room members list from server
+                socket.current.on('updated-room-members', (roomname, updatedMembersList) => {
+                    setOnlineMembers(new Map(onlineMembers.set(roomname, updatedMembersList)));
+                });
+
                 // Receive error from server if user is already online elsewhere
                 socket.current.on('chat-already-open', () => {
                     setShowChatAlreadyOpen(true);
@@ -117,13 +121,21 @@ export default function Chat() {
         switch (action) {
             case 'join': console.log('Joining room:', roomname);
                 socket.current.emit('join-room', roomname, user.username, (response) => {
-                    callback(response.status == "success", roomname);
+                    if (response.status == "success") {
+                        setOnlineMembers(new Map(onlineMembers.set(roomname, response.members)));
+                        callback(true, roomname);
+                    }
+                    else callback(false, roomname);
                 });
                 break;
 
             case 'create': console.log('Creating room:', roomname);
                 socket.current.emit('create-room', roomname, user.username, (response) => {
-                    callback(response.status == "success");
+                    if (response.status == "success") {
+                        setOnlineMembers(new Map(onlineMembers.set(roomname, response.members)));
+                        callback(true, roomname);
+                    }
+                    else callback(false, roomname);
                 });
                 break;
 
@@ -184,11 +196,20 @@ export default function Chat() {
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                     <RoomsList roomsList={onlineRoomsList != null ? onlineRoomsList : []} setRecipient={setRecipient} manageRooms={manageRooms} />
+                    <Box m={0.5} />
                     <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient == "" ? <LandingChatBox /> : <ChatBox msgList={msgList} sendMessage={sendMessage} recipient={recipient} setRecipient={setRecipient} sender={user} manageRooms={manageRooms} />
+                            recipient == "" ? <LandingChatBox /> : <ChatBox
+                                msgList={msgList}
+                                sendMessage={sendMessage}
+                                recipient={recipient}
+                                setRecipient={setRecipient}
+                                sender={user}
+                                onlineMembers={onlineMembers}
+                                manageRooms={manageRooms}
+                            />
                         }
                     </Grid></> :
                     <Grid item xs={12} style={{ height: '80vh' }}>

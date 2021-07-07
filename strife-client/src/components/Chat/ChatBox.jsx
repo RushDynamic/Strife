@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Typography, Divider, IconButton } from '@material-ui/core';
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import chatStyles from '../styles/chat-styles.js';
 import CreateMessage from './CreateMessage.jsx';
@@ -22,6 +23,20 @@ function ChatBox(props) {
         props.setRecipient("");
     }
 
+    function returnMemberNameComponent(memberName) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', marginBottom: '10px', boxSizing: 'border-box' }}>
+                <FiberManualRecordIcon style={{ fontSize: '15px', color: 'green', paddingRight: '5px' }} />
+                <Typography style={{
+                    paddingRight: '10px',
+                    letterSpacing: '1px',
+                    fontFamily: "'Syne', sans-serif",
+                    fontVariant: 'small-caps'
+                }}>{memberName}</Typography>
+            </div>
+        );
+    }
+
     const classes = chatStyles();
     return (
         <>
@@ -38,6 +53,25 @@ function ChatBox(props) {
                 </Typography>
                 {props.recipient.isRoom && <IconButton><ExitToAppIcon onClick={handleLeaveRoomClicked} /></IconButton>}
             </div>
+
+            {props.recipient.isRoom && <div className={classes.onlineRoomMembers} style={{ display: 'flex', maxWidth: '100%' }}>
+                <Typography style={{
+                    marginLeft: '15px',
+                    marginBottom: '10px',
+                    letterSpacing: '1px',
+                    fontFamily: "'Syne', sans-serif",
+                    fontVariant: 'small-caps',
+                    color: 'green'
+                }}>
+                    members:
+                </Typography>
+                {/* TODO: Make component clickable and show popup if more than 5 members */}
+                {props.onlineMembers.get(props.recipient.username).length > 5 ?
+                    returnMemberNameComponent(props.onlineMembers.get(props.recipient.username).length) :
+                    props.onlineMembers.get(props.recipient.username).map((memberName) => {
+                        return (returnMemberNameComponent(memberName));
+                    })}
+            </div>}
             <Divider light={true} style={{ width: '100%' }} />
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                 {

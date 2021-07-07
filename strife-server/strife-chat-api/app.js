@@ -82,7 +82,8 @@ io.on('connect', socket => {
         if (!onlineRoomsMap.has(roomname)) {
             onlineRoomsMap.set(roomname, []);
             callback({
-                status: "success"
+                status: "success",
+                members: [username]
             });
         }
         else {
@@ -144,8 +145,12 @@ function updateRoomsList(action, roomname, username, socket, callback) {
                     userRoomsList.push(roomname);
                     userRoomsMap.set(username, userRoomsList);
                 }
+
+                // Send updated memberslist to client
+                socket.to(roomname).emit('updated-room-members', roomname, onlineRoomsMap.get(roomname));
                 callback({
-                    status: "success"
+                    status: "success",
+                    members: onlineRoomsMap.get(roomname)
                 });
             }
             else {
@@ -169,6 +174,9 @@ function updateRoomsList(action, roomname, username, socket, callback) {
                 if (userRoomsMap.has(username)) userRoomsList = userRoomsMap.get(username);
                 userRoomsList = userRoomsList.filter(room => room != roomname);
                 userRoomsMap.set(username, userRoomsList);
+
+                // Send updated memberslist to client
+                socket.to(roomname).emit('updated-room-members', roomname, onlineRoomsMap.get(roomname));
             }
             break;
     }
