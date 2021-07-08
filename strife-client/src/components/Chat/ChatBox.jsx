@@ -26,7 +26,7 @@ function ChatBox(props) {
 
     function handleLeaveRoomClicked() {
         props.manageRooms("leave", recipient.username);
-        dispatch(changeRecipient(""));
+        dispatch(changeRecipient({ username: "", avatar: "", isRoom: false }));
     }
 
     function returnMemberNameComponent(memberName, showDetailed) {
