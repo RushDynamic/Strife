@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
@@ -17,6 +18,7 @@ export default function Chat() {
     const classes = chatStyles();
     const history = useHistory();
     const socket = useRef();
+    const recipient = useSelector(state => state.recipient);
     const [socketConnected, setSocketConnected] = useState(false);
     const { user, setUser } = useContext(UserContext);
     const [loadingStages, setLoadingStages] = useState([]);
@@ -25,9 +27,10 @@ export default function Chat() {
     const [onlineRoomsList, setOnlineRoomsList] = useState([]);
     const [onlineMembers, setOnlineMembers] = useState(new Map());
     const [friendsList, setFriendsList] = useState([]);
-    const [recipient, setRecipient] = useState("");
+    const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
     // TODO: Convert msgList into a hashmap
     const [msgList, setMsgList] = useState([])
+    const [newMsg, setNewMsg] = useState({});
 
     useEffect(() => {
         // TODO: Probably find a better way to do this
@@ -56,9 +59,9 @@ export default function Chat() {
                     setSocketConnected(true);
                 });
 
+                // Receive new messages from the server
                 socket.current.on("echo-msg", (echoMessage) => {
-                    //console.log(`echo message: ${echoMessage} user: ${socketid}`);
-                    updateMessageList(echoMessage);
+                    setNewMsg(echoMessage);
                 });
 
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
@@ -68,8 +71,8 @@ export default function Chat() {
 
                 // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
-                    const newMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    updateMessageList(newMsg);
+                    const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
+                    updateMessageList(newSystemMsg);
                 })
 
                 // Receive friends list from server
@@ -88,7 +91,6 @@ export default function Chat() {
                 // Receive rooms map from server
                 socket.current.on('rooms-list', (roomsList) => {
                     setOnlineRoomsList(roomsList);
-                    console.log(roomsList);
                 });
 
                 // Receive updated room members list from server
@@ -109,6 +111,7 @@ export default function Chat() {
         })();
     }, [])
 
+    // Get message history for the new recipient
     useEffect(() => {
         setMsgList([]);
         // TODO: Only start listening for recipient change after socket has finished connecting
@@ -116,6 +119,14 @@ export default function Chat() {
             socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
         }
     }, [recipient])
+
+    // Push new message to the msgList
+    useEffect(() => {
+        if (newMsg.senderUsername != recipient.username) {
+            setUnseenMsgUsersList(prevList => [...prevList, newMsg.senderUsername]);
+        }
+        updateMessageList(newMsg);
+    }, [newMsg])
 
     function manageRooms(action, roomname, callback) {
         switch (action) {
@@ -192,24 +203,27 @@ export default function Chat() {
                 width: '100%',
             }}>
                 <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
-                    <Header setRecipient={setRecipient} requestFriendsList={requestFriendsList} manageRooms={manageRooms} />
+                    <Header requestFriendsList={requestFriendsList} manageRooms={manageRooms} />
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-                    <RoomsList roomsList={onlineRoomsList != null ? onlineRoomsList : []} setRecipient={setRecipient} manageRooms={manageRooms} />
+                    <RoomsList roomsList={onlineRoomsList != null ? onlineRoomsList : []} manageRooms={manageRooms} />
                     <Box m={0.5} />
-                    <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
+                    <FriendsList
+                        friendsList={friendsList}
+                        unseenMsgUsersList={unseenMsgUsersList}
+                        setUnseenMsgUsersList={setUnseenMsgUsersList}
+                    />
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient == "" ? <LandingChatBox /> : <ChatBox
-                                msgList={msgList}
-                                sendMessage={sendMessage}
-                                recipient={recipient}
-                                setRecipient={setRecipient}
-                                sender={user}
-                                onlineMembers={onlineMembers}
-                                manageRooms={manageRooms}
-                            />
+                            recipient.username == "" ? <LandingChatBox /> :
+                                <ChatBox
+                                    msgList={msgList}
+                                    sendMessage={sendMessage}
+                                    sender={user}
+                                    onlineMembers={onlineMembers}
+                                    manageRooms={manageRooms}
+                                />
                         }
                     </Grid></> :
                     <Grid item xs={12} style={{ height: '80vh' }}>

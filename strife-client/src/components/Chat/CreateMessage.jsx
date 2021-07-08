@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import chatSyles from '../styles/chat-styles';
 import { TextField, IconButton } from '@material-ui/core';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
@@ -6,13 +7,14 @@ import SendIcon from '@material-ui/icons/Send';
 
 export default function CreateMessage(props) {
     const classes = chatSyles();
+    const recipient = useSelector(state => state.recipient);
     const [msgText, setMsgText] = useState("");
     // TODO: Remove this default avatar URL and fetch user's own avatar
     const [newMsg, setNewMsg] = useState({
         message: "",
         avatar: props.sender.avatar,
         systemMsg: false,
-        recipientUsername: props.recipient.username,
+        recipientUsername: recipient.username,
         senderUsername: props.sender.username
     });
 
@@ -21,9 +23,9 @@ export default function CreateMessage(props) {
             message: msgText,
             avatar: props.sender.avatar,
             systemMsg: false,
-            recipientUsername: props.recipient.username,
+            recipientUsername: recipient.username,
             senderUsername: props.sender.username,
-            isRoom: props.recipient.isRoom
+            isRoom: recipient.isRoom
         })
     }, [msgText]);
 

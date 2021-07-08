@@ -1,4 +1,6 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import changeRecipient from '../../../actions/recipient-actions.js'
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography } from '@material-ui/core';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 import PeopleIcon from '@material-ui/icons/People';
@@ -6,6 +8,7 @@ import useStyles from '../../styles/chat-styles.js';
 
 function RoomsList(props) {
     const classes = useStyles();
+    const dispatch = useDispatch();
 
     function handleChatButtonOnClick(roomname) {
         props.manageRooms("join", roomname, isUserInRoom);
@@ -13,7 +16,7 @@ function RoomsList(props) {
 
     function isUserInRoom(status, roomname) {
         if (status) {
-            props.setRecipient({ username: roomname, isRoom: true });
+            dispatch(changeRecipient({ username: roomname, isRoom: true }));
         }
     }
 

@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import changeRecipient from '../../../../actions/recipient-actions.js'
 import chatStyles from '../../../styles/chat-styles.js';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, AppBar, Tabs, Tab } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, Tabs, Tab } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -20,6 +22,7 @@ function Alert(props) {
 
 function ChatMenu(props) {
     const { user, setUser } = useContext(UserContext);
+    const dispatch = useDispatch();
     const [openEditProfile, setOpenEditProfile] = useState(false);
     const [profileTabValue, setProfileTabValue] = useState(0);
     const [roomsTabValue, setRoomsTabValue] = useState(0);
@@ -80,7 +83,7 @@ function ChatMenu(props) {
 
     function isUserInRoom(status, roomname) {
         if (status) {
-            props.setRecipient({ username: roomname, isRoom: true });
+            dispatch(changeRecipient({ username: roomname, isRoom: true }));
         }
     }
 

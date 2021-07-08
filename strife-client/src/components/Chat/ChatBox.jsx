@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Typography, Divider, IconButton, Dialog, DialogContent, List, ListItem, ListItemText } from '@material-ui/core';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -6,11 +7,15 @@ import chatStyles from '../styles/chat-styles.js';
 import CreateMessage from './CreateMessage.jsx';
 import MessageBox from './MessageBox.jsx';
 import Announcement from './Announcement.jsx';
+import changeRecipient from '../../actions/recipient-actions.js';
 
 function ChatBox(props) {
 
     // For automatically scrolling to the bottom of the chat
     const bottomOfChatDiv = useRef(null);
+
+    const recipient = useSelector(state => state.recipient);
+    const dispatch = useDispatch();
     const [showDetailedMembers, setShowDetailedMembers] = useState(false);
     var processedMsgListForUsers = [];
     var processedMsgListForRooms = [];
@@ -20,8 +25,8 @@ function ChatBox(props) {
     });
 
     function handleLeaveRoomClicked() {
-        props.manageRooms("leave", props.recipient.username);
-        props.setRecipient("");
+        props.manageRooms("leave", recipient.username);
+        dispatch(changeRecipient(""));
     }
 
     function returnMemberNameComponent(memberName, showDetailed) {
@@ -45,7 +50,7 @@ function ChatBox(props) {
     return (
         <>
             <div className={classes.talkingToContainer} style={{ display: 'flex', alignItems: 'center' }} >
-                <img hidden={props.recipient.isRoom} className={classes.expandFastOnHover} src={props.recipient.avatar} style={{ borderRadius: '20%', margin: '15px' }} height="50px" width="50px" />
+                <img hidden={recipient.isRoom} className={classes.expandFastOnHover} src={recipient.avatar} style={{ borderRadius: '20%', margin: '15px' }} height="50px" width="50px" />
                 <Typography variant="h5" style={{
                     fontWeight: 'bold',
                     fontFamily: "'Syne', sans-serif",
@@ -53,12 +58,12 @@ function ChatBox(props) {
                     margin: '15px',
                     marginBottom: '15px'
                 }}>
-                    {props.recipient.username}
+                    {recipient.username}
                 </Typography>
-                {props.recipient.isRoom && <IconButton><ExitToAppIcon onClick={handleLeaveRoomClicked} /></IconButton>}
+                {recipient.isRoom && <IconButton><ExitToAppIcon onClick={handleLeaveRoomClicked} /></IconButton>}
             </div>
 
-            {props.recipient.isRoom && <div className={classes.onlineRoomMembers} style={{ display: 'flex', maxWidth: '100%' }}>
+            {recipient.isRoom && <div className={classes.onlineRoomMembers} style={{ display: 'flex', maxWidth: '100%' }}>
                 <Typography style={{
                     marginLeft: '15px',
                     marginBottom: '10px',
@@ -70,9 +75,9 @@ function ChatBox(props) {
                     members:
                 </Typography>
                 {/* TODO: Make component clickable and show popup if more than 5 members */}
-                {props.onlineMembers.get(props.recipient.username).length > 5 ?
-                    returnMemberNameComponent(props.onlineMembers.get(props.recipient.username).length, true) :
-                    props.onlineMembers.get(props.recipient.username).map((memberName) => {
+                {props.onlineMembers.get(recipient.username).length > 5 ?
+                    returnMemberNameComponent(props.onlineMembers.get(recipient.username).length, true) :
+                    props.onlineMembers.get(recipient.username).map((memberName) => {
                         return (returnMemberNameComponent(memberName, false));
                     })}
             </div>}
@@ -82,18 +87,18 @@ function ChatBox(props) {
                     // TODO: Clean and optimize this block
                     props.msgList.map((message, index) => {
                         if (message.isRoom) {
-                            if (props.recipient.username == message.recipientUsername) {
+                            if (recipient.username == message.recipientUsername) {
                                 if (!processedMsgListForRooms.includes(props.msgList[index].message)) {
                                     var newIndex = index + 1;
                                     var combinedMsgList = [message.message];
                                     while ((newIndex <= props.msgList.length - 1) && (props.msgList[newIndex].senderUsername == message.senderUsername)) {
-                                        if (props.recipient.username == props.msgList[newIndex].recipientUsername) {
+                                        if (recipient.username == props.msgList[newIndex].recipientUsername) {
                                             combinedMsgList.push(props.msgList[newIndex].message);
                                             processedMsgListForRooms.push(props.msgList[newIndex].message);
                                         }
                                         newIndex++;
                                     }
-                                    if (props.recipient.username == message.senderUsername || props.recipient.username == message.recipientUsername) {
+                                    if (recipient.username == message.senderUsername || recipient.username == message.recipientUsername) {
                                         if (message.systemMsg) {
                                             return (<Announcement msg={message.message} />)
                                         }
@@ -111,7 +116,7 @@ function ChatBox(props) {
                                     processedMsgListForUsers.push(newIndex);
                                     newIndex++;
                                 }
-                                if (props.recipient.username == message.senderUsername || props.recipient.username == message.recipientUsername) {
+                                if (recipient.username == message.senderUsername || recipient.username == message.recipientUsername) {
                                     if (message.systemMsg) {
                                         return (<Announcement msg={message.message} />)
                                     }
@@ -124,14 +129,14 @@ function ChatBox(props) {
                 < div ref={bottomOfChatDiv} />
             </div>
             <div>
-                <CreateMessage sendMessage={props.sendMessage} recipient={props.recipient} sender={props.sender} />
+                <CreateMessage sendMessage={props.sendMessage} sender={props.sender} />
             </div>
 
             {/* For showing detailed members list */}
             <Dialog open={showDetailedMembers} onClose={() => setShowDetailedMembers(false)} autoFocus={false}>
                 <DialogContent>
-                    {props.onlineMembers.has(props.recipient.username) &&
-                        props.onlineMembers.get(props.recipient.username).map((memberName) => {
+                    {props.onlineMembers.has(recipient.username) &&
+                        props.onlineMembers.get(recipient.username).map((memberName) => {
                             return (<List>
                                 <ListItem>
                                     <FiberManualRecordIcon style={{ fontSize: '15px', color: 'green', paddingRight: '5px' }} />

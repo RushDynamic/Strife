@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
 import { Typography } from '@material-ui/core';
 import { UserContext } from '../../UserContext';
 import chatStyles from '../styles/chat-styles';
@@ -6,6 +6,7 @@ import chatStyles from '../styles/chat-styles';
 function LandingChatBox() {
     const { user } = useContext(UserContext);
     const classes = chatStyles();
+
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '70vh' }}>
