@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Typography, Divider, IconButton } from '@material-ui/core';
+import React, { useEffect, useRef, useState } from 'react';
+import { Typography, Divider, IconButton, Dialog, DialogContent, List, ListItem, ListItemText } from '@material-ui/core';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import chatStyles from '../styles/chat-styles.js';
@@ -11,6 +11,7 @@ function ChatBox(props) {
 
     // For automatically scrolling to the bottom of the chat
     const bottomOfChatDiv = useRef(null);
+    const [showDetailedMembers, setShowDetailedMembers] = useState(false);
     var processedMsgListForUsers = [];
     var processedMsgListForRooms = [];
 
@@ -23,7 +24,7 @@ function ChatBox(props) {
         props.setRecipient("");
     }
 
-    function returnMemberNameComponent(memberName) {
+    function returnMemberNameComponent(memberName, showDetailed) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', marginBottom: '10px', boxSizing: 'border-box' }}>
                 <FiberManualRecordIcon style={{ fontSize: '15px', color: 'green', paddingRight: '5px' }} />
@@ -31,8 +32,11 @@ function ChatBox(props) {
                     paddingRight: '10px',
                     letterSpacing: '1px',
                     fontFamily: "'Syne', sans-serif",
-                    fontVariant: 'small-caps'
-                }}>{memberName}</Typography>
+                    fontVariant: 'small-caps',
+                    cursor: 'pointer'
+                }}
+                    onClick={showDetailed ? () => { setShowDetailedMembers(true) } : {}}
+                >{memberName}</Typography>
             </div>
         );
     }
@@ -67,9 +71,9 @@ function ChatBox(props) {
                 </Typography>
                 {/* TODO: Make component clickable and show popup if more than 5 members */}
                 {props.onlineMembers.get(props.recipient.username).length > 5 ?
-                    returnMemberNameComponent(props.onlineMembers.get(props.recipient.username).length) :
+                    returnMemberNameComponent(props.onlineMembers.get(props.recipient.username).length, true) :
                     props.onlineMembers.get(props.recipient.username).map((memberName) => {
-                        return (returnMemberNameComponent(memberName));
+                        return (returnMemberNameComponent(memberName, false));
                     })}
             </div>}
             <Divider light={true} style={{ width: '100%' }} />
@@ -122,6 +126,23 @@ function ChatBox(props) {
             <div>
                 <CreateMessage sendMessage={props.sendMessage} recipient={props.recipient} sender={props.sender} />
             </div>
+
+            {/* For showing detailed members list */}
+            <Dialog open={showDetailedMembers} onClose={() => setShowDetailedMembers(false)} autoFocus={false}>
+                <DialogContent>
+                    {props.onlineMembers.has(props.recipient.username) &&
+                        props.onlineMembers.get(props.recipient.username).map((memberName) => {
+                            return (<List>
+                                <ListItem>
+                                    <FiberManualRecordIcon style={{ fontSize: '15px', color: 'green', paddingRight: '5px' }} />
+                                    <ListItemText
+                                        primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{memberName}</Typography>}
+                                    />
+                                </ListItem>
+                            </List>);
+                        })}
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
