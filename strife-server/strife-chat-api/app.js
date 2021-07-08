@@ -192,6 +192,7 @@ function leaveAllRooms(username, socket) {
             socket.leave(room);
             var onlineUsersInRoom = onlineRoomsMap.get(room);
             onlineUsersInRoom = onlineUsersInRoom.filter(user => user != username);
+            socket.to(room).emit('updated-room-members', room, onlineUsersInRoom);
 
             // Disband room if no one is online
             if (onlineUsersInRoom.length == 0) onlineRoomsMap.delete(room);
