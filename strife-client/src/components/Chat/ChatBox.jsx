@@ -40,7 +40,7 @@ function ChatBox(props) {
                     fontVariant: 'small-caps',
                     cursor: 'pointer'
                 }}
-                    onClick={showDetailed ? () => { setShowDetailedMembers(true) } : {}}
+                    onClick={showDetailed ? () => { setShowDetailedMembers(true) } : () => { }}
                 >{memberName}</Typography>
             </div>
         );
