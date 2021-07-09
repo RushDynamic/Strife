@@ -166,7 +166,10 @@ function updateRoomsList(action, roomname, username, socket, callback) {
                 onlineUsersInRoom = onlineUsersInRoom.filter(user => user != username);
 
                 // Disband room if no one is online
-                if (onlineUsersInRoom.length == 0) onlineRoomsMap.delete(roomname);
+                if (onlineUsersInRoom.length == 0) {
+                    onlineRoomsMap.delete(roomname);
+                    deleteAllMessages(roomname);
+                }
                 else onlineRoomsMap.set(roomname, onlineUsersInRoom);
 
                 // Update userRoomsMap as well
@@ -195,10 +198,34 @@ function leaveAllRooms(username, socket) {
             socket.to(room).emit('updated-room-members', room, onlineUsersInRoom);
 
             // Disband room if no one is online
-            if (onlineUsersInRoom.length == 0) onlineRoomsMap.delete(room);
+            if (onlineUsersInRoom.length == 0) {
+                onlineRoomsMap.delete(room);
+                console.log("Deleting all messages in room:", room);
+                deleteAllMessages(room);
+            }
             else onlineRoomsMap.set(room, onlineUsersInRoom);
         });
         userRoomsMap.delete(username);
+    }
+}
+
+function deleteAllMessages(username) {
+    if (userMessagesMap.has(username)) {
+        //const onlineUsers = Array.from(onlineUsersMap.keys());
+        const recipientUsersList = Array.from(userMessagesMap.get(username).keys());
+        //console.log('recipientUsersList:', recipientUsersList);
+        //const anyUserOnline = recipientUsersList.some(r => onlineUsers.includes(r));
+        //if (!anyUserOnline) {
+        userMessagesMap.delete(username);
+        //}
+        recipientUsersList.map((recipientUser) => {
+            if (userMessagesMap.has(recipientUser) && userMessagesMap.get(recipientUser).has(username)) {
+                //if (!onlineUsers.includes(recipientUser)) {
+                userMessagesMap.get(recipientUser).delete(username);
+                //}
+            }
+            //console.log("userMessagesMap:", userMessagesMap);
+        })
     }
 }
 
