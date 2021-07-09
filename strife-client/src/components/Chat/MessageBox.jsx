@@ -4,7 +4,7 @@ import chatStyles from '../styles/chat-styles.js';
 import moment from 'moment';
 
 export default function MessageBox(props) {
-    const colors = ['#6ee429', '#4ab2a7', '##2366cb', '#3abefb', '#6efccf', '#b12da4', '#d7db05', '#f97a12', '#a186e1', '#d11265'];
+    const colors = ['#6ee429', '#4ab2a7', '#2366cb', '#3abefb', '#6efccf', '#b12da4', '#d7db05', '#f97a12', '#a186e1', '#d11265'];
     const classes = chatStyles();
 
     function returnMsgTextContainer(msg) {
