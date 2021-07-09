@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import updateMessages from '../../actions/message-actions.js'
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
@@ -16,9 +17,11 @@ import { UserContext } from '../../UserContext.js';
 
 export default function Chat() {
     const classes = chatStyles();
+    const dispatch = useDispatch();
     const history = useHistory();
     const socket = useRef();
     const recipient = useSelector(state => state.recipient);
+    const messages = useSelector(state => state.messages);
     const [socketConnected, setSocketConnected] = useState(false);
     const { user, setUser } = useContext(UserContext);
     const [loadingStages, setLoadingStages] = useState([]);
@@ -48,7 +51,6 @@ export default function Chat() {
             if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
                 console.log("You're logged in!");
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
-
                 setUser({ username: isUserLoggedIn.username, avatar: isUserLoggedIn.avatar, accessToken: isUserLoggedIn.accessToken });
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
@@ -72,7 +74,8 @@ export default function Chat() {
                 // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
                     const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    updateMessageList(newSystemMsg);
+                    dispatch(updateMessages(newSystemMsg));
+                    //updateMessageList(newSystemMsg);
                 })
 
                 // Receive friends list from server
@@ -122,10 +125,14 @@ export default function Chat() {
 
     // Push new message to the msgList
     useEffect(() => {
-        if (newMsg.senderUsername != recipient.username) {
+        if (newMsg.isRoom && newMsg.recipientUsername != recipient.username) {
+            setUnseenMsgUsersList(prevList => [...prevList, newMsg.recipientUsername]);
+        }
+        else if (newMsg.senderUsername != recipient.username) {
             setUnseenMsgUsersList(prevList => [...prevList, newMsg.senderUsername]);
         }
-        updateMessageList(newMsg);
+        dispatch(updateMessages(newMsg));
+        // updateMessageList(newMsg);
     }, [newMsg])
 
     function manageRooms(action, roomname, callback) {
@@ -163,7 +170,8 @@ export default function Chat() {
     function sendMessage(msgData) {
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
             socket.current.emit('add-msg', msgData, new Date().getTime());
-            updateMessageList(msgData);
+            dispatch(updateMessages(msgData));
+            //updateMessageList(msgData);
         }
     }
 
@@ -206,7 +214,12 @@ export default function Chat() {
                     <Header requestFriendsList={requestFriendsList} manageRooms={manageRooms} />
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-                    <RoomsList roomsList={onlineRoomsList != null ? onlineRoomsList : []} manageRooms={manageRooms} />
+                    <RoomsList
+                        roomsList={onlineRoomsList != null ? onlineRoomsList : []}
+                        manageRooms={manageRooms}
+                        unseenMsgUsersList={unseenMsgUsersList}
+                        setUnseenMsgUsersList={setUnseenMsgUsersList}
+                    />
                     <Box m={0.5} />
                     <FriendsList
                         friendsList={friendsList}
@@ -218,7 +231,6 @@ export default function Chat() {
                         {
                             recipient.username == "" ? <LandingChatBox /> :
                                 <ChatBox
-                                    msgList={msgList}
                                     sendMessage={sendMessage}
                                     sender={user}
                                     onlineMembers={onlineMembers}

@@ -15,10 +15,11 @@ function ChatBox(props) {
     const bottomOfChatDiv = useRef(null);
 
     const recipient = useSelector(state => state.recipient);
+    const messages = useSelector(state => state.messages);
     const dispatch = useDispatch();
     const [showDetailedMembers, setShowDetailedMembers] = useState(false);
-    var processedMsgListForUsers = [];
-    var processedMsgListForRooms = [];
+    const processedMsgListForUsers = useRef([]);
+    const processedMsgListForRooms = useRef([]);
 
     useEffect(() => {
         bottomOfChatDiv.current.scrollIntoView({ behavior: 'smooth' });
@@ -32,7 +33,7 @@ function ChatBox(props) {
     function returnMemberNameComponent(memberName, showDetailed) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', marginBottom: '10px', boxSizing: 'border-box' }}>
-                <FiberManualRecordIcon style={{ fontSize: '15px', color: 'green', paddingRight: '5px' }} />
+                <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
                 <Typography style={{
                     paddingRight: '10px',
                     letterSpacing: '1px',
@@ -70,7 +71,7 @@ function ChatBox(props) {
                     letterSpacing: '1px',
                     fontFamily: "'Syne', sans-serif",
                     fontVariant: 'small-caps',
-                    color: 'green'
+                    color: '#80FF00'
                 }}>
                     members:
                 </Typography>
@@ -85,16 +86,16 @@ function ChatBox(props) {
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                 {
                     // TODO: Clean and optimize this block
-                    props.msgList.map((message, index) => {
+                    messages.msgList.map((message, index) => {
                         if (message.isRoom) {
                             if (recipient.username == message.recipientUsername) {
-                                if (!processedMsgListForRooms.includes(props.msgList[index].message)) {
+                                if (!processedMsgListForRooms.current.includes(messages.msgList[index].message)) {
                                     var newIndex = index + 1;
                                     var combinedMsgList = [message.message];
-                                    while ((newIndex <= props.msgList.length - 1) && (props.msgList[newIndex].senderUsername == message.senderUsername)) {
-                                        if (recipient.username == props.msgList[newIndex].recipientUsername) {
-                                            combinedMsgList.push(props.msgList[newIndex].message);
-                                            processedMsgListForRooms.push(props.msgList[newIndex].message);
+                                    while ((newIndex <= messages.msgList.length - 1) && (messages.msgList[newIndex].senderUsername == message.senderUsername)) {
+                                        if (recipient.username == messages.msgList[newIndex].recipientUsername) {
+                                            combinedMsgList.push(messages.msgList[newIndex].message);
+                                            processedMsgListForRooms.current.push(messages.msgList[newIndex].message);
                                         }
                                         newIndex++;
                                     }
@@ -108,12 +109,12 @@ function ChatBox(props) {
                             }
                         }
                         else {
-                            if (!processedMsgListForUsers.includes(index)) {
+                            if (!processedMsgListForUsers.current.includes(index)) {
                                 var newIndex = index + 1;
                                 var combinedMsgList = [message.message];
-                                while ((newIndex <= props.msgList.length - 1) && (props.msgList[newIndex].senderUsername == message.senderUsername)) {
-                                    combinedMsgList.push(props.msgList[newIndex].message);
-                                    processedMsgListForUsers.push(newIndex);
+                                while ((newIndex <= messages.msgList.length - 1) && (messages.msgList[newIndex].senderUsername == message.senderUsername)) {
+                                    combinedMsgList.push(messages.msgList[newIndex].message);
+                                    processedMsgListForUsers.current.push(newIndex);
                                     newIndex++;
                                 }
                                 if (recipient.username == message.senderUsername || recipient.username == message.recipientUsername) {
@@ -139,7 +140,7 @@ function ChatBox(props) {
                         props.onlineMembers.get(recipient.username).map((memberName) => {
                             return (<List>
                                 <ListItem>
-                                    <FiberManualRecordIcon style={{ fontSize: '15px', color: 'green', paddingRight: '5px' }} />
+                                    <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
                                     <ListItemText
                                         primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{memberName}</Typography>}
                                     />
