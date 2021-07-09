@@ -1,10 +1,15 @@
-import { UPDATE_MESSAGES } from "./types.js";
+import { ADD_MESSAGE, UPDATE_MESSAGES } from "./types.js";
 
-const updateMessages = (newMsg) => {
+export const addMessage = (newMsg) => {
     return {
-        type: UPDATE_MESSAGES,
+        type: ADD_MESSAGE,
         payload: newMsg
     }
 }
 
-export default updateMessages;
+export const updateMessages = (newMsgList) => {
+    return {
+        type: UPDATE_MESSAGES,
+        payload: newMsgList
+    }
+}
