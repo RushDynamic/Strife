@@ -1,8 +1,9 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import changeRecipient from '../../../actions/recipient-actions.js'
-import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography } from '@material-ui/core';
+import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
+import ChatIcon from '@material-ui/icons/Chat';
 import PeopleIcon from '@material-ui/icons/People';
 import useStyles from '../../styles/chat-styles.js';
 
@@ -17,7 +18,29 @@ function RoomsList(props) {
     function isUserInRoom(status, roomname) {
         if (status) {
             dispatch(changeRecipient({ username: roomname, isRoom: true }));
+            props.setUnseenMsgUsersList(props.unseenMsgUsersList.filter(unseenUser => unseenUser != roomname));
         }
+    }
+
+    function returnChatButton(roomname) {
+        if (props.unseenMsgUsersList.includes(roomname)) {
+            return (
+                <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
+                    <IconButton>
+                        <Badge color="primary" variant="dot">
+                            <ChatIcon />
+                        </Badge>
+                    </IconButton>
+                </ListItemIcon>
+            );
+        }
+        return (
+            <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
+                <IconButton>
+                    <ChatBubbleIcon />
+                </IconButton>
+            </ListItemIcon>
+        );
     }
 
     return (
@@ -52,7 +75,7 @@ function RoomsList(props) {
                                     <ListItem>
                                         <ListItemAvatar><PeopleIcon /></ListItemAvatar>
                                         <ListItemText disableTypography primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{room}</Typography>} />
-                                        <ListItemIcon onClick={() => handleChatButtonOnClick(room)}><IconButton><ChatBubbleIcon /></IconButton></ListItemIcon>
+                                        {returnChatButton(room)}
                                     </ListItem>
                                 ))
                         }
