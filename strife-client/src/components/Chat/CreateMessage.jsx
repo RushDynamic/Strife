@@ -25,6 +25,7 @@ export default function CreateMessage(props) {
             systemMsg: false,
             recipientUsername: recipient.username,
             senderUsername: props.sender.username,
+            timestamp: new Date().getTime(),
             isRoom: recipient.isRoom
         })
     }, [msgText]);

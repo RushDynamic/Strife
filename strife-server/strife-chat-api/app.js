@@ -42,15 +42,15 @@ io.on('connect', socket => {
     });
 
     console.log("New connection ", socket.id)
-    socket.on('add-msg', (msgData, msgTimestamp) => {
+    socket.on('add-msg', (msgData) => {
         const newMsg = {
             message: msgData.message,
             avatar: msgData.avatar,
             systemMsg: false,
             senderUsername: msgData.senderUsername,
             recipientUsername: msgData.recipientUsername,
-            isRoom: msgData.isRoom,
-            timestamp: msgTimestamp
+            timestamp: msgData.timestamp,
+            isRoom: msgData.isRoom
         };
 
         // Check if recipient is a room
@@ -225,7 +225,7 @@ function deleteUserMsgHistory(username) {
             if (!onlineUsers.includes(recipientUser)) {
                 // Recipient user is offline
                 userMessagesMap.get(username).delete(recipientUser);
-                if (userMessagesMap.get(recipientUser).has(username)) {
+                if (userMessagesMap.has(recipientUser) && userMessagesMap.get(recipientUser).has(username)) {
                     userMessagesMap.get(recipientUser).delete(username);
                 }
             }

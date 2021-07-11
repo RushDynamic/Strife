@@ -172,7 +172,7 @@ export default function Chat() {
 
     function sendMessage(msgData) {
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData, new Date().getTime());
+            socket.current.emit('add-msg', msgData);
             updateMessageList(msgData);
         }
     }
