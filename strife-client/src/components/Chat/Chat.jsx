@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { addMessage, updateMessages } from '../../actions/message-actions.js'
+import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
@@ -21,7 +21,6 @@ export default function Chat() {
     const history = useHistory();
     const socket = useRef();
     const recipient = useSelector(state => state.recipient);
-    const messages = useSelector(state => state.messages);
     const [socketConnected, setSocketConnected] = useState(false);
     const { user, setUser } = useContext(UserContext);
     const [loadingStages, setLoadingStages] = useState([]);
@@ -63,8 +62,6 @@ export default function Chat() {
 
                 // Receive new messages from the server
                 socket.current.on("echo-msg", (echoMessage) => {
-                    console.log("echoMessage:", echoMessage);
-                    console.log("recipient:", recipient);
                     setNewMsg(echoMessage);
                 });
 
@@ -76,8 +73,7 @@ export default function Chat() {
                 // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
                     const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    dispatch(addMessage(newSystemMsg));
-                    //updateMessageList(newSystemMsg);
+                    updateMessageList(newSystemMsg);
                 })
 
                 // Receive friends list from server
@@ -90,13 +86,12 @@ export default function Chat() {
                 // Receive msg history from server
                 socket.current.on('receive-msg-history', (msgHistory) => {
                     console.log("Received msg history from server: ", msgHistory);
-                    dispatch(updateMessages(msgHistory));
-                    //setMsgList(msgHistory);
+                    setMsgList([...msgHistory]);
                 });
 
                 // Receive rooms map from server
                 socket.current.on('rooms-list', (roomsList) => {
-                    setOnlineRoomsList(roomsList);
+                    setOnlineRoomsList([...roomsList]);
                 });
 
                 // Receive updated room members list from server
@@ -119,24 +114,24 @@ export default function Chat() {
 
     // Get message history for the new recipient
     useEffect(() => {
-        dispatch(updateMessages([]));
-        //setMsgList([]);
+        setMsgList([]);
         // TODO: Only start listening for recipient change after socket has finished connecting
+        console.log("Changed recipient:", recipient);
         if (socketConnected) {
             socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
         }
+        dispatch(removeUnseen(recipient.username));
     }, [recipient])
 
     // Push new message to the msgList
     useEffect(() => {
         if (newMsg.isRoom && newMsg.recipientUsername != recipient.username) {
-            setUnseenMsgUsersList(prevList => [...prevList, newMsg.recipientUsername]);
+            dispatch(addUnseen(newMsg.recipientUsername))
         }
         else if (newMsg.senderUsername != recipient.username) {
-            setUnseenMsgUsersList(prevList => [...prevList, newMsg.senderUsername]);
+            dispatch(addUnseen(newMsg.senderUsername))
         }
-        dispatch(addMessage(newMsg));
-        // updateMessageList(newMsg);
+        updateMessageList(newMsg);
     }, [newMsg])
 
     function manageRooms(action, roomname, callback) {
@@ -174,13 +169,11 @@ export default function Chat() {
     function sendMessage(msgData) {
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
             socket.current.emit('add-msg', msgData, new Date().getTime());
-            dispatch(addMessage(msgData));
-            //updateMessageList(msgData);
+            updateMessageList(msgData);
         }
     }
 
     function updateMessageList(msgData) {
-        //console.log(msgList);
         setMsgList(oldList => [...oldList, msgData]);
     }
 
@@ -235,6 +228,7 @@ export default function Chat() {
                         {
                             recipient.username == "" ? <LandingChatBox /> :
                                 <ChatBox
+                                    msgList={msgList}
                                     sendMessage={sendMessage}
                                     sender={user}
                                     onlineMembers={onlineMembers}

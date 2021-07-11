@@ -11,6 +11,7 @@ import changeRecipient from '../../../actions/recipient-actions.js';
 function FriendsList(props) {
     const classes = useStyles();
     const recipient = useSelector(state => state.recipient);
+    const unseenMsgUserList = useSelector(state => state.notifications.unseenMsgUserList);
     const dispatch = useDispatch();
     console.log("Friends list: ", props.friendsList);
 
@@ -22,12 +23,9 @@ function FriendsList(props) {
     function returnChatButton(friend) {
         if (friend.status == "offline") return (<ListItemIcon><IconButton disabled><ChatBubbleIcon /></IconButton></ListItemIcon>);
         else {
-            if (props.unseenMsgUsersList.includes(friend.username)) {
+            if (unseenMsgUserList.includes(friend.username)) {
                 return (
-                    <ListItemIcon onClick={() => {
-                        dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }));
-                        props.setUnseenMsgUsersList(props.unseenMsgUsersList.filter(unseenUser => unseenUser != friend.username));
-                    }}>
+                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }))}>
                         <IconButton>
                             <Badge color="primary" variant="dot">
                                 <ChatIcon />

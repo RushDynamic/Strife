@@ -1,3 +1,6 @@
+// For recipients
 export const CHANGE_RECIPIENT = 'CHANGE_RECIPIENT';
-export const ADD_MESSAGE = 'ADD_MESSAGE';
-export const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
+
+// For unseen messages
+export const ADD_UNSEEN = 'ADD_UNSEEN';
+export const REMOVE_UNSEEN = 'REMOVE_UNSEEN';

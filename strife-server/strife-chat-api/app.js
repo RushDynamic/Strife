@@ -36,7 +36,8 @@ io.on('connect', socket => {
                 .catch((err) => console.log("An error occurred while sending friends list", err));
 
             // Send user's roomslist
-            socket.emit('rooms-list', userRoomsMap.get(username));
+            socket.emit('rooms-list', userRoomsMap.has(username) ? userRoomsMap.get(username) : []);
+
         }
     });
 
@@ -185,7 +186,8 @@ function updateRoomsList(action, roomname, username, socket, callback) {
     }
     //console.log("userRoomsMap:", userRoomsMap);
     //console.log("onlineRoomsMap:", onlineRoomsMap);
-    socket.emit('rooms-list', userRoomsMap.get(username));
+    socket.emit('rooms-list', userRoomsMap.has(username) ? userRoomsMap.get(username) : []);
+
 }
 
 function leaveAllRooms(username, socket) {

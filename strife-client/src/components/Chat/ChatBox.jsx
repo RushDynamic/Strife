@@ -15,11 +15,10 @@ function ChatBox(props) {
     const bottomOfChatDiv = useRef(null);
 
     const recipient = useSelector(state => state.recipient);
-    const messages = useSelector(state => state.messages);
     const dispatch = useDispatch();
     const [showDetailedMembers, setShowDetailedMembers] = useState(false);
-    const processedMsgListForUsers = useRef([]);
-    const processedMsgListForRooms = useRef([]);
+    var processedMsgListForUsers = [];
+    var processedMsgListForRooms = [];
 
     useEffect(() => {
         bottomOfChatDiv.current.scrollIntoView({ behavior: 'smooth' });
@@ -86,16 +85,18 @@ function ChatBox(props) {
             <div className={classes.messagesContainer} style={{ height: '70vh', overflowY: 'auto', overflowX: 'hidden' }}>
                 {
                     // TODO: Clean and optimize this block
-                    messages.msgList.map((message, index) => {
+                    props.msgList.map((message, index) => {
                         if (message.isRoom) {
                             if (recipient.username == message.recipientUsername) {
-                                if (!processedMsgListForRooms.current.includes(messages.msgList[index].message)) {
+                                if (!processedMsgListForRooms.includes(props.msgList[index].message)) {
                                     var newIndex = index + 1;
                                     var combinedMsgList = [message.message];
-                                    while ((newIndex <= messages.msgList.length - 1) && (messages.msgList[newIndex].senderUsername == message.senderUsername)) {
-                                        if (recipient.username == messages.msgList[newIndex].recipientUsername) {
-                                            combinedMsgList.push(messages.msgList[newIndex].message);
-                                            processedMsgListForRooms.current.push(messages.msgList[newIndex].message);
+                                    while ((newIndex <= props.msgList.length - 1) &&
+                                        (props.msgList[newIndex].senderUsername == message.senderUsername) &&
+                                        (props.msgList[newIndex].isRoom == true)) {
+                                        if (recipient.username == props.msgList[newIndex].recipientUsername) {
+                                            combinedMsgList.push(props.msgList[newIndex].message);
+                                            processedMsgListForRooms.push(props.msgList[newIndex].message);
                                         }
                                         newIndex++;
                                     }
@@ -109,12 +110,14 @@ function ChatBox(props) {
                             }
                         }
                         else {
-                            if (!processedMsgListForUsers.current.includes(index)) {
+                            if (!processedMsgListForUsers.includes(index)) {
                                 var newIndex = index + 1;
                                 var combinedMsgList = [message.message];
-                                while ((newIndex <= messages.msgList.length - 1) && (messages.msgList[newIndex].senderUsername == message.senderUsername)) {
-                                    combinedMsgList.push(messages.msgList[newIndex].message);
-                                    processedMsgListForUsers.current.push(newIndex);
+                                while ((newIndex <= props.msgList.length - 1) &&
+                                    (props.msgList[newIndex].senderUsername == message.senderUsername) &&
+                                    (props.msgList[newIndex].isRoom != true)) {
+                                    combinedMsgList.push(props.msgList[newIndex].message);
+                                    processedMsgListForUsers.push(newIndex);
                                     newIndex++;
                                 }
                                 if (recipient.username == message.senderUsername || recipient.username == message.recipientUsername) {
