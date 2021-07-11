@@ -125,11 +125,15 @@ export default function Chat() {
 
     // Push new message to the msgList
     useEffect(() => {
-        if (newMsg.isRoom && newMsg.recipientUsername != recipient.username) {
-            dispatch(addUnseen(newMsg.recipientUsername))
+        if (newMsg.isRoom) {
+            if (newMsg.recipientUsername != recipient.username) {
+                dispatch(addUnseen(newMsg.recipientUsername))
+            }
         }
-        else if (newMsg.senderUsername != recipient.username) {
-            dispatch(addUnseen(newMsg.senderUsername))
+        else {
+            if (newMsg.senderUsername != recipient.username) {
+                dispatch(addUnseen(newMsg.senderUsername))
+            }
         }
         updateMessageList(newMsg);
     }, [newMsg])

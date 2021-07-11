@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import changeRecipient from '../../../actions/recipient-actions.js'
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
@@ -10,6 +10,7 @@ import useStyles from '../../styles/chat-styles.js';
 function RoomsList(props) {
     const classes = useStyles();
     const dispatch = useDispatch();
+    const unseenMsgUserList = useSelector(state => state.notifications.unseenMsgUserList);
 
     function handleChatButtonOnClick(roomname) {
         props.manageRooms("join", roomname, isUserInRoom);
@@ -18,12 +19,11 @@ function RoomsList(props) {
     function isUserInRoom(status, roomname) {
         if (status) {
             dispatch(changeRecipient({ username: roomname, isRoom: true }));
-            props.setUnseenMsgUsersList(props.unseenMsgUsersList.filter(unseenUser => unseenUser != roomname));
         }
     }
 
     function returnChatButton(roomname) {
-        if (props.unseenMsgUsersList.includes(roomname)) {
+        if (unseenMsgUserList.includes(roomname)) {
             return (
                 <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
                     <IconButton>
