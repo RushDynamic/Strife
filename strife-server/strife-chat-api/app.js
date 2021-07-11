@@ -113,6 +113,9 @@ io.on('connect', socket => {
         // Leave all connected rooms
         leaveAllRooms(socket.username, socket);
 
+        // Delete message history
+        deleteUserMsgHistory(socket.username);
+
         // Send updated onlineUsers list to all users
         socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
     })
@@ -169,7 +172,9 @@ function updateRoomsList(action, roomname, username, socket, callback) {
                 // Disband room if no one is online
                 if (onlineUsersInRoom.length == 0) {
                     onlineRoomsMap.delete(roomname);
-                    deleteAllMessages(roomname);
+                    if (userMessagesMap.has(roomname)) {
+                        userMessagesMap.delete(roomname);
+                    }
                 }
                 else onlineRoomsMap.set(roomname, onlineUsersInRoom);
 
@@ -202,8 +207,9 @@ function leaveAllRooms(username, socket) {
             // Disband room if no one is online
             if (onlineUsersInRoom.length == 0) {
                 onlineRoomsMap.delete(room);
-                console.log("Deleting all messages in room:", room);
-                deleteAllMessages(room);
+                if (userMessagesMap.has(room)) {
+                    userMessagesMap.delete(room);
+                }
             }
             else onlineRoomsMap.set(room, onlineUsersInRoom);
         });
@@ -211,22 +217,18 @@ function leaveAllRooms(username, socket) {
     }
 }
 
-function deleteAllMessages(username) {
+function deleteUserMsgHistory(username) {
+    const onlineUsers = Array.from(onlineUsersMap.keys());
     if (userMessagesMap.has(username)) {
-        //const onlineUsers = Array.from(onlineUsersMap.keys());
         const recipientUsersList = Array.from(userMessagesMap.get(username).keys());
-        //console.log('recipientUsersList:', recipientUsersList);
-        //const anyUserOnline = recipientUsersList.some(r => onlineUsers.includes(r));
-        //if (!anyUserOnline) {
-        userMessagesMap.delete(username);
-        //}
-        recipientUsersList.map((recipientUser) => {
-            if (userMessagesMap.has(recipientUser) && userMessagesMap.get(recipientUser).has(username)) {
-                //if (!onlineUsers.includes(recipientUser)) {
-                userMessagesMap.get(recipientUser).delete(username);
-                //}
+        recipientUsersList.map(recipientUser => {
+            if (!onlineUsers.includes(recipientUser)) {
+                // Recipient user is offline
+                userMessagesMap.get(username).delete(recipientUser);
+                if (userMessagesMap.get(recipientUser).has(username)) {
+                    userMessagesMap.get(recipientUser).delete(username);
+                }
             }
-            //console.log("userMessagesMap:", userMessagesMap);
         })
     }
 }
