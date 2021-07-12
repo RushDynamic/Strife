@@ -78,9 +78,9 @@ function ChatBox(props) {
                     members:
                 </Typography>
                 {/* TODO: Make component clickable and show popup if more than 5 members */}
-                {props.onlineMembers.get(recipient.username).length > 5 ?
-                    returnMemberNameComponent(props.onlineMembers.get(recipient.username).length, true) :
-                    props.onlineMembers.get(recipient.username).map((memberName) => {
+                {props.onlineMembers.length > 5 ?
+                    returnMemberNameComponent(props.onlineMembers.length, true) :
+                    props.onlineMembers.map((memberName) => {
                         return (returnMemberNameComponent(memberName, false));
                     })}
             </div>}
@@ -142,17 +142,16 @@ function ChatBox(props) {
             {/* For showing detailed members list */}
             <Dialog open={showDetailedMembers} onClose={() => setShowDetailedMembers(false)} autoFocus={false}>
                 <DialogContent>
-                    {props.onlineMembers.has(recipient.username) &&
-                        props.onlineMembers.get(recipient.username).map((memberName) => {
-                            return (<List>
-                                <ListItem>
-                                    <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
-                                    <ListItemText
-                                        primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{memberName}</Typography>}
-                                    />
-                                </ListItem>
-                            </List>);
-                        })}
+                    {props.onlineMembers.map((memberName) => {
+                        return (<List>
+                            <ListItem>
+                                <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
+                                <ListItemText
+                                    primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{memberName}</Typography>}
+                                />
+                            </ListItem>
+                        </List>);
+                    })}
                 </DialogContent>
             </Dialog>
         </>

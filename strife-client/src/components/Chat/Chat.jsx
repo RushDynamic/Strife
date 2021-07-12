@@ -92,13 +92,16 @@ export default function Chat() {
 
                 // Receive rooms map from server
                 socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
-                    roomsList = roomsList == 'rooms-count-update' ? onlineRoomsList : (roomsList != null ? roomsList : []);
-                    setOnlineRoomsList([...roomsList]);
+                    if (roomsList != 'rooms-count-update') {
+                        roomsList = roomsList != null ? roomsList : [];
+                        setOnlineRoomsList([...roomsList]);
+                    }
                     setOnlineRoomsCount(totalRoomsCount);
                 });
 
                 // Receive updated room members list from server
                 socket.current.on('updated-room-members', (roomname, updatedMembersList) => {
+                    updatedMembersList = updatedMembersList != null && updatedMembersList != undefined ? updatedMembersList : [];
                     setOnlineMembers(new Map(onlineMembers.set(roomname, updatedMembersList)));
                 });
 
@@ -146,7 +149,8 @@ export default function Chat() {
             case 'join': console.log('Joining room:', roomname);
                 socket.current.emit('join-room', roomname, user.username, (response) => {
                     if (response.status == "success") {
-                        setOnlineMembers(new Map(onlineMembers.set(roomname, response.members)));
+                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                        setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
                     else callback(false, roomname);
@@ -156,7 +160,8 @@ export default function Chat() {
             case 'create': console.log('Creating room:', roomname);
                 socket.current.emit('create-room', roomname, user.username, (response) => {
                     if (response.status == "success") {
-                        setOnlineMembers(new Map(onlineMembers.set(roomname, response.members)));
+                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                        setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
                     else callback(false, roomname);
@@ -239,7 +244,7 @@ export default function Chat() {
                                     msgList={msgList}
                                     sendMessage={sendMessage}
                                     sender={user}
-                                    onlineMembers={onlineMembers}
+                                    onlineMembers={onlineMembers.has(recipient.username) ? onlineMembers.get(recipient.username) : [user.username]}
                                     manageRooms={manageRooms}
                                 />
                         }
