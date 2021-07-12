@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Typography, Divider, IconButton, Dialog, DialogContent, List, ListItem, ListItemText } from '@material-ui/core';
+import { Typography, Divider, IconButton, Dialog, DialogContent, List, ListItem, ListItemText, Tooltip } from '@material-ui/core';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import chatStyles from '../styles/chat-styles.js';
@@ -60,7 +60,10 @@ function ChatBox(props) {
                 }}>
                     {recipient.username}
                 </Typography>
-                {recipient.isRoom && <IconButton><ExitToAppIcon onClick={handleLeaveRoomClicked} /></IconButton>}
+                {recipient.isRoom &&
+                    <Tooltip title="Leave Room" arrow>
+                        <IconButton><ExitToAppIcon onClick={handleLeaveRoomClicked} /></IconButton>
+                    </Tooltip>}
             </div>
 
             {recipient.isRoom && <div className={classes.onlineRoomMembers} style={{ display: 'flex', maxWidth: '100%' }}>

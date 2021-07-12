@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import changeRecipient from '../../../../actions/recipient-actions.js'
 import chatStyles from '../../../styles/chat-styles.js';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, Tabs, Tab } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, Tabs, Tab, Tooltip } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -124,9 +124,15 @@ function ChatMenu(props) {
         <>
             <Paper>
                 <div className={classes.chatMenuContainer}>
-                    <PersonAddIcon onClick={() => setOpenAddFriend(true)} className={classes.chatMenuIcon} />
-                    <PeopleAltIcon onClick={() => setOpenRoomsMenu(true)} className={classes.chatMenuIcon} />
-                    <FaceIcon onClick={() => setOpenEditProfile(true)} className={classes.chatMenuIcon} />
+                    <Tooltip title="Add Friend" arrow>
+                        <PersonAddIcon onClick={() => setOpenAddFriend(true)} className={classes.chatMenuIcon} />
+                    </Tooltip>
+                    <Tooltip title="Rooms" arrow>
+                        <PeopleAltIcon onClick={() => setOpenRoomsMenu(true)} className={classes.chatMenuIcon} />
+                    </Tooltip>
+                    <Tooltip title="Edit Profile" arrow>
+                        <FaceIcon onClick={() => setOpenEditProfile(true)} className={classes.chatMenuIcon} />
+                    </Tooltip>
                 </div>
             </Paper>
 
