@@ -4,7 +4,7 @@ import { loginUser, checkLoggedIn } from '../services/login-service.js';
 export async function handleUserRegistration(req, res) {
     const userInfo = ({
         email: req.body.email,
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         password: req.body.password
     });
     console.log("UserInfo: ", userInfo);
@@ -40,7 +40,7 @@ export async function handleUserRegistration(req, res) {
 
 export async function handleUserLogin(req, res) {
     const userInfo = {
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         password: req.body.password
     };
     try {
