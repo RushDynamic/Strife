@@ -36,7 +36,8 @@ export default function MessageBox(props) {
                                 fontStyle: 'italic',
                                 paddingLeft: '5px',
                                 fontFamily: "'Rubik', sans-serif",
-                                fontSize: '0.6rem'
+                                fontSize: '0.6rem',
+                                color: '#7d7d7d'
                             }}>{moment(props.message.timestamp).format('h:mm a')}</div>
                         </div>
                         {
