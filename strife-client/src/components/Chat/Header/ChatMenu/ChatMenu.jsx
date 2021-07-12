@@ -31,6 +31,7 @@ function ChatMenu(props) {
     const [openAddFriend, setOpenAddFriend] = useState(false);
     const [addFriendStatus, setAddFriendStatus] = useState({ failure: false, success: false, msg: "An error occurred while adding friend" });
     const [openRoomsMenu, setOpenRoomsMenu] = useState(false);
+    const [roomActionStatus, setRoomActionStatus] = useState({ failure: false, success: false, msg: "That room doesn't exist" })
     const [roomname, setRoomname] = useState("");
     const classes = chatStyles();
 
@@ -61,7 +62,7 @@ function ChatMenu(props) {
 
     function handleCreateRoomClick() {
         if (roomname == null || roomname.trim().length == 0) {
-            // throw error msg
+            setRoomActionStatus({ failure: true, msg: "Please enter a valid roomname" });
         }
         else {
             setOpenRoomsMenu(false);
@@ -79,17 +80,23 @@ function ChatMenu(props) {
         if (status) {
             props.manageRooms("join", roomname, isUserInRoom);
         }
+        else {
+            setRoomActionStatus({ failure: true, msg: "Could not create room with that name" })
+        }
     }
 
     function isUserInRoom(status, roomname) {
         if (status) {
             dispatch(changeRecipient({ username: roomname, isRoom: true }));
         }
+        else {
+            setRoomActionStatus({ failure: true, msg: "That room doesn't exist" })
+        }
     }
 
     function handleJoinRoomClick() {
         if (roomname == null || roomname.trim().length == 0) {
-            // throw error msg
+            setRoomActionStatus({ failure: true, msg: "Please enter a valid roomname" });
         }
         else {
             setOpenRoomsMenu(false);
@@ -173,6 +180,11 @@ function ChatMenu(props) {
                     </div>
                 </DialogContent>
             </Dialog>
+            <Snackbar open={roomActionStatus.failure} autoHideDuration={3000} onClose={() => setRoomActionStatus({ failure: false, msg: roomActionStatus.msg })}>
+                <Alert severity="error">
+                    {roomActionStatus.msg}
+                </Alert>
+            </Snackbar>
 
             {/* For edit profile */}
             <Dialog open={openEditProfile} onClose={() => setOpenEditProfile(false)} autoFocus={false}>
