@@ -61,7 +61,12 @@ function RoomsList(props) {
                                     }}>rooms</Typography>
                                 }
                                 secondary={
-                                    "Online: " + props.onlineRoomsCount
+                                    <Typography style={{
+                                        fontVariant: 'small-caps',
+                                        fontFamily: "'Syne', sans-serif",
+                                    }}>
+                                        {"online: " + props.onlineRoomsCount}
+                                    </Typography>
                                 }
                             />
                         </ListItem>

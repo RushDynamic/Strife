@@ -64,9 +64,14 @@ function FriendsList(props) {
                                 }
 
                                 secondary={
-                                    props.friendsList.filter((friend) => friend.status == "online").reduce((total, friend) => total + 1, 0)
-                                    + ' / '
-                                    + props.friendsList.length
+                                    <Typography style={{
+                                        fontVariant: 'small-caps',
+                                        fontFamily: "'Syne', sans-serif",
+                                    }}>
+                                        {props.friendsList.filter((friend) => friend.status == "online").reduce((total, friend) => total + 1, 0)
+                                            + ' / '
+                                            + props.friendsList.length}
+                                    </Typography>
                                 }
                             />
                         </ListItem>
