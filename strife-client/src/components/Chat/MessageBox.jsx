@@ -28,13 +28,14 @@ export default function MessageBox(props) {
                                 fontWeight: 'bold',
                                 fontVariant: 'small-caps',
                                 fontFamily: "'Syne', sans-serif",
+                                fontSize: '1rem',
                                 color: colors[(props.message.senderUsername.length + props.message.senderUsername.charCodeAt(0) + new Date().getDate()) % 10]
                             }}>
                                 {props.message.senderUsername}
                             </div>
                             <div style={{
-                                fontStyle: 'italic',
-                                paddingLeft: '5px',
+                                fontWeight: 'bold',
+                                paddingLeft: '8px',
                                 fontFamily: "'Rubik', sans-serif",
                                 fontSize: '0.6rem',
                                 color: '#7d7d7d'
