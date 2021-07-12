@@ -27,6 +27,7 @@ export default function Chat() {
     const [loaded, setLoaded] = useState(false);
     const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
     const [onlineRoomsList, setOnlineRoomsList] = useState([]);
+    const [onlineRoomsCount, setOnlineRoomsCount] = useState([]);
     const [onlineMembers, setOnlineMembers] = useState(new Map());
     const [friendsList, setFriendsList] = useState([]);
     const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
@@ -90,8 +91,10 @@ export default function Chat() {
                 });
 
                 // Receive rooms map from server
-                socket.current.on('rooms-list', (roomsList) => {
+                socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
+                    roomsList = roomsList == 'rooms-count-update' ? onlineRoomsList : (roomsList != null ? roomsList : []);
                     setOnlineRoomsList([...roomsList]);
+                    setOnlineRoomsCount(totalRoomsCount);
                 });
 
                 // Receive updated room members list from server
@@ -216,6 +219,7 @@ export default function Chat() {
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                     <RoomsList
+                        onlineRoomsCount={onlineRoomsCount}
                         roomsList={onlineRoomsList != null ? onlineRoomsList : []}
                         manageRooms={manageRooms}
                         unseenMsgUsersList={unseenMsgUsersList}

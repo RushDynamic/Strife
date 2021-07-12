@@ -61,7 +61,7 @@ function RoomsList(props) {
                                     }}>rooms</Typography>
                                 }
                                 secondary={
-                                    "Online: " + props.roomsList.length
+                                    "Online: " + props.onlineRoomsCount
                                 }
                             />
                         </ListItem>

@@ -36,7 +36,7 @@ io.on('connect', socket => {
                 .catch((err) => console.log("An error occurred while sending friends list", err));
 
             // Send user's roomslist
-            socket.emit('rooms-list', userRoomsMap.has(username) ? userRoomsMap.get(username) : []);
+            socket.emit('rooms-list', userRoomsMap.get(username), onlineRoomsMap.size);
 
         }
     });
@@ -92,7 +92,8 @@ io.on('connect', socket => {
                 status: "failure"
             })
         }
-    })
+        io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
+    });
 
     // Join a room when user clicks on Chat button
     socket.on('join-room', (roomname, username, callback) => {
@@ -175,6 +176,7 @@ function updateRoomsList(action, roomname, username, socket, callback) {
                     if (userMessagesMap.has(roomname)) {
                         userMessagesMap.delete(roomname);
                     }
+                    io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
                 }
                 else onlineRoomsMap.set(roomname, onlineUsersInRoom);
 
@@ -191,8 +193,7 @@ function updateRoomsList(action, roomname, username, socket, callback) {
     }
     //console.log("userRoomsMap:", userRoomsMap);
     //console.log("onlineRoomsMap:", onlineRoomsMap);
-    socket.emit('rooms-list', userRoomsMap.has(username) ? userRoomsMap.get(username) : []);
-
+    socket.emit('rooms-list', userRoomsMap.get(username), onlineRoomsMap.size);
 }
 
 function leaveAllRooms(username, socket) {
@@ -210,6 +211,7 @@ function leaveAllRooms(username, socket) {
                 if (userMessagesMap.has(room)) {
                     userMessagesMap.delete(room);
                 }
+                io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
             }
             else onlineRoomsMap.set(room, onlineUsersInRoom);
         });
