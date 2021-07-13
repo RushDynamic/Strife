@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { motion } from 'framer-motion';
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
 import NoFriends from './NoFriends.jsx';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
@@ -48,7 +49,7 @@ function FriendsList(props) {
     return (
         <>
             <Paper elevation={2}>
-                <div className={classes.onlineUsersContainer} style={{ overflow: 'auto' }}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className={classes.onlineUsersContainer} style={{ overflow: 'auto' }}>
                     {props.friendsList.length > 0 ? <List>
                         <ListItem>
                             <ListItemText
@@ -85,7 +86,7 @@ function FriendsList(props) {
                             ))
                         }
                     </List> : <NoFriends />}
-                </div>
+                </motion.div>
             </Paper>
 
         </>

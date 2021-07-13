@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { motion } from 'framer-motion';
 import changeRecipient from '../../../actions/recipient-actions.js'
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
@@ -46,7 +47,7 @@ function RoomsList(props) {
     return (
         <>
             <Paper elevation={2}>
-                <div className={classes.onlineUsersContainer} style={{ overflow: 'auto' }}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className={classes.onlineUsersContainer} style={{ overflow: 'auto' }}>
                     <List>
                         <ListItem>
                             <ListItemText
@@ -85,7 +86,7 @@ function RoomsList(props) {
                                 ))
                         }
                     </List>
-                </div>
+                </motion.div>
             </Paper>
         </>
     )

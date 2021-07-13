@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { motion } from 'framer-motion';
 import { Typography } from '@material-ui/core';
 import { UserContext } from '../../UserContext';
 import chatStyles from '../styles/chat-styles';
@@ -9,7 +10,7 @@ function LandingChatBox() {
 
     return (
         <>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '70vh' }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '70vh' }}>
                 <img className={`${classes.nonSelectable} ${classes.expandOnHover}`} src={process.env.PUBLIC_URL + '/images/chatbot.svg'} height="600" width="600" />
                 <Typography variant="h2" className={classes.nonSelectable}>
                     Hey {user.username},
@@ -17,7 +18,7 @@ function LandingChatBox() {
                 <Typography variant="h4" style={{ fontFamily: "'Rubik', sans-serif" }} className={classes.nonSelectable}>
                     why don't you talk to someone about it?
                 </Typography>
-            </div>
+            </motion.div>
         </>
     )
 }

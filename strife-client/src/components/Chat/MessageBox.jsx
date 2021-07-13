@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import Avatar from './Avatar.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import moment from 'moment';
@@ -17,7 +18,7 @@ export default function MessageBox(props) {
 
     return (
         <>
-            <div className={classes.messageBoxContainer}>
+            <motion.div className={classes.messageBoxContainer} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
                 <div className={classes.outerMessageBoxContainer} style={{ display: 'flex', alignItems: 'center' }}>
                     <div className={classes.avatarMessageBoxContainer} style={{ padding: '10px' }}>
                         <Avatar avatarUrl={props.message.avatar} />
@@ -48,7 +49,7 @@ export default function MessageBox(props) {
                         }
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </>
     );
 }
