@@ -36,20 +36,21 @@ io.on('connect', socket => {
                 .catch((err) => console.log("An error occurred while sending friends list", err));
 
             // Send user's roomslist
-            socket.emit('rooms-list', userRoomsMap.get(username));
+            socket.emit('rooms-list', userRoomsMap.get(username), onlineRoomsMap.size);
+
         }
     });
 
     console.log("New connection ", socket.id)
-    socket.on('add-msg', (msgData, msgTimestamp) => {
+    socket.on('add-msg', (msgData) => {
         const newMsg = {
             message: msgData.message,
             avatar: msgData.avatar,
             systemMsg: false,
             senderUsername: msgData.senderUsername,
             recipientUsername: msgData.recipientUsername,
-            isRoom: msgData.isRoom,
-            timestamp: msgTimestamp
+            timestamp: msgData.timestamp,
+            isRoom: msgData.isRoom
         };
 
         // Check if recipient is a room
@@ -91,7 +92,8 @@ io.on('connect', socket => {
                 status: "failure"
             })
         }
-    })
+        io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
+    });
 
     // Join a room when user clicks on Chat button
     socket.on('join-room', (roomname, username, callback) => {
@@ -111,6 +113,9 @@ io.on('connect', socket => {
 
         // Leave all connected rooms
         leaveAllRooms(socket.username, socket);
+
+        // Delete message history
+        deleteUserMsgHistory(socket.username);
 
         // Send updated onlineUsers list to all users
         socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
@@ -166,7 +171,13 @@ function updateRoomsList(action, roomname, username, socket, callback) {
                 onlineUsersInRoom = onlineUsersInRoom.filter(user => user != username);
 
                 // Disband room if no one is online
-                if (onlineUsersInRoom.length == 0) onlineRoomsMap.delete(roomname);
+                if (onlineUsersInRoom.length == 0) {
+                    onlineRoomsMap.delete(roomname);
+                    if (userMessagesMap.has(roomname)) {
+                        userMessagesMap.delete(roomname);
+                    }
+                    io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
+                }
                 else onlineRoomsMap.set(roomname, onlineUsersInRoom);
 
                 // Update userRoomsMap as well
@@ -182,7 +193,7 @@ function updateRoomsList(action, roomname, username, socket, callback) {
     }
     //console.log("userRoomsMap:", userRoomsMap);
     //console.log("onlineRoomsMap:", onlineRoomsMap);
-    socket.emit('rooms-list', userRoomsMap.get(username));
+    socket.emit('rooms-list', userRoomsMap.get(username), onlineRoomsMap.size);
 }
 
 function leaveAllRooms(username, socket) {
@@ -192,12 +203,35 @@ function leaveAllRooms(username, socket) {
             socket.leave(room);
             var onlineUsersInRoom = onlineRoomsMap.get(room);
             onlineUsersInRoom = onlineUsersInRoom.filter(user => user != username);
+            socket.to(room).emit('updated-room-members', room, onlineUsersInRoom);
 
             // Disband room if no one is online
-            if (onlineUsersInRoom.length == 0) onlineRoomsMap.delete(room);
+            if (onlineUsersInRoom.length == 0) {
+                onlineRoomsMap.delete(room);
+                if (userMessagesMap.has(room)) {
+                    userMessagesMap.delete(room);
+                }
+                io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
+            }
             else onlineRoomsMap.set(room, onlineUsersInRoom);
         });
         userRoomsMap.delete(username);
+    }
+}
+
+function deleteUserMsgHistory(username) {
+    const onlineUsers = Array.from(onlineUsersMap.keys());
+    if (userMessagesMap.has(username)) {
+        const recipientUsersList = Array.from(userMessagesMap.get(username).keys());
+        recipientUsersList.map(recipientUser => {
+            if (!onlineUsers.includes(recipientUser)) {
+                // Recipient user is offline
+                userMessagesMap.get(username).delete(recipientUser);
+                if (userMessagesMap.has(recipientUser) && userMessagesMap.get(recipientUser).has(username)) {
+                    userMessagesMap.get(recipientUser).delete(username);
+                }
+            }
+        })
     }
 }
 

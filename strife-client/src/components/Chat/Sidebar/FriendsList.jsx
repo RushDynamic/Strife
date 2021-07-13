@@ -1,12 +1,18 @@
 import React from 'react';
-import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography } from '@material-ui/core';
+import { useSelector, useDispatch } from 'react-redux';
+import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
 import NoFriends from './NoFriends.jsx';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
+import ChatIcon from '@material-ui/icons/Chat';
 import useStyles from '../../styles/chat-styles.js';
 import Avatar from '../Avatar.jsx';
+import changeRecipient from '../../../actions/recipient-actions.js';
 
 function FriendsList(props) {
     const classes = useStyles();
+    const recipient = useSelector(state => state.recipient);
+    const unseenMsgUserList = useSelector(state => state.notifications.unseenMsgUserList);
+    const dispatch = useDispatch();
     console.log("Friends list: ", props.friendsList);
 
     function returnAvatar(status, avatarUrl) {
@@ -16,7 +22,27 @@ function FriendsList(props) {
 
     function returnChatButton(friend) {
         if (friend.status == "offline") return (<ListItemIcon><IconButton disabled><ChatBubbleIcon /></IconButton></ListItemIcon>);
-        else return (<ListItemIcon onClick={() => props.setRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false })}><IconButton><ChatBubbleIcon /></IconButton></ListItemIcon>);
+        else {
+            if (unseenMsgUserList.includes(friend.username)) {
+                return (
+                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }))}>
+                        <IconButton>
+                            <Badge color="primary" variant="dot">
+                                <ChatIcon />
+                            </Badge>
+                        </IconButton>
+                    </ListItemIcon>
+                );
+            }
+            else {
+                return (
+                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }))}>
+                        <IconButton>
+                            <ChatBubbleIcon />
+                        </IconButton>
+                    </ListItemIcon>);
+            }
+        }
     }
 
     return (
@@ -38,9 +64,14 @@ function FriendsList(props) {
                                 }
 
                                 secondary={
-                                    props.friendsList.filter((friend) => friend.status == "online").reduce((total, friend) => total + 1, 0)
-                                    + ' / '
-                                    + props.friendsList.length
+                                    <Typography style={{
+                                        fontVariant: 'small-caps',
+                                        fontFamily: "'Syne', sans-serif",
+                                    }}>
+                                        {props.friendsList.filter((friend) => friend.status == "online").reduce((total, friend) => total + 1, 0)
+                                            + ' / '
+                                            + props.friendsList.length}
+                                    </Typography>
                                 }
                             />
                         </ListItem>

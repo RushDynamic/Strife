@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Provider } from 'react-redux';
+import store from '../store.js';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { UserContext } from '../UserContext.js';
 import Login from '../components/Login.jsx';
@@ -9,7 +11,6 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 function App() {
   const [user, setUser] = useState({ username: null, avatarUrl: null, accessToken: null });
-
   const darkTheme = createMuiTheme({
     palette: {
       type: 'dark',
@@ -34,15 +35,17 @@ function App() {
     <Router>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        <div className="App">
-          <UserContext.Provider value={{ user, setUser }}>
-            <Switch>
-              <Route path='/' exact component={Chat} />
-              <Route path='/login' component={Login} />
-              <Route path='/register' component={Register} />
-            </Switch>
-          </UserContext.Provider>
-        </div>
+        <Provider store={store}>
+          <div className="App">
+            <UserContext.Provider value={{ user, setUser }}>
+              <Switch>
+                <Route path='/' exact component={Chat} />
+                <Route path='/login' component={Login} />
+                <Route path='/register' component={Register} />
+              </Switch>
+            </UserContext.Provider>
+          </div>
+        </Provider>
       </ThemeProvider>
     </Router>
   );

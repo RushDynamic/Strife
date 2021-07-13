@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector, useDispatch } from 'react-redux';
+import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
 import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
@@ -15,19 +17,23 @@ import { UserContext } from '../../UserContext.js';
 
 export default function Chat() {
     const classes = chatStyles();
+    const dispatch = useDispatch();
     const history = useHistory();
     const socket = useRef();
+    const recipient = useSelector(state => state.recipient);
     const [socketConnected, setSocketConnected] = useState(false);
     const { user, setUser } = useContext(UserContext);
     const [loadingStages, setLoadingStages] = useState([]);
     const [loaded, setLoaded] = useState(false);
     const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
     const [onlineRoomsList, setOnlineRoomsList] = useState([]);
+    const [onlineRoomsCount, setOnlineRoomsCount] = useState([]);
     const [onlineMembers, setOnlineMembers] = useState(new Map());
     const [friendsList, setFriendsList] = useState([]);
-    const [recipient, setRecipient] = useState("");
+    const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
     // TODO: Convert msgList into a hashmap
     const [msgList, setMsgList] = useState([])
+    const [newMsg, setNewMsg] = useState({});
 
     useEffect(() => {
         // TODO: Probably find a better way to do this
@@ -45,7 +51,6 @@ export default function Chat() {
             if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
                 console.log("You're logged in!");
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
-
                 setUser({ username: isUserLoggedIn.username, avatar: isUserLoggedIn.avatar, accessToken: isUserLoggedIn.accessToken });
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
@@ -56,9 +61,9 @@ export default function Chat() {
                     setSocketConnected(true);
                 });
 
+                // Receive new messages from the server
                 socket.current.on("echo-msg", (echoMessage) => {
-                    //console.log(`echo message: ${echoMessage} user: ${socketid}`);
-                    updateMessageList(echoMessage);
+                    setNewMsg(echoMessage);
                 });
 
                 socket.current.on('new-user-online', (newOnlineUsersList) => {
@@ -68,8 +73,8 @@ export default function Chat() {
 
                 // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
-                    const newMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    updateMessageList(newMsg);
+                    const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
+                    updateMessageList(newSystemMsg);
                 })
 
                 // Receive friends list from server
@@ -82,17 +87,21 @@ export default function Chat() {
                 // Receive msg history from server
                 socket.current.on('receive-msg-history', (msgHistory) => {
                     console.log("Received msg history from server: ", msgHistory);
-                    setMsgList(msgHistory);
+                    setMsgList([...msgHistory]);
                 });
 
                 // Receive rooms map from server
-                socket.current.on('rooms-list', (roomsList) => {
-                    setOnlineRoomsList(roomsList);
-                    console.log(roomsList);
+                socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
+                    if (roomsList != 'rooms-count-update') {
+                        roomsList = roomsList != null ? roomsList : [];
+                        setOnlineRoomsList([...roomsList]);
+                    }
+                    setOnlineRoomsCount(totalRoomsCount);
                 });
 
                 // Receive updated room members list from server
                 socket.current.on('updated-room-members', (roomname, updatedMembersList) => {
+                    updatedMembersList = updatedMembersList != null && updatedMembersList != undefined ? updatedMembersList : [];
                     setOnlineMembers(new Map(onlineMembers.set(roomname, updatedMembersList)));
                 });
 
@@ -109,20 +118,39 @@ export default function Chat() {
         })();
     }, [])
 
+    // Get message history for the new recipient
     useEffect(() => {
         setMsgList([]);
         // TODO: Only start listening for recipient change after socket has finished connecting
+        console.log("Changed recipient:", recipient);
         if (socketConnected) {
             socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
         }
+        dispatch(removeUnseen(recipient.username));
     }, [recipient])
+
+    // Push new message to the msgList
+    useEffect(() => {
+        if (newMsg.isRoom) {
+            if (newMsg.recipientUsername != recipient.username) {
+                dispatch(addUnseen(newMsg.recipientUsername))
+            }
+        }
+        else {
+            if (newMsg.senderUsername != recipient.username) {
+                dispatch(addUnseen(newMsg.senderUsername))
+            }
+        }
+        updateMessageList(newMsg);
+    }, [newMsg])
 
     function manageRooms(action, roomname, callback) {
         switch (action) {
             case 'join': console.log('Joining room:', roomname);
                 socket.current.emit('join-room', roomname, user.username, (response) => {
                     if (response.status == "success") {
-                        setOnlineMembers(new Map(onlineMembers.set(roomname, response.members)));
+                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                        setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
                     else callback(false, roomname);
@@ -132,7 +160,8 @@ export default function Chat() {
             case 'create': console.log('Creating room:', roomname);
                 socket.current.emit('create-room', roomname, user.username, (response) => {
                     if (response.status == "success") {
-                        setOnlineMembers(new Map(onlineMembers.set(roomname, response.members)));
+                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                        setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
                     else callback(false, roomname);
@@ -151,13 +180,12 @@ export default function Chat() {
 
     function sendMessage(msgData) {
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData, new Date().getTime());
+            socket.current.emit('add-msg', msgData);
             updateMessageList(msgData);
         }
     }
 
     function updateMessageList(msgData) {
-        //console.log(msgList);
         setMsgList(oldList => [...oldList, msgData]);
     }
 
@@ -192,24 +220,33 @@ export default function Chat() {
                 width: '100%',
             }}>
                 <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
-                    <Header setRecipient={setRecipient} requestFriendsList={requestFriendsList} manageRooms={manageRooms} />
+                    <Header requestFriendsList={requestFriendsList} manageRooms={manageRooms} />
                 </Grid>
                 {loaded ? <><Grid item xs={2} style={{ height: '80vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-                    <RoomsList roomsList={onlineRoomsList != null ? onlineRoomsList : []} setRecipient={setRecipient} manageRooms={manageRooms} />
+                    <RoomsList
+                        onlineRoomsCount={onlineRoomsCount}
+                        roomsList={onlineRoomsList != null ? onlineRoomsList : []}
+                        manageRooms={manageRooms}
+                        unseenMsgUsersList={unseenMsgUsersList}
+                        setUnseenMsgUsersList={setUnseenMsgUsersList}
+                    />
                     <Box m={0.5} />
-                    <FriendsList friendsList={friendsList} setRecipient={setRecipient} />
+                    <FriendsList
+                        friendsList={friendsList}
+                        unseenMsgUsersList={unseenMsgUsersList}
+                        setUnseenMsgUsersList={setUnseenMsgUsersList}
+                    />
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient == "" ? <LandingChatBox /> : <ChatBox
-                                msgList={msgList}
-                                sendMessage={sendMessage}
-                                recipient={recipient}
-                                setRecipient={setRecipient}
-                                sender={user}
-                                onlineMembers={onlineMembers}
-                                manageRooms={manageRooms}
-                            />
+                            recipient.username == "" ? <LandingChatBox /> :
+                                <ChatBox
+                                    msgList={msgList}
+                                    sendMessage={sendMessage}
+                                    sender={user}
+                                    onlineMembers={onlineMembers.has(recipient.username) ? onlineMembers.get(recipient.username) : [user.username]}
+                                    manageRooms={manageRooms}
+                                />
                         }
                     </Grid></> :
                     <Grid item xs={12} style={{ height: '80vh' }}>

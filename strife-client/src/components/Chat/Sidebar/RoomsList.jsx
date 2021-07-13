@@ -1,11 +1,16 @@
 import React from 'react';
-import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography } from '@material-ui/core';
+import { useSelector, useDispatch } from 'react-redux';
+import changeRecipient from '../../../actions/recipient-actions.js'
+import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
+import ChatIcon from '@material-ui/icons/Chat';
 import PeopleIcon from '@material-ui/icons/People';
 import useStyles from '../../styles/chat-styles.js';
 
 function RoomsList(props) {
     const classes = useStyles();
+    const dispatch = useDispatch();
+    const unseenMsgUserList = useSelector(state => state.notifications.unseenMsgUserList);
 
     function handleChatButtonOnClick(roomname) {
         props.manageRooms("join", roomname, isUserInRoom);
@@ -13,8 +18,29 @@ function RoomsList(props) {
 
     function isUserInRoom(status, roomname) {
         if (status) {
-            props.setRecipient({ username: roomname, isRoom: true });
+            dispatch(changeRecipient({ username: roomname, isRoom: true }));
         }
+    }
+
+    function returnChatButton(roomname) {
+        if (unseenMsgUserList.includes(roomname)) {
+            return (
+                <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
+                    <IconButton>
+                        <Badge color="primary" variant="dot">
+                            <ChatIcon />
+                        </Badge>
+                    </IconButton>
+                </ListItemIcon>
+            );
+        }
+        return (
+            <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
+                <IconButton>
+                    <ChatBubbleIcon />
+                </IconButton>
+            </ListItemIcon>
+        );
     }
 
     return (
@@ -35,7 +61,12 @@ function RoomsList(props) {
                                     }}>rooms</Typography>
                                 }
                                 secondary={
-                                    "Online: " + props.roomsList.length
+                                    <Typography style={{
+                                        fontVariant: 'small-caps',
+                                        fontFamily: "'Syne', sans-serif",
+                                    }}>
+                                        {"online: " + props.onlineRoomsCount}
+                                    </Typography>
                                 }
                             />
                         </ListItem>
@@ -49,7 +80,7 @@ function RoomsList(props) {
                                     <ListItem>
                                         <ListItemAvatar><PeopleIcon /></ListItemAvatar>
                                         <ListItemText disableTypography primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{room}</Typography>} />
-                                        <ListItemIcon onClick={() => handleChatButtonOnClick(room)}><IconButton><ChatBubbleIcon /></IconButton></ListItemIcon>
+                                        {returnChatButton(room)}
                                     </ListItem>
                                 ))
                         }

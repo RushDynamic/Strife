@@ -4,7 +4,7 @@ import chatStyles from '../styles/chat-styles.js';
 import moment from 'moment';
 
 export default function MessageBox(props) {
-    const colors = ['#6ee429', '#4ab2a7', '##2366cb', '#3abefb', '#6efccf', '#b12da4', '#d7db05', '#f97a12', '#a186e1', '#d11265'];
+    const colors = ['#6ee429', '#4ab2a7', '#2366cb', '#3abefb', '#6efccf', '#b12da4', '#d7db05', '#f97a12', '#a186e1', '#d11265'];
     const classes = chatStyles();
 
     function returnMsgTextContainer(msg) {
@@ -28,15 +28,17 @@ export default function MessageBox(props) {
                                 fontWeight: 'bold',
                                 fontVariant: 'small-caps',
                                 fontFamily: "'Syne', sans-serif",
+                                fontSize: '1rem',
                                 color: colors[(props.message.senderUsername.length + props.message.senderUsername.charCodeAt(0) + new Date().getDate()) % 10]
                             }}>
                                 {props.message.senderUsername}
                             </div>
                             <div style={{
-                                fontStyle: 'italic',
-                                paddingLeft: '5px',
+                                fontWeight: 'bold',
+                                paddingLeft: '8px',
                                 fontFamily: "'Rubik', sans-serif",
-                                fontSize: '0.6rem'
+                                fontSize: '0.6rem',
+                                color: '#7d7d7d'
                             }}>{moment(props.message.timestamp).format('h:mm a')}</div>
                         </div>
                         {

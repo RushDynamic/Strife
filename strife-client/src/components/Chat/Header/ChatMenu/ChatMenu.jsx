@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import changeRecipient from '../../../../actions/recipient-actions.js'
 import chatStyles from '../../../styles/chat-styles.js';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, AppBar, Tabs, Tab } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Snackbar, Tabs, Tab, Tooltip } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -20,6 +22,7 @@ function Alert(props) {
 
 function ChatMenu(props) {
     const { user, setUser } = useContext(UserContext);
+    const dispatch = useDispatch();
     const [openEditProfile, setOpenEditProfile] = useState(false);
     const [profileTabValue, setProfileTabValue] = useState(0);
     const [roomsTabValue, setRoomsTabValue] = useState(0);
@@ -28,6 +31,7 @@ function ChatMenu(props) {
     const [openAddFriend, setOpenAddFriend] = useState(false);
     const [addFriendStatus, setAddFriendStatus] = useState({ failure: false, success: false, msg: "An error occurred while adding friend" });
     const [openRoomsMenu, setOpenRoomsMenu] = useState(false);
+    const [roomActionStatus, setRoomActionStatus] = useState({ failure: false, success: false, msg: "That room doesn't exist" })
     const [roomname, setRoomname] = useState("");
     const classes = chatStyles();
 
@@ -58,7 +62,7 @@ function ChatMenu(props) {
 
     function handleCreateRoomClick() {
         if (roomname == null || roomname.trim().length == 0) {
-            // throw error msg
+            setRoomActionStatus({ failure: true, msg: "Please enter a valid roomname" });
         }
         else {
             setOpenRoomsMenu(false);
@@ -76,17 +80,23 @@ function ChatMenu(props) {
         if (status) {
             props.manageRooms("join", roomname, isUserInRoom);
         }
+        else {
+            setRoomActionStatus({ failure: true, msg: "Could not create room with that name" })
+        }
     }
 
     function isUserInRoom(status, roomname) {
         if (status) {
-            props.setRecipient({ username: roomname, isRoom: true });
+            dispatch(changeRecipient({ username: roomname, isRoom: true }));
+        }
+        else {
+            setRoomActionStatus({ failure: true, msg: "That room doesn't exist" })
         }
     }
 
     function handleJoinRoomClick() {
         if (roomname == null || roomname.trim().length == 0) {
-            // throw error msg
+            setRoomActionStatus({ failure: true, msg: "Please enter a valid roomname" });
         }
         else {
             setOpenRoomsMenu(false);
@@ -114,9 +124,15 @@ function ChatMenu(props) {
         <>
             <Paper>
                 <div className={classes.chatMenuContainer}>
-                    <PersonAddIcon onClick={() => setOpenAddFriend(true)} className={classes.chatMenuIcon} />
-                    <PeopleAltIcon onClick={() => setOpenRoomsMenu(true)} className={classes.chatMenuIcon} />
-                    <FaceIcon onClick={() => setOpenEditProfile(true)} className={classes.chatMenuIcon} />
+                    <Tooltip title="Add Friend" arrow>
+                        <PersonAddIcon onClick={() => setOpenAddFriend(true)} className={classes.chatMenuIcon} />
+                    </Tooltip>
+                    <Tooltip title="Rooms" arrow>
+                        <PeopleAltIcon onClick={() => setOpenRoomsMenu(true)} className={classes.chatMenuIcon} />
+                    </Tooltip>
+                    <Tooltip title="Edit Profile" arrow>
+                        <FaceIcon onClick={() => setOpenEditProfile(true)} className={classes.chatMenuIcon} />
+                    </Tooltip>
                 </div>
             </Paper>
 
@@ -170,6 +186,11 @@ function ChatMenu(props) {
                     </div>
                 </DialogContent>
             </Dialog>
+            <Snackbar open={roomActionStatus.failure} autoHideDuration={3000} onClose={() => setRoomActionStatus({ failure: false, msg: roomActionStatus.msg })}>
+                <Alert severity="error">
+                    {roomActionStatus.msg}
+                </Alert>
+            </Snackbar>
 
             {/* For edit profile */}
             <Dialog open={openEditProfile} onClose={() => setOpenEditProfile(false)} autoFocus={false}>
