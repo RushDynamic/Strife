@@ -5,7 +5,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import useStyles from './styles/login-styles.js';
 import { UserContext } from '../UserContext.js';
 import { loginUser, checkLoggedIn } from '../services/login-service.js';
-import { generateKeyPair, exportRawKey } from '../services/crypto-service.js';
+import { generateKeyPair, encryptPrivateKey } from '../services/crypto-service.js';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -39,10 +39,14 @@ function Login() {
         if (loginResult.success == true) {
             setLoginStatus({ success: true, msg: `You have successfully logged in as ${loginResult.username}` })
             setUser({ username: loginResult.username, accessToken: loginResult.accessToken });
-            const keyPair = await generateKeyPair();
-            const rawPublicKey = await exportRawKey(keyPair.publicKey);
-            const rawPrivateKey = await exportRawKey(keyPair.privateKey);
-            // store the encrypted privateKey and iv in localStorage
+            const keyPair = generateKeyPair();
+            console.log("PublicKey:", keyPair.publicKey);
+            console.log("PrivateKey:", keyPair.secretKey);
+            const encryptedPvtKeyWithNonceBase64 = encryptPrivateKey(keyPair.secretKey, currentData.password);
+
+            // store pvt key and nonce in localStorage
+            localStorage.setItem('nonce_pvt_key', encryptedPvtKeyWithNonceBase64);
+            console.log("encryptedPvtKeyWithNonceBase64:", encryptedPvtKeyWithNonceBase64);
             history.push('/');
         }
         else if (loginResult.validUser == false) {

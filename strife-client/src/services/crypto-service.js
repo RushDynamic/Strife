@@ -1,26 +1,32 @@
-export async function generateKeyPair() {
-    return await window.crypto.subtle.generateKey({
-        name: "RSA-OAEP",
-        modulusLength: 4096,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256"
-    }, true, ["encrypt", "decrypt"]);
-}
+import { secretbox, box, randomBytes } from 'tweetnacl';
+import * as base64 from "byte-base64";
 
-export async function exportRawKey(keyObj) {
-    const rawKey = await window.crypto.subtle.exportKey("jwk", keyObj);
-    return JSON.stringify(rawKey);
+export function generateKeyPair() {
+    return box.keyPair();
 }
 
 export function encryptPrivateKey(privateKey, password) {
-    // encrypt private key with user's login password
-    // store iv and encrypted privatekey in local storage
-    const iv = window.crypto.getRandomValues(new Uint8Array(16));
-    const encodedPrivateKey = new TextEncoder().encode(privateKey);
+    const newNonce = randomBytes(secretbox.nonceLength);
+    var passwordUint8Array = new TextEncoder().encode(password);
+    if (passwordUint8Array.length < secretbox.keyLength) {
+        addPadding(passwordUint8Array);
+        passwordUint8Array = addPadding(passwordUint8Array);
+        console.log("Performed padding for password");
+    }
+    const encryptedPvtKey = secretbox(privateKey, newNonce, passwordUint8Array);
+    const encryptedPvtKeyWithNonceBase64 = `${base64.bytesToBase64(newNonce)}||${base64.bytesToBase64(encryptedPvtKey)}`;
+    return encryptedPvtKeyWithNonceBase64;
 }
 
-export function importPrivateKey(password) {
-    // retrieve private key from local storage
-    // decrypt using user's login password
-    // store in context/redux state
+function addPadding(passwordUint8Array) {
+    const paddingLength = secretbox.keyLength - passwordUint8Array.length;
+    var paddingArray = new Uint8Array(paddingLength);
+    for (let i = 0; i < paddingLength; i++) {
+        paddingArray[i] = passwordUint8Array[i % passwordUint8Array.length];
+    }
+    var paddedPasswordArray = new Uint8Array(secretbox.keyLength);
+    paddedPasswordArray.set(passwordUint8Array);
+    paddedPasswordArray.set(paddingArray, passwordUint8Array.length);
+
+    return paddedPasswordArray;
 }
