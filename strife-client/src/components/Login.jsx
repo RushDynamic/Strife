@@ -5,7 +5,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import useStyles from './styles/login-styles.js';
 import { UserContext } from '../UserContext.js';
 import { loginUser, checkLoggedIn } from '../services/login-service.js';
-import { generateKeyPair, encryptPrivateKey } from '../services/crypto-service.js';
+import { generateKeyPair, encryptPrivateKey, decryptPrivateKey, returnEncodedPublicKey } from '../services/crypto-service.js';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -22,9 +22,15 @@ function Login() {
         (async function () {
             const isUserLoggedIn = await checkLoggedIn();
             console.log("isUserLoggedIn: ", isUserLoggedIn);
-            if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
+            if (isUserLoggedIn.username != null &&
+                isUserLoggedIn.username.length > 0 &&
+                isUserLoggedIn.encryptedPvtKey.length > 0 &&
+                isUserLoggedIn.privateKeyAccessStr.length > 0) {
                 console.log("You're logged in!");
                 setUser({ username: isUserLoggedIn.username, accessToken: isUserLoggedIn.accessToken });
+                //decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
+                // TODO: Decrypt private key from localStorage (isUserLoggedIn.encryptedPvtKey) using isUserLoggedIn.privateKeyAccessStr
+                // TODO: Store decrypted private key in UserContext/Redux state
                 history.push('/');
             }
             else {
@@ -34,19 +40,29 @@ function Login() {
         })();
     }, []);
 
+    function generateKeys() {
+        const keyPair = generateKeyPair();
+        const publicKey = returnEncodedPublicKey(keyPair.publicKey);
+        const privateKey = encryptPrivateKey(keyPair.secretKey);
+        return {
+            publicKey: publicKey,
+            privateKey: privateKey
+        }
+    }
+
     async function handleLoginBtnClick() {
-        const loginResult = await loginUser(currentData);
+        // Generating public and private keypair
+        const { publicKey, privateKey } = generateKeys();
+
+        const loginResult = await loginUser(currentData, publicKey, privateKey.accessStr);
         if (loginResult.success == true) {
             setLoginStatus({ success: true, msg: `You have successfully logged in as ${loginResult.username}` })
             setUser({ username: loginResult.username, accessToken: loginResult.accessToken });
-            const keyPair = generateKeyPair();
-            console.log("PublicKey:", keyPair.publicKey);
-            console.log("PrivateKey:", keyPair.secretKey);
-            const encryptedPvtKeyWithNonceBase64 = encryptPrivateKey(keyPair.secretKey, currentData.password);
 
-            // store pvt key and nonce in localStorage
-            localStorage.setItem('nonce_pvt_key', encryptedPvtKeyWithNonceBase64);
-            console.log("encryptedPvtKeyWithNonceBase64:", encryptedPvtKeyWithNonceBase64);
+            // Storing pvt key with nonce in localStorage
+            localStorage.setItem('nonce_pvt_key', privateKey.encryptedPvtKeyWithNonceBase64);
+
+            // TODO: Store decrypted privateKey in UserContext/Redux state
             history.push('/');
         }
         else if (loginResult.validUser == false) {

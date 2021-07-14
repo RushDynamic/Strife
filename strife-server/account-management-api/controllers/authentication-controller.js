@@ -36,12 +36,12 @@ export async function handleUserRegistration(req, res) {
     }
 }
 
-
-
 export async function handleUserLogin(req, res) {
     const userInfo = {
         username: req.body.username.toLowerCase(),
-        password: req.body.password
+        password: req.body.password,
+        publicKey: req.body.publicKey,
+        privateKeyAccessStr: req.body.privateKeyAccessStr
     };
     try {
         const loginResponse = await loginUser(userInfo);
@@ -52,7 +52,8 @@ export async function handleUserLogin(req, res) {
             res.status(200).json({
                 success: true,
                 username: loginResponse.user.username,
-                accessToken: loginResponse.user.accessToken
+                accessToken: loginResponse.user.accessToken,
+                privateKeyAccessStr: loginResponse.user.privateKeyAccessStr
             });
         }
         if (loginResponse.success == false && loginResponse.validUser == false) {
