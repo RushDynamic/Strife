@@ -5,7 +5,9 @@ export async function handleUserRegistration(req, res) {
     const userInfo = ({
         email: req.body.email,
         username: req.body.username.toLowerCase(),
-        password: req.body.password
+        password: req.body.password,
+        publicKey: req.body.publicKey,
+        privateKeyAccessStr: req.body.privateKeyAccessStr
     });
     console.log("UserInfo: ", userInfo);
     try {
@@ -90,7 +92,8 @@ export async function handleCheckLoggedIn(req, res) {
             success: true,
             username: isUserLoggedIn.username,
             avatar: isUserLoggedIn.avatar,
-            accessToken: isUserLoggedIn.accessToken
+            accessToken: isUserLoggedIn.accessToken,
+            privateKeyAccessStr: isUserLoggedIn.privateKeyAccessStr
         });
     }
     else {

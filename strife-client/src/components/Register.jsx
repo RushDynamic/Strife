@@ -6,6 +6,7 @@ import useStyles from './styles/login-styles.js';
 import { registerUser } from '../services/registration-service.js';
 import { checkLoggedIn } from '../services/login-service.js';
 import { UserContext } from '../UserContext.js';
+import { generateKeyPair, encryptPrivateKey, decryptPrivateKey, returnEncodedPublicKey } from '../services/crypto-service.js';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -34,8 +35,19 @@ function Register() {
         })();
     }, [])
 
+    function generateKeys() {
+        const keyPair = generateKeyPair();
+        const publicKey = returnEncodedPublicKey(keyPair.publicKey);
+        const privateKey = encryptPrivateKey(keyPair.secretKey);
+        return {
+            publicKey: publicKey,
+            privateKey: privateKey
+        }
+    }
+
     async function handleRegisterBtnClick() {
-        const registrationResult = await registerUser(currentUserData);
+        const { publicKey, privateKey } = generateKeys();
+        const registrationResult = await registerUser(currentUserData, publicKey, privateKey.accessStr);
         console.log("registrationResult: ", registrationResult);
         if (registrationResult.success == false) {
             if (registrationResult.duplicate == true) setShowRegistrationFailure({ showError: true, msg: "Sorry, that username is not available!" })
@@ -43,6 +55,10 @@ function Register() {
         }
         else {
             setUser({ username: registrationResult.username, accessToken: registrationResult.accessToken });
+
+            // Storing pvt key with nonce in localStorage
+            localStorage.setItem('nonce_pvt_key', privateKey.encryptedPvtKeyWithNonceBase64);
+
             // redirect to homepage
             history.push('/');
         }
