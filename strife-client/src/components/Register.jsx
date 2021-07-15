@@ -23,9 +23,15 @@ function Register() {
         (async function () {
             const isUserLoggedIn = await checkLoggedIn();
             console.log("isUserLoggedIn: ", isUserLoggedIn);
-            if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
+            if (isUserLoggedIn.username != null &&
+                isUserLoggedIn.username.length > 0 &&
+                isUserLoggedIn.encryptedPvtKey.length > 0 &&
+                isUserLoggedIn.privateKeyAccessStr.length > 0) {
                 console.log("You're logged in!");
                 setUser({ username: isUserLoggedIn.username, accessToken: isUserLoggedIn.accessToken });
+                //decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
+                // TODO: Decrypt private key from localStorage (isUserLoggedIn.encryptedPvtKey) using isUserLoggedIn.privateKeyAccessStr
+                // TODO: Store decrypted private key in UserContext/Redux state
                 history.push('/');
             }
             else {
