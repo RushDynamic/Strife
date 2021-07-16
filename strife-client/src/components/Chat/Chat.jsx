@@ -14,6 +14,7 @@ import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
+import { decryptPrivateKey } from '../../services/crypto-service.js';
 
 export default function Chat() {
     const classes = chatStyles();
@@ -53,12 +54,14 @@ export default function Chat() {
                 isUserLoggedIn.encryptedPvtKey.length > 0 &&
                 isUserLoggedIn.privateKeyAccessStr.length > 0) {
                 console.log("You're logged in!");
-                //decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
-                // TODO: Decrypt private key from localStorage (isUserLoggedIn.encryptedPvtKey) using isUserLoggedIn.privateKeyAccessStr
-                // TODO: Store decrypted private key in UserContext/Redux state
-                // TODO: Add loading stage for decrypting private key from localStorage
+                const decryptedPvtKey = decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
-                setUser({ username: isUserLoggedIn.username, avatar: isUserLoggedIn.avatar, accessToken: isUserLoggedIn.accessToken });
+                setUser({
+                    username: isUserLoggedIn.username,
+                    privateKey: decryptedPvtKey,
+                    avatar: isUserLoggedIn.avatar,
+                    accessToken: isUserLoggedIn.accessToken
+                });
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {

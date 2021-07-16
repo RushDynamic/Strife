@@ -19,7 +19,7 @@ export function decryptPrivateKey(encryptedPvtKeyWithNonce, accessStr) {
     const nonce = encryptedPvtKeyWithNonce.split('||')[0];
     const encryptedPvtKey = encryptedPvtKeyWithNonce.split('||')[1];
     const decryptedPvtKey = secretbox.open(base64.base64ToBytes(encryptedPvtKey), base64.base64ToBytes(nonce), base64.base64ToBytes(accessStr));
-    console.log("decryptedPvtKey:", base64.bytesToBase64(decryptedPvtKey));
+    return base64.bytesToBase64(decryptedPvtKey);
 }
 
 export function returnEncodedPublicKey(publicKey) {

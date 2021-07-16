@@ -27,10 +27,13 @@ function Login() {
                 isUserLoggedIn.encryptedPvtKey.length > 0 &&
                 isUserLoggedIn.privateKeyAccessStr.length > 0) {
                 console.log("You're logged in!");
-                setUser({ username: isUserLoggedIn.username, accessToken: isUserLoggedIn.accessToken });
-                //decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
-                // TODO: Decrypt private key from localStorage (isUserLoggedIn.encryptedPvtKey) using isUserLoggedIn.privateKeyAccessStr
-                // TODO: Store decrypted private key in UserContext/Redux state
+                const decryptedPvtKey = decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
+                setUser({
+                    username: isUserLoggedIn.username,
+                    privateKey: decryptedPvtKey,
+                    avatar: isUserLoggedIn.avatar,
+                    accessToken: isUserLoggedIn.accessToken
+                });
                 history.push('/');
             }
             else {
