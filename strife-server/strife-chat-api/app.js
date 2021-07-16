@@ -30,8 +30,8 @@ io.on('connect', socket => {
             // Send friends list
             fetchFriendsList(username)
                 .then((friends) => {
-                    const onlineFriends = prepareFriendsList(friends.friendsList);
-                    socket.emit('friends-list', onlineFriends);
+                    const friendsListWithStatus = prepareFriendsList(friends.friendsList);
+                    socket.emit('friends-list', friendsListWithStatus);
                 })
                 .catch((err) => console.log("An error occurred while sending friends list", err));
 
@@ -309,13 +309,12 @@ function prepareFriendsList(friendsList) {
     const onlineFriends = getOnlineFriends(friendsList);
     const friendsListWithStatus = [];
     friendsList.map(friend => {
-
         var friendStatus = { username: "", avatar: "", status: "" };
         if (onlineFriends.includes(friend.username)) {
-            friendStatus = { username: friend.username, avatar: friend.avatar, status: "online" };
+            friendStatus = { username: friend.username, publicKey: friend.publicKey, avatar: friend.avatar, status: "online" };
         }
         else {
-            friendStatus = { username: friend.username, avatar: friend.avatar, status: "offline" };
+            friendStatus = { username: friend.username, publicKey: friend.publicKey, avatar: friend.avatar, status: "offline" };
         }
         friendsListWithStatus.push(friendStatus);
     });

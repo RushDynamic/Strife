@@ -25,7 +25,7 @@ function FriendsList(props) {
         else {
             if (unseenMsgUserList.includes(friend.username)) {
                 return (
-                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }))}>
+                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, publicKey: friend.publicKey, avatar: friend.avatar, isRoom: false }))}>
                         <IconButton>
                             <Badge color="primary" variant="dot">
                                 <ChatIcon />
@@ -36,7 +36,7 @@ function FriendsList(props) {
             }
             else {
                 return (
-                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }))}>
+                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, publicKey: friend.publicKey, avatar: friend.avatar, isRoom: false }))}>
                         <IconButton>
                             <ChatBubbleIcon />
                         </IconButton>
