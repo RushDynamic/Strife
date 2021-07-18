@@ -6,7 +6,7 @@ import useStyles from './styles/login-styles.js';
 import { registerUser } from '../services/registration-service.js';
 import { checkLoggedIn } from '../services/login-service.js';
 import { UserContext } from '../UserContext.js';
-import { generateKeyPair, encryptPrivateKey, decryptPrivateKey, returnEncodedPublicKey } from '../services/crypto-service.js';
+import { generateKeyPair, encryptData, decryptPrivateKey, returnEncodedKey } from '../services/crypto-service.js';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -26,12 +26,13 @@ function Register() {
             if (isUserLoggedIn.username != null &&
                 isUserLoggedIn.username.length > 0 &&
                 isUserLoggedIn.encryptedPvtKey.length > 0 &&
-                isUserLoggedIn.privateKeyAccessStr.length > 0) {
+                isUserLoggedIn.localStorageKey.length > 0) {
                 console.log("You're logged in!");
-                const decryptedPvtKey = decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
+                const decryptedPvtKey = decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.localStorageKey);
                 setUser({
                     username: isUserLoggedIn.username,
                     privateKey: decryptedPvtKey,
+                    localStorageKey: isUserLoggedIn.localStorageKey,
                     avatar: isUserLoggedIn.avatar,
                     accessToken: isUserLoggedIn.accessToken
                 });
@@ -46,8 +47,8 @@ function Register() {
 
     function generateKeys() {
         const keyPair = generateKeyPair();
-        const publicKey = returnEncodedPublicKey(keyPair.publicKey);
-        const privateKey = encryptPrivateKey(keyPair.secretKey);
+        const publicKey = returnEncodedKey(keyPair.publicKey);
+        const privateKey = encryptData(keyPair.secretKey);
         return {
             publicKey: publicKey,
             privateKey: privateKey
@@ -56,7 +57,7 @@ function Register() {
 
     async function handleRegisterBtnClick() {
         const { publicKey, privateKey } = generateKeys();
-        const registrationResult = await registerUser(currentUserData, publicKey, privateKey.accessStr);
+        const registrationResult = await registerUser(currentUserData, publicKey, privateKey.localStorageKeyBase64);
         console.log("registrationResult: ", registrationResult);
         if (registrationResult.success == false) {
             if (registrationResult.duplicate == true) setShowRegistrationFailure({ showError: true, msg: "Sorry, that username is not available!" })
@@ -66,7 +67,7 @@ function Register() {
             setUser({ username: registrationResult.username, accessToken: registrationResult.accessToken });
 
             // Storing pvt key with nonce in localStorage
-            localStorage.setItem('nonce_pvt_key', privateKey.encryptedPvtKeyWithNonceBase64);
+            localStorage.setItem('nonce_pvt_key', privateKey.encryptedDataWithNonceBase64);
 
             // redirect to homepage
             history.push('/');

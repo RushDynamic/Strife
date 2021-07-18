@@ -10,7 +10,7 @@ import { CssBaseline } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 function App() {
-  const [user, setUser] = useState({ username: null, privateKey: null, avatar: null, accessToken: null });
+  const [user, setUser] = useState({ username: null, privateKey: null, localStorageKey: null, avatar: null, accessToken: null });
   const darkTheme = createMuiTheme({
     palette: {
       type: 'dark',

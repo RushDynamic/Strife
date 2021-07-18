@@ -1,11 +1,11 @@
-export async function loginUser(currentUserData, publicKey, privateKeyAccessStr) {
+export async function loginUser(currentUserData, publicKey, localStorageKey) {
     const loginResponse = await fetch("http://localhost:3001/account/login", {
         method: 'POST',
         body: JSON.stringify({
             username: currentUserData.username,
             password: currentUserData.password,
             publicKey: publicKey,
-            privateKeyAccessStr: privateKeyAccessStr
+            localStorageKey: localStorageKey
         }),
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -26,7 +26,7 @@ export async function checkLoggedIn() {
             username: loggedInData.username,
             avatar: loggedInData.avatar,
             accessToken: loggedInData.accessToken,
-            privateKeyAccessStr: loggedInData.privateKeyAccessStr,
+            localStorageKey: loggedInData.localStorageKey,
             encryptedPvtKey: localStorage.getItem('nonce_pvt_key')
         });
     }

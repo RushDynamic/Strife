@@ -9,12 +9,12 @@ export default function CreateMessage(props) {
     const classes = chatSyles();
     const recipient = useSelector(state => state.recipient);
     const [msgText, setMsgText] = useState("");
-    // TODO: Remove this default avatar URL and fetch user's own avatar
     const [newMsg, setNewMsg] = useState({
         message: "",
         avatar: props.sender.avatar,
         systemMsg: false,
         recipientUsername: recipient.username,
+        recipientPublicKey: recipient.publicKey,
         senderUsername: props.sender.username
     });
 
@@ -24,6 +24,7 @@ export default function CreateMessage(props) {
             avatar: props.sender.avatar,
             systemMsg: false,
             recipientUsername: recipient.username,
+            recipientPublicKey: recipient.publicKey,
             senderUsername: props.sender.username,
             timestamp: new Date().getTime(),
             isRoom: recipient.isRoom

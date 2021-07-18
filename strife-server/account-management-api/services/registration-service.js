@@ -16,7 +16,7 @@ export async function registerUser(userInfo) {
             username: userInfo.username,
             password: hashedPassword,
             publicKey: userInfo.publicKey,
-            privateKeyAccessStr: userInfo.privateKeyAccessStr
+            localStorageKey: userInfo.localStorageKey
         });
 
         const savedUser = await newAccount.save();

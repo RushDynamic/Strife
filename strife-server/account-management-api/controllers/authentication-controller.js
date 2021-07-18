@@ -7,7 +7,7 @@ export async function handleUserRegistration(req, res) {
         username: req.body.username.toLowerCase(),
         password: req.body.password,
         publicKey: req.body.publicKey,
-        privateKeyAccessStr: req.body.privateKeyAccessStr
+        localStorageKey: req.body.localStorageKey
     });
     console.log("UserInfo: ", userInfo);
     try {
@@ -43,19 +43,19 @@ export async function handleUserLogin(req, res) {
         username: req.body.username.toLowerCase(),
         password: req.body.password,
         publicKey: req.body.publicKey,
-        privateKeyAccessStr: req.body.privateKeyAccessStr
+        localStorageKey: req.body.localStorageKey
     };
     try {
         const loginResponse = await loginUser(userInfo);
-        console.log("loginResponse: ", loginResponse);
         if (loginResponse.success == true) {
             // TODO: Set refresh token in HttpOnly cookie here
             res.cookie('refreshToken', loginResponse.user.refreshToken, { sameSite: 'strict', path: '/', httpOnly: true });
             res.status(200).json({
                 success: true,
                 username: loginResponse.user.username,
+                avatar: loginResponse.user.avatar,
                 accessToken: loginResponse.user.accessToken,
-                privateKeyAccessStr: loginResponse.user.privateKeyAccessStr
+                localStorageKey: loginResponse.user.localStorageKey
             });
         }
         if (loginResponse.success == false && loginResponse.validUser == false) {
@@ -93,7 +93,7 @@ export async function handleCheckLoggedIn(req, res) {
             username: isUserLoggedIn.username,
             avatar: isUserLoggedIn.avatar,
             accessToken: isUserLoggedIn.accessToken,
-            privateKeyAccessStr: isUserLoggedIn.privateKeyAccessStr
+            localStorageKey: isUserLoggedIn.localStorageKey
         });
     }
     else {

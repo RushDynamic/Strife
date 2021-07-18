@@ -13,16 +13,17 @@ export async function loginUser(userInfo) {
         // Proceed if it's a valid user
         if (bcrypt.compareSync(userInfo.password, registeredUser.password)) {
             // Save keys to DB here
-            const updateKeyResult = await updateUserKeyPair(registeredUser, userInfo.publicKey, userInfo.privateKeyAccessStr)
+            const updateKeyResult = await updateUserKeyPair(registeredUser, userInfo.publicKey, userInfo.localStorageKey)
             if (!updateKeyResult) {
                 throw { validUser: true };
             }
             const authTokenData = await generateAll(registeredUser.username);
             const user = {
                 username: registeredUser.username,
+                avatar: registeredUser.avatar,
                 accessToken: authTokenData.accessToken,
                 refreshToken: authTokenData.refreshToken,
-                privateKeyAccessStr: registeredUser.privateKeyAccessStr,
+                localStorageKey: registeredUser.localStorageKey,
             };
             return ({ success: true, user: user });
         }
@@ -49,6 +50,6 @@ export async function checkLoggedIn(refreshToken) {
         username: rtVerificationResult.username,
         avatar: user.avatar,
         accessToken: newAccessToken.accessToken,
-        privateKeyAccessStr: user.privateKeyAccessStr
+        localStorageKey: user.localStorageKey
     });
 }

@@ -5,13 +5,15 @@ export function generateKeyPair() {
     return box.keyPair();
 }
 
-export function encryptPrivateKey(privateKey) {
-    const newNonce = randomBytes(secretbox.nonceLength);
-    const key = randomBytes(secretbox.keyLength);
-    const encryptedPvtKey = secretbox(privateKey, newNonce, key);
+export function encryptData(rawBytes, key) {
+    const nonce = randomBytes(secretbox.nonceLength);
+    if (key == null || key == undefined) {
+        key = randomBytes(secretbox.keyLength);
+    }
+    const encryptedBytes = secretbox(rawBytes, nonce, key);
     return {
-        encryptedPvtKeyWithNonceBase64: `${base64.bytesToBase64(newNonce)}||${base64.bytesToBase64(encryptedPvtKey)}`,
-        accessStr: base64.bytesToBase64(key)
+        encryptedDataWithNonceBase64: `${base64.bytesToBase64(nonce)}||${base64.bytesToBase64(encryptedBytes)}`,
+        localStorageKeyBase64: base64.bytesToBase64(key)
     };
 }
 
@@ -22,8 +24,16 @@ export function decryptPrivateKey(encryptedPvtKeyWithNonce, accessStr) {
     return base64.bytesToBase64(decryptedPvtKey);
 }
 
-export function returnEncodedPublicKey(publicKey) {
-    return base64.bytesToBase64(publicKey);
+export function returnEncodedKey(key) {
+    return base64.bytesToBase64(key);
+}
+
+export function encryptMessage(message, publicKey, privateKey) {
+    const nonce = randomBytes(secretbox.nonceLength);
+    const encryptedMsg = box(new TextEncoder().encode(message), nonce, base64.base64ToBytes(publicKey), base64.base64ToBytes(privateKey));
+    const encryptedMsgWithNonceBase64 = `${base64.bytesToBase64(nonce)}||${base64.bytesToBase64(encryptedMsg)}`
+    console.log("EncryptedMessage:", encryptedMsgWithNonceBase64);
+    return encryptedMsgWithNonceBase64;
 }
 
 function addPadding(passwordUint8Array) {

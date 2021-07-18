@@ -14,7 +14,7 @@ import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
-import { decryptPrivateKey } from '../../services/crypto-service.js';
+import { encryptData, decryptPrivateKey, encryptMessage } from '../../services/crypto-service.js';
 
 export default function Chat() {
     const classes = chatStyles();
@@ -33,6 +33,7 @@ export default function Chat() {
     const [friendsList, setFriendsList] = useState([]);
     const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
     // TODO: Convert msgList into a hashmap
+    const msgMap = useRef(new Map());
     const [msgList, setMsgList] = useState([])
     const [newMsg, setNewMsg] = useState({});
 
@@ -52,13 +53,14 @@ export default function Chat() {
             if (isUserLoggedIn.username != null &&
                 isUserLoggedIn.username.length > 0 &&
                 isUserLoggedIn.encryptedPvtKey.length > 0 &&
-                isUserLoggedIn.privateKeyAccessStr.length > 0) {
+                isUserLoggedIn.localStorageKey.length > 0) {
                 console.log("You're logged in!");
-                const decryptedPvtKey = decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.privateKeyAccessStr);
+                const decryptedPvtKey = decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.localStorageKey);
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
                 setUser({
                     username: isUserLoggedIn.username,
                     privateKey: decryptedPvtKey,
+                    localStorageKey: isUserLoggedIn.localStorageKey,
                     avatar: isUserLoggedIn.avatar,
                     accessToken: isUserLoggedIn.accessToken
                 });
@@ -84,7 +86,7 @@ export default function Chat() {
                 // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
                     const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    updateMessageList(newSystemMsg);
+                    updateMessages(newSystemMsg);
                 })
 
                 // Receive friends list from server
@@ -119,6 +121,10 @@ export default function Chat() {
                 socket.current.on('chat-already-open', () => {
                     setShowChatAlreadyOpen(true);
                 })
+                // TODO: Decrypt messages from localStorage and intialize msgMap
+                // TODO: Add loading stage for decrypting messages from msgMap
+                // TODO: Handle window.onunload event and store encrypted msgMap to localStorage
+                window.addEventListener('beforeunload', saveEncryptedMsgMap);
             }
             else {
                 console.log("You're NOT logged in!");
@@ -151,7 +157,7 @@ export default function Chat() {
                 dispatch(addUnseen(newMsg.senderUsername))
             }
         }
-        updateMessageList(newMsg);
+        updateMessages(newMsg);
     }, [newMsg])
 
     function manageRooms(action, roomname, callback) {
@@ -190,13 +196,27 @@ export default function Chat() {
 
     function sendMessage(msgData) {
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
+            // Store unencrypted messages in msgMap
+            updateMessages(msgData);
+
+            // Encrypt message before sending to server
+            encryptMessage(msgData.message, msgData.recipientPublicKey, user.privateKey);
             socket.current.emit('add-msg', msgData);
-            updateMessageList(msgData);
+            //updateMessages(msgData);
         }
     }
 
-    function updateMessageList(msgData) {
+    function updateMessages(msgData) {
+        if (msgMap.current.has(msgData.recipientUsername)) msgMap.current.get(msgData.recipientUsername).push(msgData);
+        else msgMap.current.set(msgData.recipientUsername, [msgData]);
+        console.log("msgMap:", msgMap.current);
         setMsgList(oldList => [...oldList, msgData]);
+    }
+
+    async function saveEncryptedMsgMap() {
+        const mapStr = JSON.stringify(Array.from(msgMap.current.entries()));
+        const encryptedMsgMap = encryptData(new TextEncoder().encode(mapStr), user.localStorageKey);
+        localStorage.setItem('encrypted_msg_store', encryptedMsgMap.encryptedDataWithNonceBase64);
     }
 
     return (
