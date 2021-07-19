@@ -27,6 +27,7 @@ export async function checkLoggedIn() {
             avatar: loggedInData.avatar,
             accessToken: loggedInData.accessToken,
             localStorageKey: loggedInData.localStorageKey,
+            publicKey: loggedInData.publicKey,
             encryptedPvtKey: localStorage.getItem('nonce_pvt_key')
         });
     }

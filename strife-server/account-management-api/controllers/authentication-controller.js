@@ -93,7 +93,8 @@ export async function handleCheckLoggedIn(req, res) {
             username: isUserLoggedIn.username,
             avatar: isUserLoggedIn.avatar,
             accessToken: isUserLoggedIn.accessToken,
-            localStorageKey: isUserLoggedIn.localStorageKey
+            localStorageKey: isUserLoggedIn.localStorageKey,
+            publicKey: isUserLoggedIn.publicKey
         });
     }
     else {

@@ -14,7 +14,7 @@ import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
-import { encryptData, decryptPrivateKey, encryptMessage } from '../../services/crypto-service.js';
+import { encryptData, decryptPrivateKey, encryptMessage, decryptMessage } from '../../services/crypto-service.js';
 
 export default function Chat() {
     const classes = chatStyles();
@@ -35,7 +35,7 @@ export default function Chat() {
     // TODO: Convert msgList into a hashmap
     const msgMap = useRef(new Map());
     const [msgList, setMsgList] = useState([])
-    const [newMsg, setNewMsg] = useState({});
+    const [newMsg, setNewMsg] = useState(null);
 
     useEffect(() => {
         // TODO: Probably find a better way to do this
@@ -61,6 +61,7 @@ export default function Chat() {
                     username: isUserLoggedIn.username,
                     privateKey: decryptedPvtKey,
                     localStorageKey: isUserLoggedIn.localStorageKey,
+                    publicKey: isUserLoggedIn.publicKey,
                     avatar: isUserLoggedIn.avatar,
                     accessToken: isUserLoggedIn.accessToken
                 });
@@ -86,7 +87,7 @@ export default function Chat() {
                 // Receive announcements from the server
                 socket.current.on('system-msg', (systemMsg) => {
                     const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    updateMessages(newSystemMsg);
+                    updateMessages(newSystemMsg, false);
                 })
 
                 // Receive friends list from server
@@ -147,17 +148,19 @@ export default function Chat() {
 
     // Push new message to the msgList
     useEffect(() => {
-        if (newMsg.isRoom) {
-            if (newMsg.recipientUsername != recipient.username) {
-                dispatch(addUnseen(newMsg.recipientUsername))
+        if (newMsg != null) {
+            if (newMsg.isRoom) {
+                if (newMsg.recipientUsername != recipient.username) {
+                    dispatch(addUnseen(newMsg.recipientUsername))
+                }
             }
-        }
-        else {
-            if (newMsg.senderUsername != recipient.username) {
-                dispatch(addUnseen(newMsg.senderUsername))
+            else {
+                if (newMsg.senderUsername != recipient.username) {
+                    dispatch(addUnseen(newMsg.senderUsername))
+                }
             }
+            updateMessages(newMsg, true);
         }
-        updateMessages(newMsg);
     }, [newMsg])
 
     function manageRooms(action, roomname, callback) {
@@ -197,16 +200,20 @@ export default function Chat() {
     function sendMessage(msgData) {
         if (!msgData.message.match(/^ *$/) && msgData.message != null) {
             // Store unencrypted messages in msgMap
-            updateMessages(msgData);
-
+            updateMessages(msgData, false);
+            const encryptedMsg = { ...msgData };
             // Encrypt message before sending to server
-            encryptMessage(msgData.message, msgData.recipientPublicKey, user.privateKey);
-            socket.current.emit('add-msg', msgData);
+            const encryptedMsgData = encryptMessage(encryptedMsg.message, encryptedMsg.recipientPublicKey, user.privateKey);
+            encryptedMsg.message = encryptedMsgData;
+            socket.current.emit('add-msg', encryptedMsg);
             //updateMessages(msgData);
         }
     }
 
-    function updateMessages(msgData) {
+    function updateMessages(msgData, encrypted) {
+        if (!msgData.isRoom && encrypted) {
+            msgData.message = decryptMessage(msgData.message, msgData.senderPublicKey, user.privateKey);
+        }
         if (msgMap.current.has(msgData.recipientUsername)) msgMap.current.get(msgData.recipientUsername).push(msgData);
         else msgMap.current.set(msgData.recipientUsername, [msgData]);
         console.log("msgMap:", msgMap.current);

@@ -50,6 +50,7 @@ export async function checkLoggedIn(refreshToken) {
         username: rtVerificationResult.username,
         avatar: user.avatar,
         accessToken: newAccessToken.accessToken,
-        localStorageKey: user.localStorageKey
+        localStorageKey: user.localStorageKey,
+        publicKey: user.publicKey
     });
 }

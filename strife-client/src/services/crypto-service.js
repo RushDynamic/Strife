@@ -36,15 +36,9 @@ export function encryptMessage(message, publicKey, privateKey) {
     return encryptedMsgWithNonceBase64;
 }
 
-function addPadding(passwordUint8Array) {
-    const paddingLength = secretbox.keyLength - passwordUint8Array.length;
-    var paddingArray = new Uint8Array(paddingLength);
-    for (let i = 0; i < paddingLength; i++) {
-        paddingArray[i] = passwordUint8Array[i % passwordUint8Array.length];
-    }
-    var paddedPasswordArray = new Uint8Array(secretbox.keyLength);
-    paddedPasswordArray.set(passwordUint8Array);
-    paddedPasswordArray.set(paddingArray, passwordUint8Array.length);
-
-    return paddedPasswordArray;
+export function decryptMessage(encryptedMessageWithNonce, publicKey, privateKey) {
+    const nonce = encryptedMessageWithNonce.split('||')[0];
+    const encryptedMessage = encryptedMessageWithNonce.split('||')[1];
+    const decryptedMessage = box.open(base64.base64ToBytes(encryptedMessage), base64.base64ToBytes(nonce), base64.base64ToBytes(publicKey), base64.base64ToBytes(privateKey))
+    return new TextDecoder().decode(decryptedMessage);
 }

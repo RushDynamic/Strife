@@ -15,7 +15,8 @@ export default function CreateMessage(props) {
         systemMsg: false,
         recipientUsername: recipient.username,
         recipientPublicKey: recipient.publicKey,
-        senderUsername: props.sender.username
+        senderUsername: props.sender.username,
+        senderPublicKey: props.sender.publicKey
     });
 
     useEffect(() => {
@@ -26,6 +27,7 @@ export default function CreateMessage(props) {
             recipientUsername: recipient.username,
             recipientPublicKey: recipient.publicKey,
             senderUsername: props.sender.username,
+            senderPublicKey: props.sender.publicKey,
             timestamp: new Date().getTime(),
             isRoom: recipient.isRoom
         })

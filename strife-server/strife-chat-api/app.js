@@ -48,6 +48,7 @@ io.on('connect', socket => {
             avatar: msgData.avatar,
             systemMsg: false,
             senderUsername: msgData.senderUsername,
+            senderPublicKey: msgData.senderPublicKey,
             recipientUsername: msgData.recipientUsername,
             timestamp: msgData.timestamp,
             isRoom: msgData.isRoom

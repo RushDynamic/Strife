@@ -32,6 +32,7 @@ function Login() {
                     username: isUserLoggedIn.username,
                     privateKey: decryptedPvtKey,
                     localStorageKey: isUserLoggedIn.localStorageKey,
+                    publicKey: isUserLoggedIn.publicKey,
                     avatar: isUserLoggedIn.avatar,
                     accessToken: isUserLoggedIn.accessToken
                 });
@@ -65,6 +66,7 @@ function Login() {
                 avatar: loginResult.avatar,
                 privateKey: privateKeyBase64,
                 localStorageKey: privateKey.localStorageKeyBase64,
+                publicKey: publicKey,
                 accessToken: loginResult.accessToken
             });
 
