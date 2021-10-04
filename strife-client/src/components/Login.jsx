@@ -5,7 +5,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import useStyles from './styles/login-styles.js';
 import { UserContext } from '../UserContext.js';
 import { loginUser, checkLoggedIn } from '../services/login-service.js';
-import { generateKeyPair, encryptData, decryptPrivateKey, returnEncodedKey } from '../services/crypto-service.js';
+import { generateSymmetricKey, decryptPrivateKey } from '../services/crypto-service.js';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -45,35 +45,32 @@ function Login() {
         })();
     }, []);
 
-    function generateKeys() {
-        const keyPair = generateKeyPair();
-        return {
-            publicKey: returnEncodedKey(keyPair.publicKey),
-            privateKey: encryptData(keyPair.secretKey),
-            privateKeyBase64: returnEncodedKey(keyPair.secretKey)
-        }
-    }
-
     async function handleLoginBtnClick() {
         // Generating public and private keypair
-        const { publicKey, privateKey, privateKeyBase64 } = generateKeys();
-
-        const loginResult = await loginUser(currentData, publicKey, privateKey.localStorageKeyBase64);
+        const encryptedPvtKey = localStorage.getItem('nonce_pvt_key');
+        if (encryptedPvtKey == null || encryptedPvtKey == undefined) {
+            // Generate new keypair here
+        }
+        const localStorageKey = generateSymmetricKey();
+        const loginResult = await loginUser(currentData, localStorageKey);
         if (loginResult.success == true) {
             setLoginStatus({ success: true, msg: `You have successfully logged in as ${loginResult.username}` })
+            // TODO: Decrypt private key here
+            const decryptedPvtKey = decryptPrivateKey(encryptedPvtKey, loginResult.localStorageKeyOld);
             setUser({
                 username: loginResult.username,
                 avatar: loginResult.avatar,
-                privateKey: privateKeyBase64,
-                localStorageKey: privateKey.localStorageKeyBase64,
-                publicKey: publicKey,
+                privateKey: decryptedPvtKey,
+                localStorageKeyOld: loginResult.localStorageKeyOld,
+                localStorageKey: localStorageKey,
+                publicKey: loginResult.publicKey,
                 accessToken: loginResult.accessToken
             });
 
-            // Storing pvt key with nonce in localStorage
-            localStorage.setItem('nonce_pvt_key', privateKey.encryptedDataWithNonceBase64);
+            // TODO: Encrypt private key with new localStorageKey and store in localStorage
 
-            // TODO: Store decrypted privateKey in UserContext/Redux state
+            // Storing pvt key with nonce in localStorage
+            //localStorage.setItem('nonce_pvt_key', privateKey.encryptedDataWithNonceBase64);
             history.push('/');
         }
         else if (loginResult.validUser == false) {

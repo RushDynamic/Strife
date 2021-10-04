@@ -77,7 +77,6 @@ function ChatBox(props) {
                 }}>
                     members:
                 </Typography>
-                {/* TODO: Make component clickable and show popup if more than 5 members */}
                 {props.onlineMembers.length > 5 ?
                     returnMemberNameComponent(props.onlineMembers.length, true) :
                     props.onlineMembers.map((memberName) => {

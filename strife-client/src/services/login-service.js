@@ -1,10 +1,9 @@
-export async function loginUser(currentUserData, publicKey, localStorageKey) {
+export async function loginUser(currentUserData, localStorageKey) {
     const loginResponse = await fetch("http://localhost:3001/account/login", {
         method: 'POST',
         body: JSON.stringify({
             username: currentUserData.username,
             password: currentUserData.password,
-            publicKey: publicKey,
             localStorageKey: localStorageKey
         }),
         headers: { 'Content-Type': 'application/json' },

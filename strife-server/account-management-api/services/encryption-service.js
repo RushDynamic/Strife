@@ -1,6 +1,5 @@
-export async function updateUserKeyPair(account, publicKey, localStorageKey) {
+export async function updateUserKeyPair(account, localStorageKey) {
     try {
-        account.publicKey = publicKey;
         account.localStorageKey = localStorageKey;
         await account.save();
         return true;

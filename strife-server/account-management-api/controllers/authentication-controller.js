@@ -42,20 +42,16 @@ export async function handleUserLogin(req, res) {
     const userInfo = {
         username: req.body.username.toLowerCase(),
         password: req.body.password,
-        publicKey: req.body.publicKey,
         localStorageKey: req.body.localStorageKey
     };
     try {
         const loginResponse = await loginUser(userInfo);
         if (loginResponse.success == true) {
             // TODO: Set refresh token in HttpOnly cookie here
-            res.cookie('refreshToken', loginResponse.user.refreshToken, { sameSite: 'strict', path: '/', httpOnly: true });
+            res.cookie('refreshToken', loginResponse.refreshToken, { sameSite: 'strict', path: '/', httpOnly: true });
             res.status(200).json({
                 success: true,
-                username: loginResponse.user.username,
-                avatar: loginResponse.user.avatar,
-                accessToken: loginResponse.user.accessToken,
-                localStorageKey: loginResponse.user.localStorageKey
+                ...loginResponse.user
             });
         }
         if (loginResponse.success == false && loginResponse.validUser == false) {
@@ -89,12 +85,7 @@ export async function handleCheckLoggedIn(req, res) {
     const isUserLoggedIn = await checkLoggedIn(refreshToken);
     if (isUserLoggedIn.success) {
         res.status(200).json({
-            success: true,
-            username: isUserLoggedIn.username,
-            avatar: isUserLoggedIn.avatar,
-            accessToken: isUserLoggedIn.accessToken,
-            localStorageKey: isUserLoggedIn.localStorageKey,
-            publicKey: isUserLoggedIn.publicKey
+            ...isUserLoggedIn
         });
     }
     else {

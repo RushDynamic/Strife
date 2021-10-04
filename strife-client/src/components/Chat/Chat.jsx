@@ -14,7 +14,7 @@ import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
-import { encryptData, decryptPrivateKey, encryptMessage, decryptMessage } from '../../services/crypto-service.js';
+import { encryptData, decryptData, decryptPrivateKey, encryptMessage, decryptMessage } from '../../services/crypto-service.js';
 
 export default function Chat() {
     const classes = chatStyles();
@@ -48,13 +48,16 @@ export default function Chat() {
 
     useEffect(() => {
         (async function () {
+            if (user.username == null || user.username == undefined) {
+
+            }
             const isUserLoggedIn = await checkLoggedIn();
             console.log("isUserLoggedIn: ", isUserLoggedIn);
             if (isUserLoggedIn.username != null &&
                 isUserLoggedIn.username.length > 0 &&
                 isUserLoggedIn.encryptedPvtKey.length > 0 &&
                 isUserLoggedIn.localStorageKey.length > 0) {
-                console.log("You're logged in!");
+                console.log("You're logged in!", isUserLoggedIn);
                 const decryptedPvtKey = decryptPrivateKey(isUserLoggedIn.encryptedPvtKey, isUserLoggedIn.localStorageKey);
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
                 setUser({
@@ -125,6 +128,7 @@ export default function Chat() {
                 // TODO: Decrypt messages from localStorage and intialize msgMap
                 // TODO: Add loading stage for decrypting messages from msgMap
                 // TODO: Handle window.onunload event and store encrypted msgMap to localStorage
+
                 window.addEventListener('beforeunload', saveEncryptedMsgMap);
             }
             else {
@@ -145,6 +149,13 @@ export default function Chat() {
         }
         dispatch(removeUnseen(recipient.username));
     }, [recipient])
+
+    useEffect(() => {
+        if (user.username != null) {
+            importMsgMap();
+            console.log("USER:", user);
+        }
+    }, [user])
 
     // Push new message to the msgList
     useEffect(() => {
@@ -220,10 +231,29 @@ export default function Chat() {
         setMsgList(oldList => [...oldList, msgData]);
     }
 
-    async function saveEncryptedMsgMap() {
-        const mapStr = JSON.stringify(Array.from(msgMap.current.entries()));
-        const encryptedMsgMap = encryptData(new TextEncoder().encode(mapStr), user.localStorageKey);
-        localStorage.setItem('encrypted_msg_store', encryptedMsgMap.encryptedDataWithNonceBase64);
+    function saveEncryptedMsgMap() {
+        if (loadingStages.includes("loggedIn")) {
+            localStorage.setItem("user_before_enc", JSON.stringify(user));
+            const mapStr = JSON.stringify(Array.from(msgMap.current.entries()));
+            localStorage.setItem("MAPSTR", mapStr);
+            const encryptedMsgMap = encryptData(new TextEncoder().encode(mapStr), user.localStorageKey);
+            localStorage.setItem('encrypted_msg_store', encryptedMsgMap.encryptedDataWithNonceBase64);
+            localStorage.setItem('key', user.localStorageKey)
+        }
+    }
+
+    function importMsgMap() {
+        const encryptedMsgMap = localStorage.getItem('encrypted_msg_store');
+        if (!!encryptedMsgMap != false) {
+            console.log('encryptedMsgMap:', encryptedMsgMap);
+            console.log("user:", user);
+            const decryptedMsgMap = decryptData(encryptedMsgMap, user.localStorageKeyOld);
+            console.log("decryptedMsgMap:", decryptedMsgMap);
+            msgMap = new Map(decryptedMsgMap);
+        }
+        else {
+            console.log("No stored messages found.");
+        }
     }
 
     return (

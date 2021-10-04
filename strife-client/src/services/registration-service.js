@@ -1,4 +1,4 @@
-export async function registerUser(currentUserData, publicKey, privateKeyAccessStr) {
+export async function registerUser(currentUserData, publicKey, localStorageKey) {
     const registrationResponse = await fetch("http://localhost:3001/account/register", {
         method: 'POST',
         body: JSON.stringify({
@@ -6,7 +6,7 @@ export async function registerUser(currentUserData, publicKey, privateKeyAccessS
             username: currentUserData.username,
             password: currentUserData.password,
             publicKey: publicKey,
-            privateKeyAccessStr: privateKeyAccessStr
+            localStorageKey: localStorageKey
         }),
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'

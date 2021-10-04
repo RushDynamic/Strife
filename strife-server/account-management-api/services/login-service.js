@@ -13,7 +13,9 @@ export async function loginUser(userInfo) {
         // Proceed if it's a valid user
         if (bcrypt.compareSync(userInfo.password, registeredUser.password)) {
             // Save keys to DB here
-            const updateKeyResult = await updateUserKeyPair(registeredUser, userInfo.publicKey, userInfo.localStorageKey)
+            const localStorageKeyOld = registeredUser.localStorageKey;
+            const publicKey = registeredUser.publicKey;
+            const updateKeyResult = await updateUserKeyPair(registeredUser, userInfo.localStorageKey)
             if (!updateKeyResult) {
                 throw { validUser: true };
             }
@@ -22,10 +24,11 @@ export async function loginUser(userInfo) {
                 username: registeredUser.username,
                 avatar: registeredUser.avatar,
                 accessToken: authTokenData.accessToken,
-                refreshToken: authTokenData.refreshToken,
+                publicKey: publicKey,
                 localStorageKey: registeredUser.localStorageKey,
+                localStorageKeyOld: localStorageKeyOld
             };
-            return ({ success: true, user: user });
+            return ({ success: true, user: user, refreshToken: authTokenData.refreshToken });
         }
         else {
             console.log("Credentials are invalid, throwing error");
