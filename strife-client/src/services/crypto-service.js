@@ -13,7 +13,7 @@ export function generateKeyPair() {
 export function encryptSymmetric(inputStr, key) {
     const paddedKeyBytes = decodeUTF8(rightPadKey(key));
     const nonceBytes = generateNonce();
-    const inputStrBytes = decodeUTF8(inputStr);
+    const inputStrBytes = decodeBase64(inputStr);
     const encInputBytes = secretbox(inputStrBytes, nonceBytes, paddedKeyBytes);
     const encInputBytesWithNonce = new Uint8Array(nonceBytes.length + encInputBytes.length);
     encInputBytesWithNonce.set(nonceBytes);
@@ -31,6 +31,10 @@ export function decryptSymmetric(encInputBase64, key) {
         console.log("Error while decrypting");
     }
     return encodeUTF8(decInputBytes);
+}
+
+export function bytesToBase64(inputBytes) {
+    return encodeBase64(inputBytes);
 }
 
 function generateNonce() {

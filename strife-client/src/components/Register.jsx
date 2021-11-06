@@ -5,6 +5,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import useStyles from './styles/login-styles.js';
 import { registerUser } from '../services/registration-service.js';
 import { checkLoggedIn } from '../services/login-service.js';
+import * as cryptoService from '../services/crypto-service.js';
 import { UserContext } from '../UserContext.js';
 
 function Alert(props) {
@@ -34,7 +35,16 @@ function Register() {
         })();
     }, [])
 
+    const generateKeyPair = (password) => {
+        const keyPair = cryptoService.generateKeyPair();
+        const publicKeyBase64 = cryptoService.bytesToBase64(keyPair.publicKey);
+        const privateKeyBase64 = cryptoService.bytesToBase64(keyPair.secretKey);
+        const encryptedPrivateKey = cryptoService.encryptSymmetric(privateKeyBase64, password);
+        return { publicKey: publicKeyBase64, encryptedPrivateKey: encryptedPrivateKey };
+    }
+
     async function handleRegisterBtnClick() {
+        const encodedKeyPair = generateKeyPair(currentUserData.password);
         const registrationResult = await registerUser(currentUserData);
         console.log("registrationResult: ", registrationResult);
         if (registrationResult.success == false) {
