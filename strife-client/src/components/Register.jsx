@@ -14,7 +14,7 @@ function Alert(props) {
 
 function Register() {
     const classes = useStyles();
-    const [currentUserData, setCurrentUserData] = useState({ email: "", username: "", password: "" });
+    const [currentUserData, setCurrentUserData] = useState({ email: "", username: "", password: "", encodedKeyPair: null });
     const { user, setUser } = useContext(UserContext);
     const [showRegistrationFailure, setShowRegistrationFailure] = useState({ showError: false, msg: "Could not register your account, please try again later!" });
     const history = useHistory();
@@ -44,7 +44,7 @@ function Register() {
     }
 
     async function handleRegisterBtnClick() {
-        const encodedKeyPair = generateKeyPair(currentUserData.password);
+        currentUserData.encodedKeyPair = generateKeyPair(currentUserData.password);
         const registrationResult = await registerUser(currentUserData);
         console.log("registrationResult: ", registrationResult);
         if (registrationResult.success == false) {

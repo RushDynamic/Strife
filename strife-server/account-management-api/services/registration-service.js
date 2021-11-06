@@ -14,7 +14,8 @@ export async function registerUser(userInfo) {
         const newAccount = new Account({
             email: userInfo.email,
             username: userInfo.username,
-            password: hashedPassword
+            password: hashedPassword,
+            encodedKeyPair: JSON.stringify(userInfo.encodedKeyPair)
         });
 
         const savedUser = await newAccount.save();
@@ -25,7 +26,7 @@ export async function registerUser(userInfo) {
         return ({ success: true, user: user });
     }
     catch (ex) {
-        console.log("An error occurred: ", ex);
+        console.log("An error occurred:", ex);
         return ({ success: false, duplicate: ex.duplicate });
     }
 }

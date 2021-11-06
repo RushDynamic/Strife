@@ -4,7 +4,8 @@ export async function registerUser(currentUserData) {
         body: JSON.stringify({
             email: currentUserData.email,
             username: currentUserData.username,
-            password: currentUserData.password
+            password: currentUserData.password,
+            encodedKeyPair: currentUserData.encodedKeyPair
         }),
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'

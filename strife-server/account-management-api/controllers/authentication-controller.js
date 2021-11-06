@@ -5,7 +5,8 @@ export async function handleUserRegistration(req, res) {
     const userInfo = ({
         email: req.body.email,
         username: req.body.username.toLowerCase(),
-        password: req.body.password
+        password: req.body.password,
+        encodedKeyPair: req.body.encodedKeyPair
     });
     console.log("UserInfo: ", userInfo);
     try {
