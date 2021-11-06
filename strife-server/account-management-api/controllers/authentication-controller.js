@@ -53,6 +53,7 @@ export async function handleUserLogin(req, res) {
             res.status(200).json({
                 success: true,
                 username: loginResponse.user.username,
+                encodedKeyPair: loginResponse.user.encodedKeyPair,
                 accessToken: loginResponse.user.accessToken
             });
         }

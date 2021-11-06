@@ -12,7 +12,12 @@ export async function loginUser(userInfo) {
         // Proceed if it's a valid user
         if (bcrypt.compareSync(userInfo.password, registeredUser.password)) {
             const authTokenData = await generateAll(registeredUser.username);
-            const user = { username: registeredUser.username, accessToken: authTokenData.accessToken, refreshToken: authTokenData.refreshToken };
+            const user = {
+                username: registeredUser.username,
+                encodedKeyPair: registeredUser.encodedKeyPair,
+                accessToken: authTokenData.accessToken,
+                refreshToken: authTokenData.refreshToken,
+            };
             return ({ success: true, user: user });
         }
         else {

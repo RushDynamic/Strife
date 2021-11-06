@@ -28,9 +28,9 @@ export function decryptSymmetric(encInputBase64, key) {
     const encInputBytes = encInputBytesWithNonce.slice(secretbox.nonceLength, encInputBase64.length);
     const decInputBytes = secretbox.open(encInputBytes, nonceBytes, paddedKeyBytes);
     if (!decInputBytes) {
-        console.log("Error while decrypting");
+        // TODO: handle private key decryption error
     }
-    return encodeUTF8(decInputBytes);
+    return encodeBase64(decInputBytes);
 }
 
 export function bytesToBase64(inputBytes) {
