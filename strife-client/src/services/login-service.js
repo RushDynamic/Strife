@@ -12,6 +12,9 @@ export async function loginUser(currentUserData, setUser) {
 }
 
 export async function checkLoggedIn() {
+    if (localStorage.getItem('secureStorageKey') === null) {
+        return ({ username: null });
+    }
     const loggedInResponse = await fetch("http://localhost:3001/account/logged_in", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
