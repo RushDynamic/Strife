@@ -51,7 +51,7 @@ export default function Chat() {
             if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
                 console.log("You're logged in!");
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
-                setUser({ username: isUserLoggedIn.username, avatar: isUserLoggedIn.avatar, accessToken: isUserLoggedIn.accessToken });
+                setUser({ ...isUserLoggedIn });
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {

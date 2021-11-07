@@ -88,10 +88,7 @@ export async function handleCheckLoggedIn(req, res) {
     const isUserLoggedIn = await checkLoggedIn(refreshToken);
     if (isUserLoggedIn.success) {
         res.status(200).json({
-            success: true,
-            username: isUserLoggedIn.username,
-            avatar: isUserLoggedIn.avatar,
-            accessToken: isUserLoggedIn.accessToken
+            ...isUserLoggedIn
         });
     }
     else {
