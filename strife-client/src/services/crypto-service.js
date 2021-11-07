@@ -10,6 +10,17 @@ export function generateKeyPair() {
     return new nacl.box.keyPair();
 }
 
+export function encryptSymmetricWithNewKey(inputStr) {
+    const keyBytes = randomBytes(secretbox.length);
+    const nonceBytes = generateNonce();
+    const inputStrBytes = decodeBase64(inputStr);
+    const encInputBytes = secretbox(inputStrBytes, nonceBytes, keyBytes);
+    const encInputBytesWithNonce = new Uint8Array(nonceBytes.length + encInputBytes.length);
+    encInputBytesWithNonce.set(nonceBytes);
+    encInputBytesWithNonce.set(encInputBytes, nonceBytes.length);
+    return { secureStoragekeyBase64: encodeBase64(keyBytes), encInputWithNonceBase64: encodeBase64(encInputBytesWithNonce) };
+}
+
 export function encryptSymmetric(inputStr, key) {
     const paddedKeyBytes = decodeUTF8(rightPadKey(key));
     const nonceBytes = generateNonce();

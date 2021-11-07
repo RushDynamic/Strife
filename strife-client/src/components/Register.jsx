@@ -39,12 +39,30 @@ function Register() {
         const keyPair = cryptoService.generateKeyPair();
         const publicKeyBase64 = cryptoService.bytesToBase64(keyPair.publicKey);
         const privateKeyBase64 = cryptoService.bytesToBase64(keyPair.secretKey);
-        const encryptedPrivateKey = cryptoService.encryptSymmetric(privateKeyBase64, password);
-        return { publicKey: publicKeyBase64, encryptedPrivateKey: encryptedPrivateKey };
+        // const encryptedPrivateKey = cryptoService.encryptSymmetric(privateKeyBase64, password);
+        const encryptedPrivateKey = cryptoService.encryptSymmetricWithNewKey(privateKeyBase64);
+        const encryptedSecureStorageKey = cryptoService.encryptSymmetric(encryptedPrivateKey.secureStoragekeyBase64, password);
+        return {
+            publicKey: publicKeyBase64,
+            encryptedPrivateKey: encryptedPrivateKey.encInputWithNonceBase64,
+            secureStorageKey: encryptedPrivateKey.secureStoragekeyBase64,
+            encryptedSecureStorageKey: encryptedSecureStorageKey
+        };
     }
 
     async function handleRegisterBtnClick() {
-        currentUserData.encodedKeyPair = generateKeyPair(currentUserData.password);
+        const keyPairData = generateKeyPair(currentUserData.password);
+        // Store raw Secure Storage Key in local storage
+        localStorage.setItem('SECURE_STORAGE_KEY', keyPairData.secureStorageKey);
+        currentUserData.encodedKeyPair = {
+            publicKey: keyPairData.publicKey,
+            privateKey:
+            {
+                encryptedPrivateKey: keyPairData.encryptedPrivateKey,
+                encryptedSecureStorageKey: keyPairData.encryptedSecureStorageKey
+            }
+        }
+        // currentUserData.encodedKeyPair = generateKeyPair(currentUserData.password);
         const registrationResult = await registerUser(currentUserData);
         console.log("registrationResult: ", registrationResult);
         if (registrationResult.success == false) {
