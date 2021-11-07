@@ -53,7 +53,7 @@ function Register() {
     async function handleRegisterBtnClick() {
         const keyPairData = generateKeyPair(currentUserData.password);
         // Store raw Secure Storage Key in local storage
-        localStorage.setItem('SECURE_STORAGE_KEY', keyPairData.secureStorageKey);
+        localStorage.setItem('secureStorageKey', keyPairData.secureStorageKey);
         currentUserData.encodedKeyPair = {
             publicKey: keyPairData.publicKey,
             privateKey:
