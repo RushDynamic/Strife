@@ -37,9 +37,12 @@ function Login() {
     async function handleLoginBtnClick() {
         const loginResult = await loginUser(currentData);
         if (loginResult.success == true) {
+            // Decrypt secureStorageKey key and store it in localStorage
             // Decrypt private key and store it in UserContext
             const encodedKeyPair = JSON.parse(loginResult.encodedKeyPair);
-            const decryptedPrivateKey = cryptoService.decryptSymmetric(encodedKeyPair.encryptedPrivateKey, currentData.password);
+            const secureStorageKey = cryptoService.decryptSymmetric(encodedKeyPair.privateKey.encryptedSecureStorageKey, currentData.password);
+            const decryptedPrivateKey = cryptoService.decryptSymmetric(encodedKeyPair.privateKey.encryptedPrivateKey, secureStorageKey, true);
+            localStorage.setItem('secureStorageKey', secureStorageKey);
             setLoginStatus({ success: true, msg: `You have successfully logged in as ${loginResult.username}` })
             setUser({
                 username: loginResult.username,

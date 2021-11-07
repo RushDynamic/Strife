@@ -11,7 +11,7 @@ export function generateKeyPair() {
 }
 
 export function encryptSymmetricWithNewKey(inputStr) {
-    const keyBytes = randomBytes(secretbox.length);
+    const keyBytes = randomBytes(secretbox.keyLength);
     const nonceBytes = generateNonce();
     const inputStrBytes = decodeBase64(inputStr);
     const encInputBytes = secretbox(inputStrBytes, nonceBytes, keyBytes);
@@ -32,8 +32,8 @@ export function encryptSymmetric(inputStr, key) {
     return encodeBase64(encInputBytesWithNonce);
 }
 
-export function decryptSymmetric(encInputBase64, key) {
-    const paddedKeyBytes = decodeUTF8(rightPadKey(key));
+export function decryptSymmetric(encInputBase64, key, isKeyInBase64) {
+    const paddedKeyBytes = isKeyInBase64 ? decodeBase64(key) : decodeUTF8(rightPadKey(key));
     const encInputBytesWithNonce = decodeBase64(encInputBase64);
     const nonceBytes = encInputBytesWithNonce.slice(0, secretbox.nonceLength);
     const encInputBytes = encInputBytesWithNonce.slice(secretbox.nonceLength, encInputBase64.length);
