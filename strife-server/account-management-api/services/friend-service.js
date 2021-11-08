@@ -6,43 +6,46 @@ export async function addFriend(username, friendUsername) {
         if (username == null || username.length == 0 || friendUsername == null || friendUsername.length == 0) {
             return ({ success: false, alreadyFriends: false });
         }
+        const accountObjList = await Account.find().or([{ username: friendUsername }, { username: username }]);
+        const friendObjList = await Friend.find().or([{ username: friendUsername }, { username: username }]);
 
-        const friendAcc = await Account.findOne({
-            username: friendUsername
-        });
-        if (friendAcc == null) {
+        const targetUserAccount = accountObjList.filter(account => account.username === friendUsername)[0];
+        if (targetUserAccount === null || targetUserAccount === undefined) {
             return ({ success: false, alreadyFriends: false });
         }
-
-        // Add to requesting user's friend's list
-        var friend = await Friend.findOne({
-            username: username
-        });
-
+        var currentUserFriend = friendObjList.filter(account => account.username === username)[0];
         // For new users with 0 friends
-        if (friend == null) {
-            friend = new Friend({
+        if (currentUserFriend == null) {
+            currentUserFriend = new Friend({
                 username: username,
                 friends: []
             });
         }
-        if (!friend.friends.includes(friendUsername)) {
-            friend.friends.push(friendUsername);
-            await friend.save();
+        if (!currentUserFriend.friends.some(friend => friend.username === friendUsername)) {
+            const newFriend = {
+                username: targetUserAccount.username,
+                avatar: targetUserAccount.avatar,
+                publicKey: JSON.parse(targetUserAccount.encodedKeyPair).publicKey
+            }
+            currentUserFriend.friends.push(newFriend);
+            await currentUserFriend.save();
+            console.log("Successfully added friend for user:", username);
 
-            // Add requesting user to target's friendlist as well
-            var targetUser = await Friend.findOne({
-                username: friendUsername
-            });
-            if (targetUser == null) {
-                targetUser = new Friend({
+            // Add current user to friend's friends list
+            const currentUserAccount = accountObjList.filter(account => account.username === username)[0];
+            newFriend.username = currentUserAccount.username;
+            newFriend.avatar = currentUserAccount.avatar;
+            newFriend.publicKey = JSON.parse(currentUserAccount.encodedKeyPair).publicKey
+            var targetUserFriend = friendObjList.filter(account => account.username === friendUsername)[0];
+            if (targetUserFriend == null) {
+                targetUserFriend = new Friend({
                     username: friendUsername,
                     friends: []
                 });
             }
-            targetUser.friends.push(username);
-            await targetUser.save();
-            console.log("Successfully added friend for user", username);
+            targetUserFriend.friends.push(newFriend);
+            await targetUserFriend.save();
+            console.log("Successfully added friend for user:", friendUsername);
             return ({ success: true });
         }
         else {
@@ -61,27 +64,10 @@ export async function fetchFriends(username) {
         if (username == null || username.trim().length == 0) {
             return ({ success: false, friendsList: [] });
         }
-        const friend = await Friend.findOne({
+        const currentAcc = await Friend.findOne({
             username: username
         });
-
-        // TODO: Find better way to fetch avatar URLs
-        const friendDetails = await Account.find().where('username').in(friend.friends).exec();
-        const avatarUrls = new Map();
-        friendDetails.map((friend) => {
-            avatarUrls.set(friend.username, friend.avatar);
-        });
-        const friendsList = [];
-        friend.friends.map((friendUsername) => {
-            if (avatarUrls.has(friendUsername)) {
-                friendsList.push({ username: friendUsername, avatar: avatarUrls.get(friendUsername) });
-            }
-            else {
-                // Push default avatar URL
-                friendsList.push({ username: friendUsername, avatar: "https://cdn0.iconfinder.com/data/icons/user-pictures/100/male-128.png" })
-            }
-        })
-        return ({ success: true, friendsList: friendsList });
+        return ({ success: true, friendsList: currentAcc.friends });
     }
     catch (ex) {
         console.log("An error occurred while fetching friends:", ex.toString());
