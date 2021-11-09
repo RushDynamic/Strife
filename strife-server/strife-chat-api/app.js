@@ -309,13 +309,12 @@ function prepareFriendsList(friendsList) {
     const onlineFriends = getOnlineFriends(friendsList);
     const friendsListWithStatus = [];
     friendsList.map(friend => {
-
-        var friendStatus = { username: "", avatar: "", status: "" };
+        var friendStatus = { username: "", avatar: "", status: "", publicKey: "" };
         if (onlineFriends.includes(friend.username)) {
-            friendStatus = { username: friend.username, avatar: friend.avatar, status: "online" };
+            friendStatus = { username: friend.username, avatar: friend.avatar, publicKey: friend.publicKey, status: "online" };
         }
         else {
-            friendStatus = { username: friend.username, avatar: friend.avatar, status: "offline" };
+            friendStatus = { username: friend.username, avatar: friend.avatar, publicKey: friend.publicKey, status: "offline" };
         }
         friendsListWithStatus.push(friendStatus);
     });
