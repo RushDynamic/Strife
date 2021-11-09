@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
+import * as cryptoService from '../../services/crypto-service.js';
 import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
@@ -136,7 +137,10 @@ export default function Chat() {
                 dispatch(addUnseen(newMsg.recipientUsername))
             }
         }
-        else {
+        else if (newMsg.senderUsername != null || newMsg.senderUsername != undefined) {
+            // Fetch sender's publicKey from the friend's list and decrypt the message
+            const senderPubKey = friendsList.filter(friend => friend.username == newMsg.senderUsername)[0].publicKey;
+            newMsg.message = cryptoService.decryptAsymmetric(newMsg.message, user.privateKey, senderPubKey);;
             if (newMsg.senderUsername != recipient.username) {
                 dispatch(addUnseen(newMsg.senderUsername))
             }
@@ -178,10 +182,13 @@ export default function Chat() {
         socket.current.emit('request-friends-list', usernameList);
     }
 
-    function sendMessage(msgData) {
-        if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData);
-            updateMessageList(msgData);
+    function sendMessage(rawMsgData) {
+        if (!rawMsgData.message.match(/^ *$/) && rawMsgData.message != null) {
+            updateMessageList(rawMsgData);
+            // Stringify and parse to create a deep copy of the raw msg object
+            let encMsg = JSON.parse(JSON.stringify(rawMsgData));
+            encMsg.message = cryptoService.encryptAsymmetric(encMsg.message, recipient.publicKey, user.privateKey);
+            socket.current.emit('add-msg', encMsg);
         }
     }
 
