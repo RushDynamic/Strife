@@ -33,7 +33,8 @@ export default function Chat() {
     const [friendsList, setFriendsList] = useState([]);
     const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
     // TODO: Convert msgList into a hashmap
-    const [msgList, setMsgList] = useState([])
+    const [msgList, setMsgList] = useState([]);
+    const [msgMap, setMsgMap] = useState(new Map());
     const [newMsg, setNewMsg] = useState({});
 
     useEffect(() => {
@@ -122,7 +123,6 @@ export default function Chat() {
     // Get message history for the new recipient
     useEffect(() => {
         setMsgList([]);
-        // TODO: Only start listening for recipient change after socket has finished connecting
         console.log("Changed recipient:", recipient);
         if (socketConnected) {
             socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
@@ -138,9 +138,9 @@ export default function Chat() {
             }
         }
         else if (newMsg.senderUsername != null || newMsg.senderUsername != undefined) {
-            // Fetch sender's publicKey from the friend's list and decrypt the message
-            const senderPubKey = friendsList.filter(friend => friend.username == newMsg.senderUsername)[0].publicKey;
-            newMsg.message = cryptoService.decryptAsymmetric(newMsg.message, user.privateKey, senderPubKey);;
+            // NOT required -- Fetch sender's publicKey from the friend's list and decrypt the message
+            //const senderPubKey = friendsList.filter(friend => friend.username == newMsg.senderUsername)[0].publicKey;
+            newMsg.message = cryptoService.decryptAsymmetric(newMsg.message, user.privateKey, newMsg.senderPubKey);
             if (newMsg.senderUsername != recipient.username) {
                 dispatch(addUnseen(newMsg.senderUsername))
             }
@@ -193,7 +193,15 @@ export default function Chat() {
     }
 
     function updateMessageList(msgData) {
+        if (msgData.recipientUsername == undefined && !msgData.systemMsg) {
+            return;
+        }
         setMsgList(oldList => [...oldList, msgData]);
+        console.log(msgMap);
+        let keyUsername = msgData.senderUsername === user.username ? msgData.recipientUsername : msgData.senderUsername;
+        let curMsgList = msgMap.has(keyUsername) ? msgMap.get(keyUsername) : [];
+        curMsgList.push(msgData);
+        setMsgMap(prev => new Map([...prev, [keyUsername, curMsgList]]));
     }
 
     return (
