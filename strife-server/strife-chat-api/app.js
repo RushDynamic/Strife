@@ -44,13 +44,8 @@ io.on('connect', socket => {
     console.log("New connection ", socket.id)
     socket.on('add-msg', (msgData) => {
         const newMsg = {
-            message: msgData.message,
-            avatar: msgData.avatar,
             systemMsg: false,
-            senderUsername: msgData.senderUsername,
-            recipientUsername: msgData.recipientUsername,
-            timestamp: msgData.timestamp,
-            isRoom: msgData.isRoom
+            ...msgData
         };
 
         // Check if recipient is a room

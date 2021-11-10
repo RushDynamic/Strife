@@ -57,11 +57,16 @@ export function decryptSymmetric(encInputBase64, key, isKeyInBase64) {
 }
 
 export function decryptAsymmetric(encInputBase64, privateKey, publicKey) {
-    const encInputWithNonceUint8 = decodeBase64(encInputBase64);
-    const nonceUint8 = encInputWithNonceUint8.slice(0, box.nonceLength);
-    const encInputUint8 = encInputWithNonceUint8.slice(box.nonceLength, encInputWithNonceUint8.length);
-    const decMsgUint8 = box.open(encInputUint8, nonceUint8, decodeBase64(publicKey), decodeBase64(privateKey));
-    return encodeUTF8(decMsgUint8);
+    try {
+        const encInputWithNonceUint8 = decodeBase64(encInputBase64);
+        const nonceUint8 = encInputWithNonceUint8.slice(0, box.nonceLength);
+        const encInputUint8 = encInputWithNonceUint8.slice(box.nonceLength, encInputWithNonceUint8.length);
+        const decMsgUint8 = box.open(encInputUint8, nonceUint8, decodeBase64(publicKey), decodeBase64(privateKey));
+        return encodeUTF8(decMsgUint8);
+    }
+    catch (err) {
+        return "An error occured while decrypting this message";
+    }
 }
 
 export function bytesToBase64(inputBytes) {
