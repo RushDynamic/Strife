@@ -110,7 +110,10 @@ export default function Chat() {
                 // Receive error from server if user is already online elsewhere
                 socket.current.on('chat-already-open', () => {
                     setShowChatAlreadyOpen(true);
-                })
+                });
+
+                // Encrypt and save msgHistory in local storage before page closes
+                window.addEventListener('beforeunload', saveEncryptedMsgMap);
             }
             else {
                 console.log("You're NOT logged in!");
@@ -202,6 +205,12 @@ export default function Chat() {
         let curMsgList = msgMap.has(keyUsername) ? msgMap.get(keyUsername) : [];
         curMsgList.push(msgData);
         setMsgMap(prev => new Map([...prev, [keyUsername, curMsgList]]));
+    }
+
+    function saveEncryptedMsgMap() {
+        // TODO: Convert msgMap to string
+        // Encrypt string with user.privateKey using symmetric enc
+        // Store encrypted string in localStorage
     }
 
     return (
