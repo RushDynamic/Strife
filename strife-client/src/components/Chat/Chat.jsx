@@ -113,7 +113,7 @@ export default function Chat() {
                 });
 
                 // Encrypt and save msgHistory in local storage before page closes
-                window.addEventListener('beforeunload', () => saveEncryptedMsgMap(msgMap.current));
+                window.addEventListener('beforeunload', exportEncryptedMsgMap);
             }
             else {
                 console.log("You're NOT logged in!");
@@ -122,6 +122,13 @@ export default function Chat() {
             }
         })();
     }, [])
+
+    // Load message history once user is logged in
+    useEffect(() => {
+        if (user.username !== null) {
+            importMsgMap();
+        }
+    }, [user])
 
     // Get message history for the new recipient
     useEffect(() => {
@@ -207,18 +214,26 @@ export default function Chat() {
         msgMap.current = new Map([...msgMap.current, [keyUsername, curMsgList]]);
     }
 
-    function saveEncryptedMsgMap(msgMap) {
+    function exportEncryptedMsgMap() {
         /*  
             Convert msgMap to string
             Encrypt string with user.privateKey using symmetric enc
             Store encrypted string in localStorage
         */
         if (user.username !== null) {
-            const msgMapObj = Object.fromEntries(msgMap);
+            const msgMapObj = Object.fromEntries(msgMap.current);
             const msgMapStr = JSON.stringify(msgMapObj);
             const encMsgMapStr = cryptoService.encryptSymmetric(msgMapStr, user.privateKey, false);
             localStorage.setItem('encryptedMsgMap', encMsgMapStr);
         }
+    }
+
+    function importMsgMap() {
+        const encMsgMapStr = localStorage.getItem('encryptedMsgMap');
+        if (!encMsgMapStr.length > 0) return;
+        const decMsgObjBase64 = cryptoService.decryptSymmetric(encMsgMapStr, user.privateKey, false);
+        const decMsgObjStr = cryptoService.convertBase64toUTF8(decMsgObjBase64);
+        msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
     }
 
     return (

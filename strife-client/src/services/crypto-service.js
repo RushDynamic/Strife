@@ -69,6 +69,9 @@ export function decryptAsymmetric(encInputBase64, privateKey, publicKey) {
     }
 }
 
+export function convertBase64toUTF8(inputStr) {
+    return encodeUTF8(decodeBase64(inputStr));
+}
 export function bytesToBase64(inputBytes) {
     return encodeBase64(inputBytes);
 }
