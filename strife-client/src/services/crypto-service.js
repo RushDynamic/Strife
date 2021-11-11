@@ -21,10 +21,10 @@ export function encryptSymmetricWithNewKey(inputStr) {
     return { secureStoragekeyBase64: encodeBase64(keyBytes), encInputWithNonceBase64: encodeBase64(encInputBytesWithNonce) };
 }
 
-export function encryptSymmetric(inputStr, key) {
+export function encryptSymmetric(inputStr, key, isInputInBase64) {
     const paddedKeyBytes = decodeUTF8(rightPadKey(key));
     const nonceBytes = generateNonce("secretbox");
-    const inputStrBytes = decodeBase64(inputStr);
+    const inputStrBytes = isInputInBase64 ? decodeBase64(inputStr) : decodeUTF8(inputStr);
     const encInputBytes = secretbox(inputStrBytes, nonceBytes, paddedKeyBytes);
     const encInputBytesWithNonce = new Uint8Array(nonceBytes.length + encInputBytes.length);
     encInputBytesWithNonce.set(nonceBytes);

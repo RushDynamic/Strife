@@ -41,7 +41,7 @@ function Register() {
         const privateKeyBase64 = cryptoService.bytesToBase64(keyPair.secretKey);
         // const encryptedPrivateKey = cryptoService.encryptSymmetric(privateKeyBase64, password);
         const encryptedPrivateKey = cryptoService.encryptSymmetricWithNewKey(privateKeyBase64);
-        const encryptedSecureStorageKey = cryptoService.encryptSymmetric(encryptedPrivateKey.secureStoragekeyBase64, password);
+        const encryptedSecureStorageKey = cryptoService.encryptSymmetric(encryptedPrivateKey.secureStoragekeyBase64, password, true);
         return {
             publicKey: publicKeyBase64,
             encryptedPrivateKey: encryptedPrivateKey.encInputWithNonceBase64,
