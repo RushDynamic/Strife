@@ -1,5 +1,4 @@
 export async function addFriend(username, friendUsername, setAddFriendStatus) {
-    console.log(username, friendUsername);
     const addFriendResponse = await fetch("http://localhost:3001/friend/add", {
         method: 'POST',
         body: JSON.stringify({
@@ -12,7 +11,6 @@ export async function addFriend(username, friendUsername, setAddFriendStatus) {
         credentials: 'include'
     });
     const addFriendResult = await addFriendResponse.json();
-    console.log(addFriendResult);
     if (addFriendResult.success == true) {
         setAddFriendStatus({ failure: false, success: true, msg: `Successfully added ${friendUsername} as a friend!` })
     }
