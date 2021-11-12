@@ -12,11 +12,9 @@ import FriendsList from './Sidebar/FriendsList.jsx';
 import Header from './Header/Header.jsx';
 import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
-import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
 
 export default function Chat() {
-    const classes = chatStyles();
     const dispatch = useDispatch();
     const history = useHistory();
     const socket = useRef();
@@ -66,16 +64,10 @@ export default function Chat() {
                     setNewMsg(echoMessage);
                 });
 
-                socket.current.on('new-user-online', (newOnlineUsersList) => {
+                socket.current.on('update-user-status', (newOnlineUsersList) => {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
                     requestFriendsList([isUserLoggedIn.username]);
                 });
-
-                // Receive announcements from the server
-                socket.current.on('system-msg', (systemMsg) => {
-                    const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    updateMessageList(newSystemMsg);
-                })
 
                 // Receive friends list from server
                 socket.current.on('friends-list', (friendsListFromServer) => {
@@ -84,15 +76,21 @@ export default function Chat() {
                     setLoadingStages(oldList => [...oldList, "fetchedFriendsList"]);
                 });
 
+                // Receive announcements from the server
+                socket.current.on('system-msg', (systemMsg) => {
+                    const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
+                    updateMessageList(newSystemMsg);
+                });
+
                 // Receive msg history from server
                 socket.current.on('receive-msg-history', (msgHistory) => {
-                    console.log("Received msg history from server: ", msgHistory);
+                    console.log("Received msg history from server:", msgHistory);
                     setMsgList([...msgHistory]);
                 });
 
                 // Receive rooms map from server
                 socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
-                    if (roomsList != 'rooms-count-update') {
+                    if (roomsList !== 'rooms-count-update') {
                         roomsList = roomsList != null ? roomsList : [];
                         setOnlineRoomsList([...roomsList]);
                     }
@@ -101,7 +99,7 @@ export default function Chat() {
 
                 // Receive updated room members list from server
                 socket.current.on('updated-room-members', (roomname, updatedMembersList) => {
-                    updatedMembersList = updatedMembersList != null && updatedMembersList != undefined ? updatedMembersList : [];
+                    updatedMembersList = updatedMembersList !== null && updatedMembersList !== undefined ? updatedMembersList : [];
                     setOnlineMembers(new Map(onlineMembers.set(roomname, updatedMembersList)));
                 });
 
@@ -132,12 +130,12 @@ export default function Chat() {
     // Push new message to the msgList
     useEffect(() => {
         if (newMsg.isRoom) {
-            if (newMsg.recipientUsername != recipient.username) {
+            if (newMsg.recipientUsername !== recipient.username) {
                 dispatch(addUnseen(newMsg.recipientUsername))
             }
         }
         else {
-            if (newMsg.senderUsername != recipient.username) {
+            if (newMsg.senderUsername !== recipient.username) {
                 dispatch(addUnseen(newMsg.senderUsername))
             }
         }
@@ -148,8 +146,8 @@ export default function Chat() {
         switch (action) {
             case 'join': console.log('Joining room:', roomname);
                 socket.current.emit('join-room', roomname, user.username, (response) => {
-                    if (response.status == "success") {
-                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                    if (response.status === "success") {
+                        const updatedRoomMembers = response.members !== null && response.members !== undefined ? response.members : [];
                         setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
@@ -159,8 +157,8 @@ export default function Chat() {
 
             case 'create': console.log('Creating room:', roomname);
                 socket.current.emit('create-room', roomname, user.username, (response) => {
-                    if (response.status == "success") {
-                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                    if (response.status === "success") {
+                        const updatedRoomMembers = response.members !== null && response.members !== undefined ? response.members : [];
                         setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
@@ -171,6 +169,7 @@ export default function Chat() {
             case 'leave': console.log('Leaving room:', roomname);
                 socket.current.emit('leave-room', roomname, user.username);
                 break;
+            default: console.log("Invalid room action");
         }
     }
 
@@ -204,7 +203,7 @@ export default function Chat() {
                 }}>uh oh</DialogTitle>
                 <DialogContent>
                     <div style={{ margin: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <img src={process.env.PUBLIC_URL + '/images/uhoh.svg'} height="150" width="150" />
+                        <img alt="error_uhoh" src={process.env.PUBLIC_URL + '/images/uhoh.svg'} height="150" width="150" />
                         <Typography variant="h4" style={{
                             fontWeight: 'bold',
                             fontFamily: "'Syne', sans-serif"
@@ -239,7 +238,7 @@ export default function Chat() {
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient.username == "" ? <LandingChatBox /> :
+                            recipient.username === "" ? <LandingChatBox /> :
                                 <ChatBox
                                     msgList={msgList}
                                     sendMessage={sendMessage}

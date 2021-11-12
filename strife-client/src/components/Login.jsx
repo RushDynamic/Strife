@@ -12,7 +12,7 @@ function Alert(props) {
 
 function Login() {
     const classes = useStyles();
-    const { user, setUser } = useContext(UserContext);
+    const { setUser } = useContext(UserContext);
     const [currentData, setCurrentData] = useState({ username: "", password: "" });
     const [loginStatus, setLoginStatus] = useState({ failure: false, msg: "" });
     const history = useHistory();
@@ -35,12 +35,12 @@ function Login() {
 
     async function handleLoginBtnClick() {
         const loginResult = await loginUser(currentData);
-        if (loginResult.success == true) {
+        if (loginResult.success === true) {
             setLoginStatus({ success: true, msg: `You have successfully logged in as ${loginResult.username}` })
             setUser({ username: loginResult.username, accessToken: loginResult.accessToken });
             history.push('/');
         }
-        else if (loginResult.validUser == false) {
+        else if (loginResult.validUser === false) {
             setLoginStatus({ failure: true, msg: `That user does not exist!` });
             console.log("User does not exist!")
         }

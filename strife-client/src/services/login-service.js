@@ -18,7 +18,7 @@ export async function checkLoggedIn() {
         credentials: 'include'
     });
     const loggedInData = await loggedInResponse.json();
-    if (loggedInData.success == true) {
+    if (loggedInData.success === true) {
         return ({ username: loggedInData.username, avatar: loggedInData.avatar, accessToken: loggedInData.accessToken });
     }
     return ({ username: null });

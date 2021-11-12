@@ -6,7 +6,7 @@ const initialState = {
     isRoom: false
 }
 
-export default function (state = initialState, action) {
+export default function recipientUpdate(state = initialState, action) {
     switch (action.type) {
         case CHANGE_RECIPIENT:
             return {

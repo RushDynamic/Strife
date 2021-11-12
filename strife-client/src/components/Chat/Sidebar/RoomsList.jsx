@@ -71,7 +71,7 @@ function RoomsList(props) {
                             />
                         </ListItem>
                         {
-                            props.roomsList.length == 0 ? <Typography style={{
+                            props.roomsList.length === 0 ? <Typography style={{
                                 padding: '15px',
                                 fontFamily: "'Syne', sans-serif",
                                 fontSize: '0.9rem',

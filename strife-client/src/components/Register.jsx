@@ -14,7 +14,7 @@ function Alert(props) {
 function Register() {
     const classes = useStyles();
     const [currentUserData, setCurrentUserData] = useState({ email: "", username: "", password: "" });
-    const { user, setUser } = useContext(UserContext);
+    const { setUser } = useContext(UserContext);
     const [showRegistrationFailure, setShowRegistrationFailure] = useState({ showError: false, msg: "Could not register your account, please try again later!" });
     const history = useHistory();
 
@@ -37,8 +37,8 @@ function Register() {
     async function handleRegisterBtnClick() {
         const registrationResult = await registerUser(currentUserData);
         console.log("registrationResult: ", registrationResult);
-        if (registrationResult.success == false) {
-            if (registrationResult.duplicate == true) setShowRegistrationFailure({ showError: true, msg: "Sorry, that username is not available!" })
+        if (registrationResult.success === false) {
+            if (registrationResult.duplicate === true) setShowRegistrationFailure({ showError: true, msg: "Sorry, that username is not available!" })
             else setShowRegistrationFailure(...showRegistrationFailure, { showError: true });
         }
         else {

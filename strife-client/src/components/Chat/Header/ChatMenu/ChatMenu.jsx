@@ -44,7 +44,7 @@ function ChatMenu(props) {
     }
 
     async function handleAddFriendClick() {
-        if (friendUsername == null || friendUsername.trim().length == 0) {
+        if (friendUsername === null || friendUsername.trim().length === 0) {
             setAddFriendStatus({ failure: true, msg: "Please enter a valid username!" })
         }
         else {
@@ -55,13 +55,13 @@ function ChatMenu(props) {
     }
 
     function handleAddFriendOnKeyDown(e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode === 13) {
             handleAddFriendClick();
         }
     }
 
     function handleCreateRoomClick() {
-        if (roomname == null || roomname.trim().length == 0) {
+        if (roomname === null || roomname.trim().length === 0) {
             setRoomActionStatus({ failure: true, msg: "Please enter a valid roomname" });
         }
         else {
@@ -71,7 +71,7 @@ function ChatMenu(props) {
     }
 
     function handleCreateRoomOnKeyDown(e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode === 13) {
             handleCreateRoomClick();
         }
     }
@@ -95,7 +95,7 @@ function ChatMenu(props) {
     }
 
     function handleJoinRoomClick() {
-        if (roomname == null || roomname.trim().length == 0) {
+        if (roomname === null || roomname.trim().length === 0) {
             setRoomActionStatus({ failure: true, msg: "Please enter a valid roomname" });
         }
         else {
@@ -105,7 +105,7 @@ function ChatMenu(props) {
     }
 
     function handleJoinRoomOnKeyDown(e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode === 13) {
             handleJoinRoomClick();
         }
     }

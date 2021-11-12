@@ -10,7 +10,7 @@ export async function registerUser(currentUserData) {
         credentials: 'include'
     });
     const registrationData = await registrationResponse.json();
-    if (registrationData.success == true) {
+    if (registrationData.success === true) {
         return ({ username: registrationData.username, accessToken: registrationData.accessToken });
     }
     return { success: false, duplicate: registrationData.duplicate };

@@ -10,7 +10,7 @@ function LandingChatBox() {
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '70vh' }}>
-                <img className={`${classes.nonSelectable} ${classes.expandOnHover}`} src={process.env.PUBLIC_URL + '/images/chatbot.svg'} height="600" width="600" />
+                <img alt="friendly_robot" className={`${classes.nonSelectable} ${classes.expandOnHover}`} src={process.env.PUBLIC_URL + '/images/chatbot.svg'} height="600" width="600" />
                 <Typography variant="h2" className={classes.nonSelectable}>
                     Hey {user.username},
                 </Typography>

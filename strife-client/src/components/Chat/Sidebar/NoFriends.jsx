@@ -1,11 +1,10 @@
 import React from 'react';
-import { Typography, Button } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 
 function NoFriends() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-
-            <img src={process.env.PUBLIC_URL + '/images/uhoh.svg'} height="150" width="150" />
+            <img alt="error_nofriends" src={process.env.PUBLIC_URL + '/images/uhoh.svg'} height="150" width="150" />
             <Typography style={{
                 padding: '15px',
                 color: "#1fd1f9",

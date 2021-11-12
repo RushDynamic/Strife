@@ -21,7 +21,7 @@ io.on('connect', socket => {
         }
         else {
             updateOnlineUsers({ addUser: true }, username, socket.id);
-            socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
+            socket.broadcast.emit('update-user-status', Array.from(onlineUsersMap.keys()));
             // console.log("Online Users: ", onlineUsersMap);
             socket.username = username;
             const newUserAnnouncementMsg = `User ${username} has joined`;
@@ -118,7 +118,7 @@ io.on('connect', socket => {
         deleteUserMsgHistory(socket.username);
 
         // Send updated onlineUsers list to all users
-        socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
+        socket.broadcast.emit('update-user-status', Array.from(onlineUsersMap.keys()));
     })
 })
 
