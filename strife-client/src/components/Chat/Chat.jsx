@@ -16,6 +16,7 @@ import LandingChatBox from './LandingChatBox.jsx';
 import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
 
+var privateKey = "";
 export default function Chat() {
     const classes = chatStyles();
     const dispatch = useDispatch();
@@ -54,6 +55,7 @@ export default function Chat() {
                 console.log("You're logged in!");
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
                 setUser({ ...isUserLoggedIn });
+                privateKey = isUserLoggedIn.privateKey;
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {
@@ -84,12 +86,6 @@ export default function Chat() {
                     console.log("friendsListFromServer:", friendsListFromServer);
                     setFriendsList(friendsListFromServer);
                     setLoadingStages(oldList => [...oldList, "fetchedFriendsList"]);
-                });
-
-                // Receive msg history from server
-                socket.current.on('receive-msg-history', (msgHistory) => {
-                    console.log("Received msg history from server: ", msgHistory);
-                    setMsgList([...msgHistory]);
                 });
 
                 // Receive rooms map from server
@@ -132,12 +128,16 @@ export default function Chat() {
 
     // Get message history for the new recipient
     useEffect(() => {
-        setMsgList([]);
-        console.log("Changed recipient:", recipient);
-        if (socketConnected) {
-            socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
+        if (recipient.username != '' && recipient.username != null) {
+            const savedMsgList = msgMap.current.get(recipient.username);
+            if (savedMsgList != null && savedMsgList.length > 0) {
+                setMsgList([...msgMap.current.get(recipient.username)]);
+            }
+            else {
+                setMsgList([]);
+            }
+            dispatch(removeUnseen(recipient.username));
         }
-        dispatch(removeUnseen(recipient.username));
     }, [recipient])
 
     // Push new message to the msgList
@@ -203,11 +203,8 @@ export default function Chat() {
     }
 
     function updateMessageList(msgData) {
-        if (msgData.recipientUsername == undefined && !msgData.systemMsg) {
-            return;
-        }
+        if (msgData.recipientUsername === undefined || msgData.systemMsg) return;
         setMsgList(oldList => [...oldList, msgData]);
-        console.log(msgMap.current);
         let keyUsername = msgData.senderUsername === user.username ? msgData.recipientUsername : msgData.senderUsername;
         let curMsgList = msgMap.current.has(keyUsername) ? msgMap.current.get(keyUsername) : [];
         curMsgList.push(msgData);
@@ -220,18 +217,17 @@ export default function Chat() {
             Encrypt string with user.privateKey using symmetric enc
             Store encrypted string in localStorage
         */
-        if (user.username !== null) {
+        if (msgMap.current.size > 0) {
             const msgMapObj = Object.fromEntries(msgMap.current);
-            const msgMapStr = JSON.stringify(msgMapObj);
-            const encMsgMapStr = cryptoService.encryptSymmetric(msgMapStr, user.privateKey, false);
+            const encMsgMapStr = cryptoService.encryptSymmetric(JSON.stringify(msgMapObj), privateKey, false);
             localStorage.setItem('encryptedMsgMap', encMsgMapStr);
         }
     }
 
     function importMsgMap() {
         const encMsgMapStr = localStorage.getItem('encryptedMsgMap');
-        if (!encMsgMapStr.length > 0) return;
-        const decMsgObjBase64 = cryptoService.decryptSymmetric(encMsgMapStr, user.privateKey, false);
+        if (encMsgMapStr === null || encMsgMapStr.length === 0) return;
+        const decMsgObjBase64 = cryptoService.decryptSymmetric(encMsgMapStr, privateKey, false);
         const decMsgObjStr = cryptoService.convertBase64toUTF8(decMsgObjBase64);
         msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
     }
