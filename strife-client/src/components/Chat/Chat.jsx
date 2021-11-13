@@ -19,7 +19,7 @@ export default function Chat() {
     const history = useHistory();
     const socket = useRef();
     const recipient = useSelector(state => state.recipient);
-    const [socketConnected, setSocketConnected] = useState(false);
+    const socketConnected = useRef(false);
     const { user, setUser } = useContext(UserContext);
     const [loadingStages, setLoadingStages] = useState([]);
     const [loaded, setLoaded] = useState(false);
@@ -56,7 +56,7 @@ export default function Chat() {
                     // Send username to server
                     socket.current.emit("username", isUserLoggedIn.username);
                     setLoadingStages(oldList => [...oldList, "socketConnected"]);
-                    setSocketConnected(true);
+                    socketConnected.current = true;
                 });
 
                 // Receive new messages from the server
@@ -121,11 +121,11 @@ export default function Chat() {
         setMsgList([]);
         // TODO: Only start listening for recipient change after socket has finished connecting
         console.log("Changed recipient:", recipient);
-        if (socketConnected) {
+        if (socketConnected.current && user?.username && recipient?.username) {
             socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
+            dispatch(removeUnseen(recipient.username));
         }
-        dispatch(removeUnseen(recipient.username));
-    }, [recipient])
+    }, [recipient, user, socketConnected, dispatch])
 
     // Push new message to the msgList
     useEffect(() => {
