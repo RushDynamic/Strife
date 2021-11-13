@@ -31,7 +31,7 @@ function ChatBox(props) {
 
     function returnMemberNameComponent(memberName, showDetailed) {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', marginBottom: '10px', boxSizing: 'border-box' }}>
+            <div key={memberName} style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', marginBottom: '10px', boxSizing: 'border-box' }}>
                 <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
                 <Typography style={{
                     paddingRight: '10px',
@@ -105,9 +105,9 @@ function ChatBox(props) {
                                     }
                                     if (recipient.username === message.senderUsername || recipient.username === message.recipientUsername) {
                                         if (message.systemMsg) {
-                                            return (<Announcement msg={message.message} />)
+                                            return (<Announcement key={index} msg={message.message} />)
                                         }
-                                        return (<MessageBox message={message} combinedMsgList={combinedMsgList} />)
+                                        return (<MessageBox key={index} message={message} combinedMsgList={combinedMsgList} />)
                                     }
                                 }
                             }
@@ -125,9 +125,9 @@ function ChatBox(props) {
                                 }
                                 if (recipient.username === message.senderUsername || recipient.username === message.recipientUsername) {
                                     if (message.systemMsg) {
-                                        return (<Announcement msg={message.message} />)
+                                        return (<Announcement key={index} msg={message.message} />)
                                     }
-                                    return (<MessageBox message={message} combinedMsgList={combinedMsgList} />)
+                                    return (<MessageBox key={index} message={message} combinedMsgList={combinedMsgList} />)
                                 }
                             }
                         }
@@ -143,7 +143,7 @@ function ChatBox(props) {
             <Dialog open={showDetailedMembers} onClose={() => setShowDetailedMembers(false)} autoFocus={false}>
                 <DialogContent>
                     {props.onlineMembers.map((memberName) => {
-                        return (<List>
+                        return (<List key={memberName}>
                             <ListItem>
                                 <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
                                 <ListItemText

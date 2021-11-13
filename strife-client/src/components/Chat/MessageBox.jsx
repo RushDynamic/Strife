@@ -7,8 +7,8 @@ export default function MessageBox(props) {
     const colors = ['#6ee429', '#4ab2a7', '#2366cb', '#3abefb', '#6efccf', '#b12da4', '#d7db05', '#f97a12', '#a186e1', '#d11265'];
     const classes = chatStyles();
 
-    function returnMsgTextContainer(msg) {
-        return (<div className={classes.messageTextContainer} style={{
+    function returnMsgTextContainer(msg, timestamp) {
+        return (<div key={timestamp} className={classes.messageTextContainer} style={{
             fontFamily: "'Rubik', sans-serif",
             fontSize: '1rem',
             margin: '2.5px'
@@ -43,8 +43,8 @@ export default function MessageBox(props) {
                         </div>
                         {
                             props.combinedMsgList.length > 0 ?
-                                props.combinedMsgList.map((message) => returnMsgTextContainer(message)) :
-                                returnMsgTextContainer(props.message.message)
+                                props.combinedMsgList.map((message) => returnMsgTextContainer(message, message.timestamp)) :
+                                returnMsgTextContainer(props.message.message, props.message.timestamp)
                         }
                     </div>
                 </div>
