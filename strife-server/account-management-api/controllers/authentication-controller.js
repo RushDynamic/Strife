@@ -5,7 +5,8 @@ export async function handleUserRegistration(req, res) {
     const userInfo = ({
         email: req.body.email,
         username: req.body.username.toLowerCase(),
-        password: req.body.password
+        password: req.body.password,
+        encodedKeyPair: req.body.encodedKeyPair
     });
     console.log("UserInfo: ", userInfo);
     try {
@@ -52,6 +53,7 @@ export async function handleUserLogin(req, res) {
             res.status(200).json({
                 success: true,
                 username: loginResponse.user.username,
+                encodedKeyPair: loginResponse.user.encodedKeyPair,
                 accessToken: loginResponse.user.accessToken
             });
         }
@@ -86,10 +88,7 @@ export async function handleCheckLoggedIn(req, res) {
     const isUserLoggedIn = await checkLoggedIn(refreshToken);
     if (isUserLoggedIn.success) {
         res.status(200).json({
-            success: true,
-            username: isUserLoggedIn.username,
-            avatar: isUserLoggedIn.avatar,
-            accessToken: isUserLoggedIn.accessToken
+            ...isUserLoggedIn
         });
     }
     else {

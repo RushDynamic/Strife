@@ -5,6 +5,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import useStyles from './styles/login-styles.js';
 import { UserContext } from '../UserContext.js';
 import { loginUser, checkLoggedIn } from '../services/login-service.js';
+import * as cryptoService from '../services/crypto-service.js';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -36,8 +37,19 @@ function Login() {
     async function handleLoginBtnClick() {
         const loginResult = await loginUser(currentData);
         if (loginResult.success === true) {
+            // Decrypt secureStorageKey key and store it in localStorage
+            // Decrypt private key and store it in UserContext
+            const encodedKeyPair = JSON.parse(loginResult.encodedKeyPair);
+            const secureStorageKey = cryptoService.decryptSymmetric(encodedKeyPair.privateKey.encryptedSecureStorageKey, currentData.password);
+            const decryptedPrivateKey = cryptoService.decryptSymmetric(encodedKeyPair.privateKey.encryptedPrivateKey, secureStorageKey, true);
+            localStorage.setItem('secureStorageKey', secureStorageKey);
             setLoginStatus({ success: true, msg: `You have successfully logged in as ${loginResult.username}` })
-            setUser({ username: loginResult.username, accessToken: loginResult.accessToken });
+            setUser({
+                username: loginResult.username,
+                publicKey: encodedKeyPair.publicKey,
+                privateKey: decryptedPrivateKey,
+                accessToken: loginResult.accessToken
+            });
             history.push('/');
         }
         else if (loginResult.validUser === false) {

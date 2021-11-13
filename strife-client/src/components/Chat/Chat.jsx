@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
+import * as cryptoService from '../../services/crypto-service.js';
 import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
@@ -14,6 +15,7 @@ import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
 import { UserContext } from '../../UserContext.js';
 
+var privateKey = "";
 export default function Chat() {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -30,7 +32,8 @@ export default function Chat() {
     const [friendsList, setFriendsList] = useState([]);
     const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
     // TODO: Convert msgList into a hashmap
-    const [msgList, setMsgList] = useState([])
+    const [msgList, setMsgList] = useState([]);
+    const msgMap = useRef(new Map());
     const [newMsg, setNewMsg] = useState({});
 
     useEffect(() => {
@@ -49,7 +52,8 @@ export default function Chat() {
             if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
                 console.log("You're logged in!");
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
-                setUser({ username: isUserLoggedIn.username, avatar: isUserLoggedIn.avatar, accessToken: isUserLoggedIn.accessToken });
+                setUser({ ...isUserLoggedIn });
+                privateKey = isUserLoggedIn.privateKey;
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {
@@ -82,12 +86,6 @@ export default function Chat() {
                     updateMessageList(newSystemMsg);
                 });
 
-                // Receive msg history from server
-                socket.current.on('receive-msg-history', (msgHistory) => {
-                    console.log("Received msg history from server:", msgHistory);
-                    setMsgList([...msgHistory]);
-                });
-
                 // Receive rooms map from server
                 socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
                     if (roomsList !== 'rooms-count-update') {
@@ -106,7 +104,10 @@ export default function Chat() {
                 // Receive error from server if user is already online elsewhere
                 socket.current.on('chat-already-open', () => {
                     setShowChatAlreadyOpen(true);
-                })
+                });
+
+                // Encrypt and save msgHistory in local storage before page closes
+                window.addEventListener('beforeunload', exportEncryptedMsgMap);
             }
             else {
                 console.log("You're NOT logged in!");
@@ -116,16 +117,26 @@ export default function Chat() {
         })();
     }, [])
 
+    // Load message history once user is logged in
+    useEffect(() => {
+        if (user.username !== null) {
+            importMsgMap();
+        }
+    }, [user])
+
     // Get message history for the new recipient
     useEffect(() => {
-        setMsgList([]);
-        // TODO: Only start listening for recipient change after socket has finished connecting
-        console.log("Changed recipient:", recipient);
-        if (socketConnected.current && user?.username && recipient?.username) {
-            socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
+        if (recipient.username != '' && recipient.username != null) {
+            const savedMsgList = msgMap.current.get(recipient.username);
+            if (savedMsgList != null && savedMsgList.length > 0) {
+                setMsgList([...msgMap.current.get(recipient.username)]);
+            }
+            else {
+                setMsgList([]);
+            }
             dispatch(removeUnseen(recipient.username));
         }
-    }, [recipient, user, socketConnected, dispatch])
+    }, [recipient])
 
     // Push new message to the msgList
     useEffect(() => {
@@ -134,8 +145,11 @@ export default function Chat() {
                 dispatch(addUnseen(newMsg.recipientUsername))
             }
         }
-        else {
-            if (newMsg.senderUsername !== recipient.username) {
+        else if (newMsg?.senderUsername) {
+            // NOT required -- Fetch sender's publicKey from the friend's list and decrypt the message
+            //const senderPubKey = friendsList.filter(friend => friend.username == newMsg.senderUsername)[0].publicKey;
+            newMsg.message = cryptoService.decryptAsymmetric(newMsg.message, user.privateKey, newMsg.senderPubKey);
+            if (newMsg.senderUsername != recipient.username) {
                 dispatch(addUnseen(newMsg.senderUsername))
             }
         }
@@ -177,15 +191,44 @@ export default function Chat() {
         socket.current.emit('request-friends-list', usernameList);
     }
 
-    function sendMessage(msgData) {
-        if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData);
-            updateMessageList(msgData);
+    function sendMessage(rawMsgData) {
+        if (!rawMsgData.message.match(/^ *$/) && rawMsgData.message != null) {
+            updateMessageList(rawMsgData);
+            // Stringify and parse to create a deep copy of the raw msg object
+            let encMsg = JSON.parse(JSON.stringify(rawMsgData));
+            encMsg.message = cryptoService.encryptAsymmetric(encMsg.message, recipient.publicKey, user.privateKey);
+            socket.current.emit('add-msg', encMsg);
         }
     }
 
     function updateMessageList(msgData) {
+        if (msgData.recipientUsername === undefined || msgData.systemMsg) return;
         setMsgList(oldList => [...oldList, msgData]);
+        let keyUsername = msgData.senderUsername === user.username ? msgData.recipientUsername : msgData.senderUsername;
+        let curMsgList = msgMap.current.has(keyUsername) ? msgMap.current.get(keyUsername) : [];
+        curMsgList.push(msgData);
+        msgMap.current = new Map([...msgMap.current, [keyUsername, curMsgList]]);
+    }
+
+    function exportEncryptedMsgMap() {
+        /*  
+            Convert msgMap to string
+            Encrypt string with user.privateKey using symmetric enc
+            Store encrypted string in localStorage
+        */
+        if (msgMap.current.size > 0) {
+            const msgMapObj = Object.fromEntries(msgMap.current);
+            const encMsgMapStr = cryptoService.encryptSymmetric(JSON.stringify(msgMapObj), privateKey, false);
+            localStorage.setItem('encryptedMsgMap', encMsgMapStr);
+        }
+    }
+
+    function importMsgMap() {
+        const encMsgMapStr = localStorage.getItem('encryptedMsgMap');
+        if (encMsgMapStr === null || encMsgMapStr.length === 0) return;
+        const decMsgObjBase64 = cryptoService.decryptSymmetric(encMsgMapStr, privateKey, false);
+        const decMsgObjStr = cryptoService.convertBase64toUTF8(decMsgObjBase64);
+        msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
     }
 
     return (

@@ -5,6 +5,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import useStyles from './styles/login-styles.js';
 import { registerUser } from '../services/registration-service.js';
 import { checkLoggedIn } from '../services/login-service.js';
+import * as cryptoService from '../services/crypto-service.js';
 import { UserContext } from '../UserContext.js';
 
 function Alert(props) {
@@ -13,7 +14,7 @@ function Alert(props) {
 
 function Register() {
     const classes = useStyles();
-    const [currentUserData, setCurrentUserData] = useState({ email: "", username: "", password: "" });
+    const [currentUserData, setCurrentUserData] = useState({ email: "", username: "", password: "", encodedKeyPair: null });
     const { setUser } = useContext(UserContext);
     const [showRegistrationFailure, setShowRegistrationFailure] = useState({ showError: false, msg: "Could not register your account, please try again later!" });
     const history = useHistory();
@@ -34,7 +35,34 @@ function Register() {
         })();
     }, [])
 
+    const generateKeyPair = (password) => {
+        const keyPair = cryptoService.generateKeyPair();
+        const publicKeyBase64 = cryptoService.bytesToBase64(keyPair.publicKey);
+        const privateKeyBase64 = cryptoService.bytesToBase64(keyPair.secretKey);
+        // const encryptedPrivateKey = cryptoService.encryptSymmetric(privateKeyBase64, password);
+        const encryptedPrivateKey = cryptoService.encryptSymmetricWithNewKey(privateKeyBase64);
+        const encryptedSecureStorageKey = cryptoService.encryptSymmetric(encryptedPrivateKey.secureStoragekeyBase64, password, true);
+        return {
+            publicKey: publicKeyBase64,
+            encryptedPrivateKey: encryptedPrivateKey.encInputWithNonceBase64,
+            secureStorageKey: encryptedPrivateKey.secureStoragekeyBase64,
+            encryptedSecureStorageKey: encryptedSecureStorageKey
+        };
+    }
+
     async function handleRegisterBtnClick() {
+        const keyPairData = generateKeyPair(currentUserData.password);
+        // Store raw Secure Storage Key in local storage
+        localStorage.setItem('secureStorageKey', keyPairData.secureStorageKey);
+        currentUserData.encodedKeyPair = {
+            publicKey: keyPairData.publicKey,
+            privateKey:
+            {
+                encryptedPrivateKey: keyPairData.encryptedPrivateKey,
+                encryptedSecureStorageKey: keyPairData.encryptedSecureStorageKey
+            }
+        }
+        // currentUserData.encodedKeyPair = generateKeyPair(currentUserData.password);
         const registrationResult = await registerUser(currentUserData);
         console.log("registrationResult: ", registrationResult);
         if (registrationResult.success === false) {
