@@ -13,10 +13,10 @@ export async function addFriend(username, friendUsername, setAddFriendStatus) {
     });
     const addFriendResult = await addFriendResponse.json();
     console.log(addFriendResult);
-    if (addFriendResult.success == true) {
+    if (addFriendResult.success === true) {
         setAddFriendStatus({ failure: false, success: true, msg: `Successfully added ${friendUsername} as a friend!` })
     }
-    else if (addFriendResult.success == false && addFriendResult.alreadyFriends == true) {
+    else if (addFriendResult.success === false && addFriendResult.alreadyFriends === true) {
         setAddFriendStatus({ failure: true, success: false, msg: `You're already friends with ${friendUsername}!` })
     }
     else {

@@ -24,7 +24,7 @@ export async function checkLoggedIn() {
         credentials: 'include'
     });
     const loggedInData = await loggedInResponse.json();
-    if (loggedInData.success == true) {
+    if (loggedInData.success === true) {
         const encodedKeyPair = JSON.parse(loggedInData.encodedKeyPair);
         const decryptedPrivateKey = cryptoService.decryptSymmetric(encodedKeyPair.privateKey.encryptedPrivateKey, secureStorageKey, true);
         delete loggedInData.success;
