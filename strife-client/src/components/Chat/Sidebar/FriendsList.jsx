@@ -77,7 +77,7 @@ function FriendsList(props) {
                         </ListItem>
                         {
                             props.friendsList.map(friend => (
-                                <ListItem>
+                                <ListItem key={friend.username}>
                                     <ListItemAvatar>{returnAvatar(friend.status, friend.avatar)}</ListItemAvatar>
                                     <ListItemText disableTypography primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{friend.username}</Typography>} />
                                     {returnChatButton(friend)}
