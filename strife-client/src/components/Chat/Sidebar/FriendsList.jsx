@@ -92,4 +92,4 @@ function FriendsList(props) {
     )
 }
 
-export default FriendsList;
+export default React.memo(FriendsList);
