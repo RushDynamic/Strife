@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const friendSchema = new Schema({
     username: { type: String, required: true },
-    friends: [{ type: String }]
+    friends: [{ username: String, avatar: String, publicKey: String }]
 });
 
 const Friend = new mongoose.model('friend', friendSchema);

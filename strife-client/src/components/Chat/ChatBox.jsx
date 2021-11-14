@@ -31,7 +31,7 @@ function ChatBox(props) {
 
     function returnMemberNameComponent(memberName, showDetailed) {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', marginBottom: '10px', boxSizing: 'border-box' }}>
+            <div key={memberName} style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', marginBottom: '10px', boxSizing: 'border-box' }}>
                 <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
                 <Typography style={{
                     paddingRight: '10px',
@@ -50,7 +50,7 @@ function ChatBox(props) {
     return (
         <>
             <div className={classes.talkingToContainer} style={{ display: 'flex', alignItems: 'center' }} >
-                <img hidden={recipient.isRoom} className={classes.expandFastOnHover} src={recipient.avatar} style={{ borderRadius: '20%', margin: '15px' }} height="50px" width="50px" />
+                <img alt="user_avatar" hidden={recipient.isRoom} className={classes.expandFastOnHover} src={recipient.avatar} style={{ borderRadius: '20%', margin: '15px' }} height="50px" width="50px" />
                 <Typography variant="h5" style={{
                     fontWeight: 'bold',
                     fontFamily: "'Syne', sans-serif",
@@ -90,44 +90,44 @@ function ChatBox(props) {
                     // TODO: Clean and optimize this block
                     props.msgList.map((message, index) => {
                         if (message.isRoom) {
-                            if (recipient.username == message.recipientUsername) {
+                            if (recipient.username === message.recipientUsername) {
                                 if (!processedMsgListForRooms.includes(props.msgList[index].message)) {
-                                    var newIndex = index + 1;
-                                    var combinedMsgList = [message.message];
+                                    let newIndex = index + 1;
+                                    let combinedMsgList = [message.message];
                                     while ((newIndex <= props.msgList.length - 1) &&
-                                        (props.msgList[newIndex].senderUsername == message.senderUsername) &&
-                                        (props.msgList[newIndex].isRoom == true)) {
-                                        if (recipient.username == props.msgList[newIndex].recipientUsername) {
+                                        (props.msgList[newIndex].senderUsername === message.senderUsername) &&
+                                        (props.msgList[newIndex].isRoom === true)) {
+                                        if (recipient.username === props.msgList[newIndex].recipientUsername) {
                                             combinedMsgList.push(props.msgList[newIndex].message);
                                             processedMsgListForRooms.push(props.msgList[newIndex].message);
                                         }
                                         newIndex++;
                                     }
-                                    if (recipient.username == message.senderUsername || recipient.username == message.recipientUsername) {
+                                    if (recipient.username === message.senderUsername || recipient.username === message.recipientUsername) {
                                         if (message.systemMsg) {
-                                            return (<Announcement msg={message.message} />)
+                                            return (<Announcement key={index} msg={message.message} />)
                                         }
-                                        return (<MessageBox message={message} combinedMsgList={combinedMsgList} />)
+                                        return (<MessageBox key={index} message={message} combinedMsgList={combinedMsgList} />)
                                     }
                                 }
                             }
                         }
                         else {
                             if (!processedMsgListForUsers.includes(index)) {
-                                var newIndex = index + 1;
-                                var combinedMsgList = [message.message];
+                                let newIndex = index + 1;
+                                let combinedMsgList = [message.message];
                                 while ((newIndex <= props.msgList.length - 1) &&
-                                    (props.msgList[newIndex].senderUsername == message.senderUsername) &&
-                                    (props.msgList[newIndex].isRoom != true)) {
+                                    (props.msgList[newIndex].senderUsername === message.senderUsername) &&
+                                    (props.msgList[newIndex].isRoom !== true)) {
                                     combinedMsgList.push(props.msgList[newIndex].message);
                                     processedMsgListForUsers.push(newIndex);
                                     newIndex++;
                                 }
-                                if (recipient.username == message.senderUsername || recipient.username == message.recipientUsername) {
+                                if (recipient.username === message.senderUsername || recipient.username === message.recipientUsername) {
                                     if (message.systemMsg) {
-                                        return (<Announcement msg={message.message} />)
+                                        return (<Announcement key={index} msg={message.message} />)
                                     }
-                                    return (<MessageBox message={message} combinedMsgList={combinedMsgList} />)
+                                    return (<MessageBox key={index} message={message} combinedMsgList={combinedMsgList} />)
                                 }
                             }
                         }
@@ -143,7 +143,7 @@ function ChatBox(props) {
             <Dialog open={showDetailedMembers} onClose={() => setShowDetailedMembers(false)} autoFocus={false}>
                 <DialogContent>
                     {props.onlineMembers.map((memberName) => {
-                        return (<List>
+                        return (<List key={memberName}>
                             <ListItem>
                                 <FiberManualRecordIcon style={{ fontSize: '15px', color: '#80FF00', paddingRight: '5px' }} />
                                 <ListItemText

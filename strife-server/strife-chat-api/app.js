@@ -21,7 +21,7 @@ io.on('connect', socket => {
         }
         else {
             updateOnlineUsers({ addUser: true }, username, socket.id);
-            socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
+            socket.broadcast.emit('update-user-status', Array.from(onlineUsersMap.keys()));
             // console.log("Online Users: ", onlineUsersMap);
             socket.username = username;
             const newUserAnnouncementMsg = `User ${username} has joined`;
@@ -44,13 +44,8 @@ io.on('connect', socket => {
     console.log("New connection ", socket.id)
     socket.on('add-msg', (msgData) => {
         const newMsg = {
-            message: msgData.message,
-            avatar: msgData.avatar,
             systemMsg: false,
-            senderUsername: msgData.senderUsername,
-            recipientUsername: msgData.recipientUsername,
-            timestamp: msgData.timestamp,
-            isRoom: msgData.isRoom
+            ...msgData
         };
 
         // Check if recipient is a room
@@ -118,7 +113,7 @@ io.on('connect', socket => {
         deleteUserMsgHistory(socket.username);
 
         // Send updated onlineUsers list to all users
-        socket.broadcast.emit('new-user-online', Array.from(onlineUsersMap.keys()));
+        socket.broadcast.emit('update-user-status', Array.from(onlineUsersMap.keys()));
     })
 })
 
@@ -309,13 +304,12 @@ function prepareFriendsList(friendsList) {
     const onlineFriends = getOnlineFriends(friendsList);
     const friendsListWithStatus = [];
     friendsList.map(friend => {
-
-        var friendStatus = { username: "", avatar: "", status: "" };
+        var friendStatus = { username: "", avatar: "", status: "", publicKey: "" };
         if (onlineFriends.includes(friend.username)) {
-            friendStatus = { username: friend.username, avatar: friend.avatar, status: "online" };
+            friendStatus = { username: friend.username, avatar: friend.avatar, publicKey: friend.publicKey, status: "online" };
         }
         else {
-            friendStatus = { username: friend.username, avatar: friend.avatar, status: "offline" };
+            friendStatus = { username: friend.username, avatar: friend.avatar, publicKey: friend.publicKey, status: "offline" };
         }
         friendsListWithStatus.push(friendStatus);
     });

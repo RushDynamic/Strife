@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import { Typography, IconButton, Snackbar } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+import { Typography, IconButton } from '@material-ui/core';
 import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
 import FaceIcon from '@material-ui/icons/Face';
 import chatStyles from '../../../../styles/chat-styles';
-
-function Alert(props) {
-    return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 function EditAvatar(props) {
     const classes = chatStyles();
@@ -33,8 +28,7 @@ function EditAvatar(props) {
         <>
             <div hidden={props.value !== props.index} >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '50px' }}>
-                    {imagePath == '' ? <FaceIcon style={{ fontSize: 150 }} /> : <img className={classes.expandFastOnHover} src={imagePath} height="100px" width="100px" style={{ borderRadius: '50%' }} />}
-
+                    {imagePath === '' ? <FaceIcon style={{ fontSize: 150 }} /> : <img alt="avatar_preview" className={classes.expandFastOnHover} src={imagePath} height="100px" width="100px" style={{ borderRadius: '50%' }} />}
                     <input accept="image/*" id="avatarFileInput" type="file" style={{ display: 'none' }} onChange={handleAvatarFileChanged} />
                     <label htmlFor="avatarFileInput">
                         <IconButton color="primary" component="span">

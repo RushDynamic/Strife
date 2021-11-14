@@ -25,13 +25,14 @@ export default function CreateMessage(props) {
             systemMsg: false,
             recipientUsername: recipient.username,
             senderUsername: props.sender.username,
+            senderPubKey: props.sender.publicKey,
             timestamp: new Date().getTime(),
             isRoom: recipient.isRoom
         })
     }, [msgText]);
 
     function handleOnKeyDown(e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode === 13) {
             props.sendMessage(newMsg)
             setMsgText("");
         }
@@ -51,10 +52,10 @@ export default function CreateMessage(props) {
                     onChange={event => setMsgText(event.target.value)}
                     autoFocus
                 />
-                <IconButton style={{ marginLeft: '15px' }} onClick={() => props.sendMessage(newMsg)} style={{ backgroundColor: 'transparent' }}>
+                <IconButton onClick={() => props.sendMessage(newMsg)} style={{ backgroundColor: 'transparent', marginLeft: '15px' }}>
                     <SendIcon />
                 </IconButton>
-                <IconButton style={{ marginLeft: '15px' }} style={{ backgroundColor: 'transparent' }}>
+                <IconButton style={{ backgroundColor: 'transparent', marginLeft: '15px' }}>
                     <NoteAddIcon />
                 </IconButton>
             </div>

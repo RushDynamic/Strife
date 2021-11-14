@@ -12,7 +12,12 @@ export async function loginUser(userInfo) {
         // Proceed if it's a valid user
         if (bcrypt.compareSync(userInfo.password, registeredUser.password)) {
             const authTokenData = await generateAll(registeredUser.username);
-            const user = { username: registeredUser.username, accessToken: authTokenData.accessToken, refreshToken: authTokenData.refreshToken };
+            const user = {
+                username: registeredUser.username,
+                encodedKeyPair: registeredUser.encodedKeyPair,
+                accessToken: authTokenData.accessToken,
+                refreshToken: authTokenData.refreshToken,
+            };
             return ({ success: true, user: user });
         }
         else {
@@ -33,5 +38,11 @@ export async function checkLoggedIn(refreshToken) {
     if (!rtVerificationResult.success) return ({ success: false });
     const newAccessToken = await generateAccessToken(rtVerificationResult.username);
     const user = await checkIfUserExists(rtVerificationResult.username);
-    return ({ success: true, username: rtVerificationResult.username, avatar: user.avatar, accessToken: newAccessToken.accessToken });
+    return ({
+        success: true,
+        username: rtVerificationResult.username,
+        avatar: user.avatar,
+        accessToken: newAccessToken.accessToken,
+        encodedKeyPair: user.encodedKeyPair
+    });
 }

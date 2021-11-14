@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
+import * as cryptoService from '../../services/crypto-service.js';
 import { io } from 'socket.io-client';
 import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
@@ -12,16 +13,15 @@ import FriendsList from './Sidebar/FriendsList.jsx';
 import Header from './Header/Header.jsx';
 import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
-import chatStyles from '../styles/chat-styles.js';
 import { UserContext } from '../../UserContext.js';
 
+var privateKey = "";
 export default function Chat() {
-    const classes = chatStyles();
     const dispatch = useDispatch();
     const history = useHistory();
     const socket = useRef();
     const recipient = useSelector(state => state.recipient);
-    const [socketConnected, setSocketConnected] = useState(false);
+    const socketConnected = useRef(false);
     const { user, setUser } = useContext(UserContext);
     const [loadingStages, setLoadingStages] = useState([]);
     const [loaded, setLoaded] = useState(false);
@@ -32,7 +32,8 @@ export default function Chat() {
     const [friendsList, setFriendsList] = useState([]);
     const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
     // TODO: Convert msgList into a hashmap
-    const [msgList, setMsgList] = useState([])
+    const [msgList, setMsgList] = useState([]);
+    const msgMap = useRef(new Map());
     const [newMsg, setNewMsg] = useState({});
 
     useEffect(() => {
@@ -51,14 +52,15 @@ export default function Chat() {
             if (isUserLoggedIn.username != null && isUserLoggedIn.username.length !== 0) {
                 console.log("You're logged in!");
                 setLoadingStages(oldList => [...oldList, "loggedIn"]);
-                setUser({ username: isUserLoggedIn.username, avatar: isUserLoggedIn.avatar, accessToken: isUserLoggedIn.accessToken });
+                setUser({ ...isUserLoggedIn });
+                privateKey = isUserLoggedIn.privateKey;
                 // If the user is logged in, setup the socket connection
                 socket.current = io.connect("http://localhost:5000");
                 socket.current.on("connect", () => {
                     // Send username to server
                     socket.current.emit("username", isUserLoggedIn.username);
                     setLoadingStages(oldList => [...oldList, "socketConnected"]);
-                    setSocketConnected(true);
+                    socketConnected.current = true;
                 });
 
                 // Receive new messages from the server
@@ -66,16 +68,10 @@ export default function Chat() {
                     setNewMsg(echoMessage);
                 });
 
-                socket.current.on('new-user-online', (newOnlineUsersList) => {
+                socket.current.on('update-user-status', (newOnlineUsersList) => {
                     //console.log("newOnlineUsersList: ", newOnlineUsersList);
                     requestFriendsList([isUserLoggedIn.username]);
                 });
-
-                // Receive announcements from the server
-                socket.current.on('system-msg', (systemMsg) => {
-                    const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
-                    updateMessageList(newSystemMsg);
-                })
 
                 // Receive friends list from server
                 socket.current.on('friends-list', (friendsListFromServer) => {
@@ -84,15 +80,15 @@ export default function Chat() {
                     setLoadingStages(oldList => [...oldList, "fetchedFriendsList"]);
                 });
 
-                // Receive msg history from server
-                socket.current.on('receive-msg-history', (msgHistory) => {
-                    console.log("Received msg history from server: ", msgHistory);
-                    setMsgList([...msgHistory]);
+                // Receive announcements from the server
+                socket.current.on('system-msg', (systemMsg) => {
+                    const newSystemMsg = { message: systemMsg, avatar: null, systemMsg: true }
+                    updateMessageList(newSystemMsg);
                 });
 
                 // Receive rooms map from server
                 socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
-                    if (roomsList != 'rooms-count-update') {
+                    if (roomsList !== 'rooms-count-update') {
                         roomsList = roomsList != null ? roomsList : [];
                         setOnlineRoomsList([...roomsList]);
                     }
@@ -101,14 +97,17 @@ export default function Chat() {
 
                 // Receive updated room members list from server
                 socket.current.on('updated-room-members', (roomname, updatedMembersList) => {
-                    updatedMembersList = updatedMembersList != null && updatedMembersList != undefined ? updatedMembersList : [];
+                    updatedMembersList = updatedMembersList !== null && updatedMembersList !== undefined ? updatedMembersList : [];
                     setOnlineMembers(new Map(onlineMembers.set(roomname, updatedMembersList)));
                 });
 
                 // Receive error from server if user is already online elsewhere
                 socket.current.on('chat-already-open', () => {
                     setShowChatAlreadyOpen(true);
-                })
+                });
+
+                // Encrypt and save msgHistory in local storage before page closes
+                window.addEventListener('beforeunload', exportEncryptedMsgMap);
             }
             else {
                 console.log("You're NOT logged in!");
@@ -118,25 +117,38 @@ export default function Chat() {
         })();
     }, [])
 
+    // Load message history once user is logged in
+    useEffect(() => {
+        if (user.username !== null) {
+            importMsgMap();
+        }
+    }, [user])
+
     // Get message history for the new recipient
     useEffect(() => {
-        setMsgList([]);
-        // TODO: Only start listening for recipient change after socket has finished connecting
-        console.log("Changed recipient:", recipient);
-        if (socketConnected) {
-            socket.current.emit('request-msg-history', user.username, recipient.username, recipient.isRoom);
+        if (recipient.username != '' && recipient.username != null) {
+            const savedMsgList = msgMap.current.get(recipient.username);
+            if (savedMsgList != null && savedMsgList.length > 0) {
+                setMsgList([...msgMap.current.get(recipient.username)]);
+            }
+            else {
+                setMsgList([]);
+            }
+            dispatch(removeUnseen(recipient.username));
         }
-        dispatch(removeUnseen(recipient.username));
     }, [recipient])
 
     // Push new message to the msgList
     useEffect(() => {
         if (newMsg.isRoom) {
-            if (newMsg.recipientUsername != recipient.username) {
+            if (newMsg.recipientUsername !== recipient.username) {
                 dispatch(addUnseen(newMsg.recipientUsername))
             }
         }
-        else {
+        else if (newMsg?.senderUsername) {
+            // NOT required -- Fetch sender's publicKey from the friend's list and decrypt the message
+            //const senderPubKey = friendsList.filter(friend => friend.username == newMsg.senderUsername)[0].publicKey;
+            newMsg.message = cryptoService.decryptAsymmetric(newMsg.message, user.privateKey, newMsg.senderPubKey);
             if (newMsg.senderUsername != recipient.username) {
                 dispatch(addUnseen(newMsg.senderUsername))
             }
@@ -148,8 +160,8 @@ export default function Chat() {
         switch (action) {
             case 'join': console.log('Joining room:', roomname);
                 socket.current.emit('join-room', roomname, user.username, (response) => {
-                    if (response.status == "success") {
-                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                    if (response.status === "success") {
+                        const updatedRoomMembers = response.members !== null && response.members !== undefined ? response.members : [];
                         setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
@@ -159,8 +171,8 @@ export default function Chat() {
 
             case 'create': console.log('Creating room:', roomname);
                 socket.current.emit('create-room', roomname, user.username, (response) => {
-                    if (response.status == "success") {
-                        const updatedRoomMembers = response.members != null && response.members != undefined ? response.members : [];
+                    if (response.status === "success") {
+                        const updatedRoomMembers = response.members !== null && response.members !== undefined ? response.members : [];
                         setOnlineMembers(new Map(onlineMembers.set(roomname, updatedRoomMembers)));
                         callback(true, roomname);
                     }
@@ -171,6 +183,7 @@ export default function Chat() {
             case 'leave': console.log('Leaving room:', roomname);
                 socket.current.emit('leave-room', roomname, user.username);
                 break;
+            default: console.log("Invalid room action");
         }
     }
 
@@ -178,15 +191,44 @@ export default function Chat() {
         socket.current.emit('request-friends-list', usernameList);
     }
 
-    function sendMessage(msgData) {
-        if (!msgData.message.match(/^ *$/) && msgData.message != null) {
-            socket.current.emit('add-msg', msgData);
-            updateMessageList(msgData);
+    function sendMessage(rawMsgData) {
+        if (!rawMsgData.message.match(/^ *$/) && rawMsgData.message != null) {
+            updateMessageList(rawMsgData);
+            // Stringify and parse to create a deep copy of the raw msg object
+            let encMsg = JSON.parse(JSON.stringify(rawMsgData));
+            encMsg.message = cryptoService.encryptAsymmetric(encMsg.message, recipient.publicKey, user.privateKey);
+            socket.current.emit('add-msg', encMsg);
         }
     }
 
     function updateMessageList(msgData) {
+        if (msgData.recipientUsername === undefined || msgData.systemMsg) return;
         setMsgList(oldList => [...oldList, msgData]);
+        let keyUsername = msgData.senderUsername === user.username ? msgData.recipientUsername : msgData.senderUsername;
+        let curMsgList = msgMap.current.has(keyUsername) ? msgMap.current.get(keyUsername) : [];
+        curMsgList.push(msgData);
+        msgMap.current = new Map([...msgMap.current, [keyUsername, curMsgList]]);
+    }
+
+    function exportEncryptedMsgMap() {
+        /*  
+            Convert msgMap to string
+            Encrypt string with user.privateKey using symmetric enc
+            Store encrypted string in localStorage
+        */
+        if (msgMap.current.size > 0) {
+            const msgMapObj = Object.fromEntries(msgMap.current);
+            const encMsgMapStr = cryptoService.encryptSymmetric(JSON.stringify(msgMapObj), privateKey, false);
+            localStorage.setItem('encryptedMsgMap', encMsgMapStr);
+        }
+    }
+
+    function importMsgMap() {
+        const encMsgMapStr = localStorage.getItem('encryptedMsgMap');
+        if (encMsgMapStr === null || encMsgMapStr.length === 0) return;
+        const decMsgObjBase64 = cryptoService.decryptSymmetric(encMsgMapStr, privateKey, false);
+        const decMsgObjStr = cryptoService.convertBase64toUTF8(decMsgObjBase64);
+        msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
     }
 
     return (
@@ -204,7 +246,7 @@ export default function Chat() {
                 }}>uh oh</DialogTitle>
                 <DialogContent>
                     <div style={{ margin: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <img src={process.env.PUBLIC_URL + '/images/uhoh.svg'} height="150" width="150" />
+                        <img alt="error_uhoh" src={process.env.PUBLIC_URL + '/images/uhoh.svg'} height="150" width="150" />
                         <Typography variant="h4" style={{
                             fontWeight: 'bold',
                             fontFamily: "'Syne', sans-serif"
@@ -239,7 +281,7 @@ export default function Chat() {
                 </Grid>
                     <Grid item xs={10} style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}>
                         {
-                            recipient.username == "" ? <LandingChatBox /> :
+                            recipient.username === "" ? <LandingChatBox /> :
                                 <ChatBox
                                     msgList={msgList}
                                     sendMessage={sendMessage}

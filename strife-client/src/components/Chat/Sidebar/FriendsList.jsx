@@ -11,22 +11,27 @@ import changeRecipient from '../../../actions/recipient-actions.js';
 
 function FriendsList(props) {
     const classes = useStyles();
-    const recipient = useSelector(state => state.recipient);
+    //const recipient = useSelector(state => state.recipient);
     const unseenMsgUserList = useSelector(state => state.notifications.unseenMsgUserList);
     const dispatch = useDispatch();
     console.log("Friends list: ", props.friendsList);
 
     function returnAvatar(status, avatarUrl) {
-        if (status == "offline") return (<Avatar avatarUrl={avatarUrl} />);
+        if (status === "offline") return (<Avatar avatarUrl={avatarUrl} />);
         else return (<Avatar avatarUrl={avatarUrl} online={true} />);
     }
 
     function returnChatButton(friend) {
-        if (friend.status == "offline") return (<ListItemIcon><IconButton disabled><ChatBubbleIcon /></IconButton></ListItemIcon>);
+        if (friend.status === "offline") return (<ListItemIcon><IconButton disabled><ChatBubbleIcon /></IconButton></ListItemIcon>);
         else {
             if (unseenMsgUserList.includes(friend.username)) {
                 return (
-                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }))}>
+                    <ListItemIcon onClick={() => dispatch(changeRecipient({
+                        username: friend.username,
+                        avatar: friend.avatar,
+                        publicKey: friend.publicKey,
+                        isRoom: false
+                    }))}>
                         <IconButton>
                             <Badge color="primary" variant="dot">
                                 <ChatIcon />
@@ -37,7 +42,12 @@ function FriendsList(props) {
             }
             else {
                 return (
-                    <ListItemIcon onClick={() => dispatch(changeRecipient({ username: friend.username, avatar: friend.avatar, isRoom: false }))}>
+                    <ListItemIcon onClick={() => dispatch(changeRecipient({
+                        username: friend.username,
+                        avatar: friend.avatar,
+                        publicKey: friend.publicKey,
+                        isRoom: false
+                    }))}>
                         <IconButton>
                             <ChatBubbleIcon />
                         </IconButton>
@@ -69,7 +79,7 @@ function FriendsList(props) {
                                         fontVariant: 'small-caps',
                                         fontFamily: "'Syne', sans-serif",
                                     }}>
-                                        {props.friendsList.filter((friend) => friend.status == "online").reduce((total, friend) => total + 1, 0)
+                                        {props.friendsList.filter((friend) => friend.status === "online").reduce((total, friend) => total + 1, 0)
                                             + ' / '
                                             + props.friendsList.length}
                                     </Typography>
@@ -78,7 +88,7 @@ function FriendsList(props) {
                         </ListItem>
                         {
                             props.friendsList.map(friend => (
-                                <ListItem>
+                                <ListItem key={friend.username}>
                                     <ListItemAvatar>{returnAvatar(friend.status, friend.avatar)}</ListItemAvatar>
                                     <ListItemText disableTypography primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{friend.username}</Typography>} />
                                     {returnChatButton(friend)}
@@ -93,4 +103,4 @@ function FriendsList(props) {
     )
 }
 
-export default FriendsList;
+export default React.memo(FriendsList);
