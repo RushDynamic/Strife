@@ -3,11 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
 import NoFriends from './NoFriends.jsx';
+import FriendButtons from './FriendButtons.jsx';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 import ChatIcon from '@material-ui/icons/Chat';
-import useStyles from '../../styles/chat-styles.js';
-import Avatar from '../Avatar.jsx';
-import changeRecipient from '../../../actions/recipient-actions.js';
+import CallIcon from '@material-ui/icons/Call';
+import useStyles from '../../../styles/chat-styles.js';
+import Avatar from '../../Avatar.jsx';
+import changeRecipient from '../../../../actions/recipient-actions.js';
 
 function FriendsList(props) {
     const classes = useStyles();
@@ -21,39 +23,8 @@ function FriendsList(props) {
         else return (<Avatar avatarUrl={avatarUrl} online={true} />);
     }
 
-    function returnChatButton(friend) {
-        if (friend.status === "offline") return (<ListItemIcon><IconButton disabled><ChatBubbleIcon /></IconButton></ListItemIcon>);
-        else {
-            if (unseenMsgUserList.includes(friend.username)) {
-                return (
-                    <ListItemIcon onClick={() => dispatch(changeRecipient({
-                        username: friend.username,
-                        avatar: friend.avatar,
-                        publicKey: friend.publicKey,
-                        isRoom: false
-                    }))}>
-                        <IconButton>
-                            <Badge color="primary" variant="dot">
-                                <ChatIcon />
-                            </Badge>
-                        </IconButton>
-                    </ListItemIcon>
-                );
-            }
-            else {
-                return (
-                    <ListItemIcon onClick={() => dispatch(changeRecipient({
-                        username: friend.username,
-                        avatar: friend.avatar,
-                        publicKey: friend.publicKey,
-                        isRoom: false
-                    }))}>
-                        <IconButton>
-                            <ChatBubbleIcon />
-                        </IconButton>
-                    </ListItemIcon>);
-            }
-        }
+    function returnFriendButtons(friend) {
+        return <FriendButtons unseen={unseenMsgUserList.includes(friend.username)} friend={friend} />
     }
 
     return (
@@ -91,7 +62,7 @@ function FriendsList(props) {
                                 <ListItem key={friend.username}>
                                     <ListItemAvatar>{returnAvatar(friend.status, friend.avatar)}</ListItemAvatar>
                                     <ListItemText disableTypography primary={<Typography style={{ fontFamily: "'Rubik', sans-serif" }}>{friend.username}</Typography>} />
-                                    {returnChatButton(friend)}
+                                    {returnFriendButtons(friend)}
                                 </ListItem>
                             ))
                         }

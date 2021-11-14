@@ -9,7 +9,7 @@ import { Typography, Dialog, DialogContent, DialogTitle, Box } from '@material-u
 import Grid from '@material-ui/core/Grid';
 import Loading from './Loading.jsx';
 import RoomsList from './Sidebar/RoomsList.jsx';
-import FriendsList from './Sidebar/FriendsList.jsx';
+import FriendsList from './Sidebar/FriendsList/FriendsList.jsx';
 import Header from './Header/Header.jsx';
 import ChatBox from './ChatBox.jsx';
 import LandingChatBox from './LandingChatBox.jsx';
