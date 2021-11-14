@@ -1,4 +1,4 @@
-import { ADD_UNSEEN, REMOVE_UNSEEN } from "./types";
+import { ADD_UNSEEN, REMOVE_UNSEEN } from "./types.js";
 
 export const addUnseen = (username) => {
     return {
