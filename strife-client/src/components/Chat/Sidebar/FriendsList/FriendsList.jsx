@@ -1,15 +1,11 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
-import { List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Paper, IconButton, Typography, Badge } from '@material-ui/core';
+import { List, ListItem, ListItemText, ListItemAvatar, Paper, Typography } from '@material-ui/core';
 import NoFriends from './NoFriends.jsx';
 import FriendButtons from './FriendButtons.jsx';
-import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
-import ChatIcon from '@material-ui/icons/Chat';
-import CallIcon from '@material-ui/icons/Call';
 import useStyles from '../../../styles/chat-styles.js';
 import Avatar from '../../Avatar.jsx';
-import changeRecipient from '../../../../actions/recipient-actions.js';
 
 function FriendsList(props) {
     const classes = useStyles();
