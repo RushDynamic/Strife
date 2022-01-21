@@ -27,7 +27,6 @@ export default function MemberName(props) {
         }}
         onClick={() => {
           props.setShowDetailedMembers(true);
-          console.log('SHOWING DETAILED MEMBERS');
         }}
       >
         {props.memberName}
