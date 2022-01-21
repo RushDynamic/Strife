@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { Typography } from '@material-ui/core';
-import { UserContext } from '../../UserContext';
-import chatStyles from '../styles/chat-styles';
+import { UserContext } from '../../../UserContext';
+import chatStyles from '../../styles/chat-styles';
 
 function LandingChatBox() {
   const { user } = useContext(UserContext);

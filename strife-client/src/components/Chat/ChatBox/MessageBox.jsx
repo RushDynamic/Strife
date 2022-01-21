@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Avatar from './Avatar.jsx';
-import chatStyles from '../styles/chat-styles.js';
+import Avatar from '../Avatar.jsx';
+import chatStyles from '../../styles/chat-styles.js';
 import moment from 'moment';
 
 export default function MessageBox(props) {

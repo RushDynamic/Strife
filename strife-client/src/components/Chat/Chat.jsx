@@ -17,8 +17,8 @@ import Loading from './Loading.jsx';
 import RoomsList from './Sidebar/RoomsList.jsx';
 import FriendsList from './Sidebar/FriendsList/FriendsList.jsx';
 import Header from './Header/Header.jsx';
-import ChatBox from './ChatBox.jsx';
-import LandingChatBox from './LandingChatBox.jsx';
+import ChatBox from './ChatBox/ChatBox.jsx';
+import LandingChatBox from './ChatBox/LandingChatBox.jsx';
 import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
 

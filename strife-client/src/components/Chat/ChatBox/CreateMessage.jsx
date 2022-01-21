@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import chatSyles from '../styles/chat-styles';
+import chatSyles from '../../styles/chat-styles';
 import { TextField, IconButton } from '@material-ui/core';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 import SendIcon from '@material-ui/icons/Send';
