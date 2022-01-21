@@ -14,17 +14,21 @@ import profileRoutes from './routes/profile-routes.js';
 
 const app = express();
 
-mongoose.connect(process.env.MONGODB_CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        app.listen(3001, () => {
-            console.log("Account Management API started listening on port 3001");
-        });
-    })
-    .catch((err) => {
-        console.log(`Error occured during app startup: ${err}`);
+mongoose
+  .connect(process.env.MONGODB_CONNECTION_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    app.listen(3001, () => {
+      console.log('Account Management API started listening on port 3001');
     });
+  })
+  .catch((err) => {
+    console.log(`Error occured during app startup: ${err}`);
+  });
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 //app.use(express.json());
 
 app.use(cookieParser());

@@ -1,28 +1,28 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { useHistory } from "react-router";
-import { useSelector, useDispatch } from "react-redux";
-import { addUnseen, removeUnseen } from "../../actions/notification-actions.js";
-import { checkLoggedIn } from "../../services/login-service.js";
-import * as cryptoService from "../../services/crypto-service.js";
-import { io } from "socket.io-client";
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useHistory } from 'react-router';
+import { useSelector, useDispatch } from 'react-redux';
+import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
+import { checkLoggedIn } from '../../services/login-service.js';
+import * as cryptoService from '../../services/crypto-service.js';
+import { io } from 'socket.io-client';
 import {
   Typography,
   Dialog,
   DialogContent,
   DialogTitle,
   Box,
-} from "@material-ui/core";
-import Grid from "@material-ui/core/Grid";
-import Loading from "./Loading.jsx";
-import RoomsList from "./Sidebar/RoomsList.jsx";
-import FriendsList from "./Sidebar/FriendsList/FriendsList.jsx";
-import Header from "./Header/Header.jsx";
-import ChatBox from "./ChatBox.jsx";
-import LandingChatBox from "./LandingChatBox.jsx";
-import ChatAlreadyOpen from "./ChatAlreadyOpen.jsx";
-import { UserContext } from "../../UserContext.js";
+} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Loading from './Loading.jsx';
+import RoomsList from './Sidebar/RoomsList.jsx';
+import FriendsList from './Sidebar/FriendsList/FriendsList.jsx';
+import Header from './Header/Header.jsx';
+import ChatBox from './ChatBox.jsx';
+import LandingChatBox from './LandingChatBox.jsx';
+import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
+import { UserContext } from '../../UserContext.js';
 
-var privateKey = "";
+var privateKey = '';
 export default function Chat() {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -46,9 +46,9 @@ export default function Chat() {
   useEffect(() => {
     // TODO: Probably find a better way to do this
     if (
-      loadingStages.includes("loggedIn") &&
-      loadingStages.includes("socketConnected") &&
-      loadingStages.includes("fetchedFriendsList")
+      loadingStages.includes('loggedIn') &&
+      loadingStages.includes('socketConnected') &&
+      loadingStages.includes('fetchedFriendsList')
     ) {
       setLoaded(true);
     }
@@ -57,43 +57,43 @@ export default function Chat() {
   useEffect(() => {
     (async function () {
       const isUserLoggedIn = await checkLoggedIn();
-      console.log("isUserLoggedIn: ", isUserLoggedIn);
+      console.log('isUserLoggedIn: ', isUserLoggedIn);
       if (
         isUserLoggedIn.username != null &&
         isUserLoggedIn.username.length !== 0
       ) {
         console.log("You're logged in!");
-        setLoadingStages((oldList) => [...oldList, "loggedIn"]);
+        setLoadingStages((oldList) => [...oldList, 'loggedIn']);
         setUser({ ...isUserLoggedIn });
         privateKey = isUserLoggedIn.privateKey;
         // If the user is logged in, setup the socket connection
-        socket.current = io.connect("http://localhost:5000");
-        socket.current.on("connect", () => {
+        socket.current = io.connect('http://localhost:5000');
+        socket.current.on('connect', () => {
           // Send username to server
-          socket.current.emit("username", isUserLoggedIn.username);
-          setLoadingStages((oldList) => [...oldList, "socketConnected"]);
+          socket.current.emit('username', isUserLoggedIn.username);
+          setLoadingStages((oldList) => [...oldList, 'socketConnected']);
           socketConnected.current = true;
         });
 
         // Receive new messages from the server
-        socket.current.on("echo-msg", (echoMessage) => {
+        socket.current.on('echo-msg', (echoMessage) => {
           setNewMsg(echoMessage);
         });
 
-        socket.current.on("update-user-status", (newOnlineUsersList) => {
+        socket.current.on('update-user-status', (newOnlineUsersList) => {
           //console.log("newOnlineUsersList: ", newOnlineUsersList);
           requestFriendsList([isUserLoggedIn.username]);
         });
 
         // Receive friends list from server
-        socket.current.on("friends-list", (friendsListFromServer) => {
-          console.log("friendsListFromServer:", friendsListFromServer);
+        socket.current.on('friends-list', (friendsListFromServer) => {
+          console.log('friendsListFromServer:', friendsListFromServer);
           setFriendsList(friendsListFromServer);
-          setLoadingStages((oldList) => [...oldList, "fetchedFriendsList"]);
+          setLoadingStages((oldList) => [...oldList, 'fetchedFriendsList']);
         });
 
         // Receive announcements from the server
-        socket.current.on("system-msg", (systemMsg) => {
+        socket.current.on('system-msg', (systemMsg) => {
           const newSystemMsg = {
             message: systemMsg,
             avatar: null,
@@ -103,8 +103,8 @@ export default function Chat() {
         });
 
         // Receive rooms map from server
-        socket.current.on("rooms-list", (roomsList, totalRoomsCount) => {
-          if (roomsList !== "rooms-count-update") {
+        socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
+          if (roomsList !== 'rooms-count-update') {
             roomsList = roomsList != null ? roomsList : [];
             setOnlineRoomsList([...roomsList]);
           }
@@ -113,29 +113,29 @@ export default function Chat() {
 
         // Receive updated room members list from server
         socket.current.on(
-          "updated-room-members",
+          'updated-room-members',
           (roomname, updatedMembersList) => {
             updatedMembersList =
               updatedMembersList !== null && updatedMembersList !== undefined
                 ? updatedMembersList
                 : [];
             setOnlineMembers(
-              new Map(onlineMembers.set(roomname, updatedMembersList))
+              new Map(onlineMembers.set(roomname, updatedMembersList)),
             );
-          }
+          },
         );
 
         // Receive error from server if user is already online elsewhere
-        socket.current.on("chat-already-open", () => {
+        socket.current.on('chat-already-open', () => {
           setShowChatAlreadyOpen(true);
         });
 
         // Encrypt and save msgHistory in local storage before page closes
-        window.addEventListener("beforeunload", exportEncryptedMsgMap);
+        window.addEventListener('beforeunload', exportEncryptedMsgMap);
       } else {
         console.log("You're NOT logged in!");
         setUser({ username: null, accessToken: null });
-        history.push("/login");
+        history.push('/login');
       }
     })();
   }, []);
@@ -149,7 +149,7 @@ export default function Chat() {
 
   // Get message history for the new recipient
   useEffect(() => {
-    if (recipient.username != "" && recipient.username != null) {
+    if (recipient.username != '' && recipient.username != null) {
       const savedMsgList = msgMap.current.get(recipient.username);
       if (savedMsgList != null && savedMsgList.length > 0) {
         setMsgList([...msgMap.current.get(recipient.username)]);
@@ -172,7 +172,7 @@ export default function Chat() {
       newMsg.message = cryptoService.decryptAsymmetric(
         newMsg.message,
         user.privateKey,
-        newMsg.senderPubKey
+        newMsg.senderPubKey,
       );
       if (newMsg.senderUsername != recipient.username) {
         dispatch(addUnseen(newMsg.senderUsername));
@@ -183,59 +183,59 @@ export default function Chat() {
 
   function manageRooms(action, roomname, callback) {
     switch (action) {
-      case "join":
-        console.log("Joining room:", roomname);
+      case 'join':
+        console.log('Joining room:', roomname);
         socket.current.emit(
-          "join-room",
+          'join-room',
           roomname,
           user.username,
           (response) => {
-            if (response.status === "success") {
+            if (response.status === 'success') {
               const updatedRoomMembers =
                 response.members !== null && response.members !== undefined
                   ? response.members
                   : [];
               setOnlineMembers(
-                new Map(onlineMembers.set(roomname, updatedRoomMembers))
+                new Map(onlineMembers.set(roomname, updatedRoomMembers)),
               );
               callback(true, roomname);
             } else callback(false, roomname);
-          }
+          },
         );
         break;
 
-      case "create":
-        console.log("Creating room:", roomname);
+      case 'create':
+        console.log('Creating room:', roomname);
         socket.current.emit(
-          "create-room",
+          'create-room',
           roomname,
           user.username,
           (response) => {
-            if (response.status === "success") {
+            if (response.status === 'success') {
               const updatedRoomMembers =
                 response.members !== null && response.members !== undefined
                   ? response.members
                   : [];
               setOnlineMembers(
-                new Map(onlineMembers.set(roomname, updatedRoomMembers))
+                new Map(onlineMembers.set(roomname, updatedRoomMembers)),
               );
               callback(true, roomname);
             } else callback(false, roomname);
-          }
+          },
         );
         break;
 
-      case "leave":
-        console.log("Leaving room:", roomname);
-        socket.current.emit("leave-room", roomname, user.username);
+      case 'leave':
+        console.log('Leaving room:', roomname);
+        socket.current.emit('leave-room', roomname, user.username);
         break;
       default:
-        console.log("Invalid room action");
+        console.log('Invalid room action');
     }
   }
 
   function requestFriendsList(usernameList) {
-    socket.current.emit("request-friends-list", usernameList);
+    socket.current.emit('request-friends-list', usernameList);
   }
 
   function sendMessage(rawMsgData) {
@@ -246,9 +246,9 @@ export default function Chat() {
       encMsg.message = cryptoService.encryptAsymmetric(
         encMsg.message,
         recipient.publicKey,
-        user.privateKey
+        user.privateKey,
       );
-      socket.current.emit("add-msg", encMsg);
+      socket.current.emit('add-msg', encMsg);
     }
   }
 
@@ -277,19 +277,19 @@ export default function Chat() {
       const encMsgMapStr = cryptoService.encryptSymmetric(
         JSON.stringify(msgMapObj),
         privateKey,
-        false
+        false,
       );
-      localStorage.setItem("encryptedMsgMap", encMsgMapStr);
+      localStorage.setItem('encryptedMsgMap', encMsgMapStr);
     }
   }
 
   function importMsgMap() {
-    const encMsgMapStr = localStorage.getItem("encryptedMsgMap");
+    const encMsgMapStr = localStorage.getItem('encryptedMsgMap');
     if (encMsgMapStr === null || encMsgMapStr.length === 0) return;
     const decMsgObjBase64 = cryptoService.decryptSymmetric(
       encMsgMapStr,
       privateKey,
-      false
+      false,
     );
     const decMsgObjStr = cryptoService.convertBase64toUTF8(decMsgObjBase64);
     msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
@@ -303,12 +303,12 @@ export default function Chat() {
         container
         spacing={2}
         style={{
-          maxHeight: "100vh",
+          maxHeight: '100vh',
           margin: 0,
-          width: "100%",
+          width: '100%',
         }}
       >
-        <Grid item xs={12} style={{ height: "20vh", padding: "0px" }}>
+        <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
           <Header
             requestFriendsList={requestFriendsList}
             manageRooms={manageRooms}
@@ -320,10 +320,10 @@ export default function Chat() {
               item
               xs={2}
               style={{
-                height: "80vh",
-                overflow: "auto",
-                display: "flex",
-                flexDirection: "column",
+                height: '80vh',
+                overflow: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               <RoomsList
@@ -343,9 +343,9 @@ export default function Chat() {
             <Grid
               item
               xs={10}
-              style={{ height: "80vh", display: "flex", flexFlow: "column" }}
+              style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}
             >
-              {recipient.username === "" ? (
+              {recipient.username === '' ? (
                 <LandingChatBox />
               ) : (
                 <ChatBox
@@ -363,7 +363,7 @@ export default function Chat() {
             </Grid>
           </>
         ) : (
-          <Grid item xs={12} style={{ height: "80vh" }}>
+          <Grid item xs={12} style={{ height: '80vh' }}>
             <Loading />
           </Grid>
         )}

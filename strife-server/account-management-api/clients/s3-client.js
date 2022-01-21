@@ -1,5 +1,5 @@
-import S3 from "aws-sdk/clients/s3.js";
-import dotenv from "dotenv";
+import S3 from 'aws-sdk/clients/s3.js';
+import dotenv from 'dotenv';
 dotenv.config();
 export const bucketName = process.env.S3_BUCKET_NAME;
 const region = process.env.S3_AWS_REGION;

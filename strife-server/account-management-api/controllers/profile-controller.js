@@ -1,11 +1,11 @@
-import { uploadAvatar, changeAvatar } from "../services/profile-service.js";
+import { uploadAvatar, changeAvatar } from '../services/profile-service.js';
 
 export async function handleEditAvatar(req, res) {
-  const username = req.headers["username"];
+  const username = req.headers['username'];
   if (req.files === null || username === null) {
     return res.status(400).json({
       success: false,
-      msg: "No file uploaded",
+      msg: 'No file uploaded',
     });
   }
   try {
@@ -16,7 +16,7 @@ export async function handleEditAvatar(req, res) {
     }
     const avatarChangeResult = await changeAvatar(
       uploadResult?.data?.key,
-      username
+      username,
     );
     if (avatarChangeResult.success != true) throw err;
     return res.status(200).json({
@@ -27,7 +27,7 @@ export async function handleEditAvatar(req, res) {
   } catch (err) {
     return res.status(500).json({
       success: false,
-      msg: "An error occurred at the server",
+      msg: 'An error occurred at the server',
     });
   }
 }

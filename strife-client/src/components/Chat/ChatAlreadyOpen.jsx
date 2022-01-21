@@ -1,26 +1,26 @@
-import React from "react";
+import React from 'react';
 import {
   Typography,
   Dialog,
   DialogContent,
   DialogTitle,
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 export default function ChatAlreadyOpen(props) {
   return (
     <Dialog
       open={props.showChatAlreadyOpen}
       style={{
-        backdropFilter: "blur(15px)",
-        backgroundColor: "rgba(0,0,30,0.4)",
+        backdropFilter: 'blur(15px)',
+        backgroundColor: 'rgba(0,0,30,0.4)',
       }}
     >
       <DialogTitle
         style={{
-          fontWeight: "bold",
+          fontWeight: 'bold',
           fontFamily: "'Syne', sans-serif",
-          fontVariant: "small-caps",
-          letterSpacing: "15px",
+          fontVariant: 'small-caps',
+          letterSpacing: '15px',
         }}
       >
         uh oh
@@ -28,22 +28,22 @@ export default function ChatAlreadyOpen(props) {
       <DialogContent>
         <div
           style={{
-            margin: "50px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            margin: '50px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           }}
         >
           <img
             alt="error_uhoh"
-            src={process.env.PUBLIC_URL + "/images/uhoh.svg"}
+            src={process.env.PUBLIC_URL + '/images/uhoh.svg'}
             height="150"
             width="150"
           />
           <Typography
             variant="h4"
             style={{
-              fontWeight: "bold",
+              fontWeight: 'bold',
               fontFamily: "'Syne', sans-serif",
             }}
           >
