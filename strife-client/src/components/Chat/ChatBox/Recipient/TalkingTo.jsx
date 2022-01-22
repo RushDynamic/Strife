@@ -15,6 +15,11 @@ export default function TalkingTo(props) {
         hidden={props.recipient.isRoom}
         className={classes.expandFastOnHover}
         src={props.recipient.avatar}
+        // TODO: replace URL string with constant
+        onError={({ target }) => {
+          target.onerror = null;
+          target.src = 'http://localhost:3001/images/default_avatar.jpg';
+        }}
         style={{ borderRadius: '20%', margin: '15px' }}
         height="50px"
         width="50px"
