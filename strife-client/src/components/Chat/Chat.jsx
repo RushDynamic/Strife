@@ -5,13 +5,7 @@ import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
 import * as cryptoService from '../../services/crypto-service.js';
 import { io } from 'socket.io-client';
-import {
-  Typography,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Box,
-} from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Loading from './Loading.jsx';
 import RoomsList from './Sidebar/RoomsList.jsx';
@@ -149,9 +143,9 @@ export default function Chat() {
 
   // Get message history for the new recipient
   useEffect(() => {
-    if (recipient.username != '' && recipient.username != null) {
+    if (recipient.username !== '' && recipient.username !== null) {
       const savedMsgList = msgMap.current.get(recipient.username);
-      if (savedMsgList != null && savedMsgList.length > 0) {
+      if (savedMsgList !== null && savedMsgList.length > 0) {
         setMsgList([...msgMap.current.get(recipient.username)]);
       } else {
         setMsgList([]);
@@ -174,7 +168,7 @@ export default function Chat() {
         user.privateKey,
         newMsg.senderPubKey,
       );
-      if (newMsg.senderUsername != recipient.username) {
+      if (newMsg.senderUsername !== recipient.username) {
         dispatch(addUnseen(newMsg.senderUsername));
       }
     }

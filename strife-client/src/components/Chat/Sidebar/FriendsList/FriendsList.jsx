@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import {
   List,
@@ -20,7 +20,6 @@ function FriendsList(props) {
   const unseenMsgUserList = useSelector(
     (state) => state.notifications.unseenMsgUserList,
   );
-  const dispatch = useDispatch();
   console.log('Friends list: ', props.friendsList);
 
   function returnAvatar(status, avatarUrl) {
