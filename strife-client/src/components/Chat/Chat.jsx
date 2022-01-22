@@ -242,12 +242,15 @@ export default function Chat() {
     if (!rawMsgData.message.match(/^ *$/) && rawMsgData.message != null) {
       updateMessageList(rawMsgData);
       // Stringify and parse to create a deep copy of the raw msg object
-      let encMsg = JSON.parse(JSON.stringify(rawMsgData));
-      encMsg.message = cryptoService.encryptAsymmetric(
-        encMsg.message,
-        recipient.publicKey,
-        user.privateKey,
-      );
+      let encMsg = rawMsgData;
+      if (!rawMsgData.isRoom) {
+        encMsg = JSON.parse(JSON.stringify(rawMsgData));
+        encMsg.message = cryptoService.encryptAsymmetric(
+          encMsg.message,
+          recipient.publicKey,
+          user.privateKey,
+        );
+      }
       socket.current.emit('add-msg', encMsg);
     }
   }
