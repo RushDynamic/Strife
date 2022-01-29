@@ -364,6 +364,7 @@ export default function Chat() {
                       : [user.username]
                   }
                   manageRooms={manageRooms}
+                  createCall={createCall}
                 />
               )}
             </Grid>
