@@ -145,8 +145,8 @@ export default function Chat() {
   useEffect(() => {
     if (recipient.username !== '' && recipient.username !== null) {
       const savedMsgList = msgMap.current.get(recipient.username);
-      if (savedMsgList !== null && savedMsgList.length > 0) {
-        setMsgList([...msgMap.current.get(recipient.username)]);
+      if (savedMsgList && savedMsgList.length > 0) {
+        setMsgList([...savedMsgList]);
       } else {
         setMsgList([]);
       }
