@@ -249,6 +249,14 @@ export default function Chat() {
     }
   }
 
+  function createCall() {
+    const callInfo = {
+      caller: user.username,
+      receiver: recipient.username,
+    };
+    socket.current.emit('create-call', callInfo);
+  }
+
   function updateMessageList(msgData) {
     if (msgData.recipientUsername === undefined || msgData.systemMsg) return;
     setMsgList((oldList) => [...oldList, msgData]);
@@ -335,6 +343,7 @@ export default function Chat() {
                 friendsList={friendsList}
                 unseenMsgUsersList={unseenMsgUsersList}
                 setUnseenMsgUsersList={setUnseenMsgUsersList}
+                createCall={createCall}
               />
             </Grid>
             <Grid

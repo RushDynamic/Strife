@@ -8,57 +8,53 @@ import changeRecipient from '../../../../actions/recipient-actions.js';
 
 function FriendButtons(props) {
   const dispatch = useDispatch();
+  const dispatchChangeRecipient = () => {
+    dispatch(
+      changeRecipient({
+        username: props.friend.username,
+        avatar: props.friend.avatar,
+        publicKey: props.friend.publicKey,
+        isRoom: false,
+      }),
+    );
+  };
   return (
     <>
+      <ListItemIcon onClick={() => dispatchChangeRecipient()}>
+        {returnChatButton(props.unseen, props.friend.status)}
+      </ListItemIcon>
       <ListItemIcon
-        onClick={() =>
-          dispatch(
-            changeRecipient({
-              username: props.friend.username,
-              avatar: props.friend.avatar,
-              publicKey: props.friend.publicKey,
-              isRoom: false,
-            }),
-          )
-        }
+        onClick={() => {
+          dispatchChangeRecipient();
+          props.createCall();
+        }}
       >
-        {returnButtons(props.unseen, props.friend.status)}
+        {returnCallButton(props.friend.status)}
       </ListItemIcon>
     </>
   );
 }
 
-const returnButtons = (unseen, status) => {
-  if (unseen && status === 'online')
-    return (
-      <>
-        <IconButton size="medium">
+const returnChatButton = (unseen, status) => {
+  return (
+    <>
+      <IconButton size="medium" disabled={status !== 'online'}>
+        {unseen && status === 'online' ? (
           <Badge color="primary" variant="dot">
             <ChatIcon fontSize="small" />
           </Badge>
-        </IconButton>
-        <IconButton size="medium">
-          <CallIcon fontSize="small" />
-        </IconButton>
-      </>
-    );
-  if (status === 'online')
-    return (
-      <>
-        <IconButton size="medium">
+        ) : (
           <ChatBubbleIcon fontSize="small" />
-        </IconButton>
-        <IconButton size="medium">
-          <CallIcon fontSize="small" />
-        </IconButton>
-      </>
-    );
+        )}
+      </IconButton>
+    </>
+  );
+};
+
+const returnCallButton = (status) => {
   return (
     <>
-      <IconButton size="medium" disabled>
-        <ChatBubbleIcon fontSize="small" />
-      </IconButton>
-      <IconButton size="medium" disabled>
+      <IconButton size="medium" disabled={status !== 'online'}>
         <CallIcon fontSize="small" />
       </IconButton>
     </>
