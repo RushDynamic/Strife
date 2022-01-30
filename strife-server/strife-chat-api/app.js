@@ -71,6 +71,25 @@ io.on('connect', (socket) => {
     updateMsgList(newMsg);
   });
 
+  socket.on('new-ice-candidate', (candidateInfo) => {
+    console.log('Received new ICE candidates');
+    candidateInfo.sender = socket.username;
+    socket
+      .to(onlineUsersMap.get(candidateInfo.receiver))
+      .emit('get-ice-candidate', candidateInfo);
+  });
+
+  socket.on('get-offer', (offerData) => {
+    socket
+      .to(onlineUsersMap.get(offerData.receiver))
+      .emit('get-offer', offerData);
+  });
+
+  socket.on('get-answer', (answerData) => {
+    socket
+      .to(onlineUsersMap.get(answerData.caller))
+      .emit('get-answer', answerData);
+  });
   // For sending the chat history back to the requested user
   socket.on(
     'request-msg-history',
