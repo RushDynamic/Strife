@@ -15,6 +15,8 @@ import ChatBox from './ChatBox/ChatBox.jsx';
 import LandingChatBox from './ChatBox/LandingChatBox.jsx';
 import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
+import changeRecipient from '../../actions/recipient-actions.js';
+import { StrifeLive } from '../../services/strife-live.js';
 
 var privateKey = '';
 export default function Chat() {
@@ -36,6 +38,8 @@ export default function Chat() {
   const [msgList, setMsgList] = useState([]);
   const msgMap = useRef(new Map());
   const [newMsg, setNewMsg] = useState({});
+  const [peerConnection, setPeerConnection] = useState(null);
+  const remoteAudioRef = useRef(null);
 
   useEffect(() => {
     // TODO: Probably find a better way to do this
@@ -119,6 +123,26 @@ export default function Chat() {
           },
         );
 
+        // Receive updated ice candidates
+        socket.current.on('get-ice-candidate', async (candidateInfo) => {
+          await StrifeLive.addIceCandidate(candidateInfo.candidate);
+        });
+
+        // Receive offer from incoming call
+        socket.current.on('get-offer', async (offerData) => {
+          console.log('Received offer from server');
+          await StrifeLive.setOffer(offerData.offer);
+          // TODO: set state to show incoming call
+          dispatch(
+            changeRecipient({
+              username: offerData.caller.username,
+              avatar: offerData.caller.avatar,
+              publicKey: offerData.caller.publicKey,
+              isRoom: false,
+              isCallIncoming: true,
+            }),
+          );
+        });
         // Receive error from server if user is already online elsewhere
         socket.current.on('chat-already-open', () => {
           setShowChatAlreadyOpen(true);
@@ -249,12 +273,53 @@ export default function Chat() {
     }
   }
 
-  function createCall() {
-    const callInfo = {
-      caller: user.username,
-      receiver: recipient.username,
+  async function setupPeerConnection() {
+    let myAudioStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+    setPeerConnection(StrifeLive.createPeerConnection(myAudioStream));
+    peerConnection.onaddstream = (e) => {
+      remoteAudioRef.current.srcObject = e?.stream;
     };
-    socket.current.emit('create-call', callInfo);
+
+    peerConnection.onicecandidate = (e) => {
+      if (!e.candidate) return;
+      const candidateInfo = {
+        candidate: e.candidate,
+        receiver: recipient.username,
+      };
+      socket.current.emit('new-ice-candidate', candidateInfo);
+    };
+  }
+
+  async function createCall() {
+    setupPeerConnection();
+    // TODO: Create offer and receive answer
+    const offer = await StrifeLive.createOffer();
+    const callData = {
+      caller: user,
+      receiver: recipient.username,
+      offer: offer,
+    };
+
+    socket.current.on('get-answer', async (answer) => {
+      console.log('Received answer from server');
+      await StrifeLive.setAnswer(answer);
+    });
+
+    socket.current.emit('get-offer', callData);
+  }
+
+  async function acceptCall() {
+    setupPeerConnection();
+    const answer = await StrifeLive.createAnswer();
+    const answerData = {
+      caller: recipient.username,
+      receiver: user.username,
+      answer: answer,
+    };
+
+    socket.current.emit('get-answer', answerData);
   }
 
   function updateMessageList(msgData) {
@@ -344,6 +409,7 @@ export default function Chat() {
                 unseenMsgUsersList={unseenMsgUsersList}
                 setUnseenMsgUsersList={setUnseenMsgUsersList}
                 createCall={createCall}
+                acceptCall={acceptCall}
               />
             </Grid>
             <Grid
@@ -365,6 +431,8 @@ export default function Chat() {
                   }
                   manageRooms={manageRooms}
                   createCall={createCall}
+                  acceptCall={acceptCall}
+                  remoteAudioRef={remoteAudioRef}
                 />
               )}
             </Grid>

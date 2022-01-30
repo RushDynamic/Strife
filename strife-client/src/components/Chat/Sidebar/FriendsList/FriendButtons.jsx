@@ -14,6 +14,7 @@ function FriendButtons(props) {
         avatar: props.friend.avatar,
         publicKey: props.friend.publicKey,
         isRoom: false,
+        isCallIncoming: false,
       }),
     );
   };
