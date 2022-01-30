@@ -123,6 +123,8 @@ export default function Chat() {
           },
         );
 
+        await setupPeerConnection();
+
         // Receive updated ice candidates
         socket.current.on('get-ice-candidate', async (candidateInfo) => {
           await StrifeLive.addIceCandidate(candidateInfo.candidate);
@@ -143,6 +145,7 @@ export default function Chat() {
             }),
           );
         });
+
         // Receive error from server if user is already online elsewhere
         socket.current.on('chat-already-open', () => {
           setShowChatAlreadyOpen(true);
@@ -198,6 +201,22 @@ export default function Chat() {
     }
     updateMessageList(newMsg);
   }, [newMsg]);
+
+  useEffect(() => {
+    if (!peerConnection) return;
+    peerConnection.onaddstream = (e) => {
+      remoteAudioRef.current.srcObject = e?.stream;
+    };
+
+    peerConnection.onicecandidate = (e) => {
+      if (!e.candidate) return;
+      const candidateInfo = {
+        candidate: e.candidate,
+        receiver: recipient.username,
+      };
+      socket.current.emit('new-ice-candidate', candidateInfo);
+    };
+  }, [peerConnection]);
 
   function manageRooms(action, roomname, callback) {
     switch (action) {
@@ -278,40 +297,26 @@ export default function Chat() {
       audio: true,
     });
     setPeerConnection(StrifeLive.createPeerConnection(myAudioStream));
-    peerConnection.onaddstream = (e) => {
-      remoteAudioRef.current.srcObject = e?.stream;
-    };
-
-    peerConnection.onicecandidate = (e) => {
-      if (!e.candidate) return;
-      const candidateInfo = {
-        candidate: e.candidate,
-        receiver: recipient.username,
-      };
-      socket.current.emit('new-ice-candidate', candidateInfo);
-    };
   }
 
   async function createCall() {
-    setupPeerConnection();
     // TODO: Create offer and receive answer
     const offer = await StrifeLive.createOffer();
-    const callData = {
+    const offerData = {
       caller: user,
       receiver: recipient.username,
       offer: offer,
     };
 
-    socket.current.on('get-answer', async (answer) => {
+    socket.current.on('get-answer', async (answerData) => {
       console.log('Received answer from server');
-      await StrifeLive.setAnswer(answer);
+      await StrifeLive.setAnswer(answerData.answer);
     });
 
-    socket.current.emit('get-offer', callData);
+    socket.current.emit('get-offer', offerData);
   }
 
   async function acceptCall() {
-    setupPeerConnection();
     const answer = await StrifeLive.createAnswer();
     const answerData = {
       caller: recipient.username,
