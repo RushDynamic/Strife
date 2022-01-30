@@ -5,18 +5,24 @@ import { IconButton } from '@material-ui/core';
 export default function PhoneBox(props) {
   return (
     <>
-      {returnCallButton(props.isCallIncoming, props.createCall)}
+      {returnCallButton(
+        props.isCallIncoming,
+        props.createCall,
+        props.acceptCall,
+      )}
       <audio id="remote-audio" ref={props.remoteAudioRef} autoPlay controls />
     </>
   );
 }
 
-function returnCallButton(isCallIncoming, createCall) {
+function returnCallButton(isCallIncoming, createCall, acceptCall) {
   return (
     <>
       {isCallIncoming ? (
         <>
-          <BiPhoneCall fontSize="small" />
+          <IconButton onClick={() => acceptCall()}>
+            <BiPhoneCall fontSize="small" />
+          </IconButton>
         </>
       ) : (
         <>
