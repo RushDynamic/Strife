@@ -72,7 +72,7 @@ io.on('connect', (socket) => {
   });
 
   socket.on('new-ice-candidate', (candidateInfo) => {
-    console.log('Received new ICE candidates');
+    console.log('Received new ICE candidates for:', candidateInfo.receiver);
     candidateInfo.sender = socket.username;
     socket
       .to(onlineUsersMap.get(candidateInfo.receiver))
