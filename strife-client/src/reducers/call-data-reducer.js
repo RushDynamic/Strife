@@ -5,6 +5,7 @@ const initialState = {
   callDuration: '',
   isCallIncoming: false,
   isCallActive: false,
+  isCallConnected: false,
 };
 
 export default function callDataUpdate(state = initialState, action) {
@@ -15,6 +16,7 @@ export default function callDataUpdate(state = initialState, action) {
         callDuration: action?.payload?.callDuration,
         isCallIncoming: action?.payload?.isCallIncoming,
         isCallActive: action?.payload?.isCallActive,
+        isCallConnected: action?.payload?.isCallConnected,
       };
     default:
       return state;
