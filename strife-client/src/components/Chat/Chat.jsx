@@ -363,6 +363,7 @@ export default function Chat() {
         callDuration: 0,
         isCallIncoming: false,
         isCallActive: true,
+        isCallConnected: true,
       }),
     );
   }
