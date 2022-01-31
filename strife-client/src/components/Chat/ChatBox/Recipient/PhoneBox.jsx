@@ -87,6 +87,7 @@ export default function PhoneBox(props) {
               props.createCall,
               props.acceptCall,
               props.recipientName,
+              classes,
             )}
           </div>
           <audio
@@ -107,13 +108,17 @@ function returnCallButton(
   createCall,
   acceptCall,
   recipientName,
+  classes,
 ) {
   return (
     <>
       {isCallIncoming ? (
         <>
           <IconButton onClick={() => acceptCall(recipientName)}>
-            <BiPhoneCall fontSize="xx-large" />
+            <BiPhoneCall
+              fontSize="xx-large"
+              className={classes.acceptCallBtn}
+            />
           </IconButton>
         </>
       ) : (
