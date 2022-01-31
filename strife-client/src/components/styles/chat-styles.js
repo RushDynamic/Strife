@@ -44,6 +44,20 @@ const chatStyles = makeStyles({
     marginBottom: '10px',
   },
 
+  callContainer: {
+    marginBottom: '10px',
+  },
+
+  callInfoContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+
+  callButtonsContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+
   nonSelectable: {
     '-webkit-user-select': 'none',
     '-khtml-user-select': 'none',

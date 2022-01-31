@@ -16,6 +16,7 @@ import LandingChatBox from './ChatBox/LandingChatBox.jsx';
 import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
 import changeRecipient from '../../actions/recipient-actions.js';
+import changeCallData from '../../actions/call-data-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 
@@ -25,6 +26,7 @@ export default function Chat() {
   const history = useHistory();
   const socket = useRef();
   const recipient = useSelector((state) => state.recipient);
+  const callData = useSelector((state) => state.callData);
   const socketConnected = useRef(false);
   const { user, setUser } = useContext(UserContext);
   const [loadingStages, setLoadingStages] = useState([]);
@@ -135,6 +137,15 @@ export default function Chat() {
         // Receive offer from incoming call
         socket.current.on('get-offer', async (offerData) => {
           console.log('Received offer from server');
+          dispatch(
+            changeCallData({
+              participant: offerData.caller.username,
+              callDuration: 0,
+              isCallIncoming: true,
+              isCallActive: true,
+              isCallConnected: false,
+            }),
+          );
           await StrifeLive.setOffer(offerData.offer);
           // TODO: set state to show incoming call
           dispatch(
@@ -305,23 +316,39 @@ export default function Chat() {
     setPeerConnection(StrifeLive.createPeerConnection(myAudioStream));
   }
 
-  async function createCall() {
+  async function createCall(recipientName) {
+    dispatch(
+      changeCallData({
+        participant: recipientName,
+        callDuration: 0,
+        isCallIncoming: false,
+        isCallActive: true,
+        isCallConnected: false,
+      }),
+    );
     const offer = await StrifeLive.createOffer();
     const offerData = {
       caller: user,
       receiver: recipient.username,
       offer: offer,
     };
-
     socket.current.on('get-answer', async (answerData) => {
       console.log('Received answer from server');
       await StrifeLive.setAnswer(answerData.answer);
+      dispatch(
+        changeCallData({
+          participant: recipientName,
+          callDuration: 0,
+          isCallIncoming: false,
+          isCallActive: true,
+          isCallConnected: true,
+        }),
+      );
     });
-
     socket.current.emit('get-offer', offerData);
   }
 
-  async function acceptCall() {
+  async function acceptCall(recipientName) {
     const answer = await StrifeLive.createAnswer();
     const answerData = {
       caller: recipient.username,
@@ -330,6 +357,14 @@ export default function Chat() {
     };
 
     socket.current.emit('get-answer', answerData);
+    dispatch(
+      changeCallData({
+        participant: recipientName,
+        callDuration: 0,
+        isCallIncoming: false,
+        isCallActive: true,
+      }),
+    );
   }
 
   function updateMessageList(msgData) {
@@ -406,12 +441,15 @@ export default function Chat() {
                 flexDirection: 'column',
               }}
             >
-              <PhoneBox
-                createCall={createCall}
-                acceptCall={acceptCall}
-                isCallIncoming={recipient.isCallIncoming}
-                remoteAudioRef={remoteAudioRef}
-              />
+              {callData.isCallActive && (
+                <PhoneBox
+                  createCall={createCall}
+                  acceptCall={acceptCall}
+                  callData={callData}
+                  remoteAudioRef={remoteAudioRef}
+                  recipientName={recipient.username}
+                />
+              )}
               <RoomsList
                 onlineRoomsCount={onlineRoomsCount}
                 roomsList={onlineRoomsList != null ? onlineRoomsList : []}
@@ -446,6 +484,8 @@ export default function Chat() {
                       : [user.username]
                   }
                   manageRooms={manageRooms}
+                  callData={callData}
+                  createCall={createCall}
                 />
               )}
             </Grid>

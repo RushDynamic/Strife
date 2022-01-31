@@ -40,6 +40,8 @@ function ChatBox(props) {
         <TalkingTo
           recipient={recipient}
           handleLeaveRoomClicked={handleLeaveRoomClicked}
+          callData={props.callData}
+          createCall={props.createCall}
         />
       </div>
       {recipient.isRoom && (
