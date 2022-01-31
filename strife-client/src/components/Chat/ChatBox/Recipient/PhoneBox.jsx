@@ -1,5 +1,11 @@
-import React from 'react';
-import { BiPhone, BiPhoneCall } from 'react-icons/bi';
+import React, { useState } from 'react';
+import {
+  BiPhone,
+  BiPhoneIncoming,
+  BiPhoneOff,
+  BiMicrophoneOff,
+  BiMicrophone,
+} from 'react-icons/bi';
 import {
   List,
   ListItem,
@@ -13,7 +19,7 @@ import useStyles from '../../../styles/chat-styles.js';
 
 export default function PhoneBox(props) {
   const classes = useStyles();
-
+  const [micMuted, setMicMuted] = useState(false);
   return (
     <>
       <Paper elevation={2} style={{ marginBottom: '10px' }}>
@@ -55,7 +61,7 @@ export default function PhoneBox(props) {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center' }}>
-                        Incoming call from
+                        incoming call from
                         <Typography
                           style={{
                             marginLeft: '5px',
@@ -75,7 +81,18 @@ export default function PhoneBox(props) {
                       fontFamily: "'Syne', sans-serif",
                     }}
                   >
-                    {'on call with: ' + props.callData.participant}
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      on call with
+                      <Typography
+                        style={{
+                          marginLeft: '5px',
+                          color: '#1fd1f9',
+                          fontSize: '1.2rem',
+                        }}
+                      >
+                        {props.callData.participant}
+                      </Typography>
+                    </div>
                   </Typography>
                 )}
               </div>
@@ -83,10 +100,12 @@ export default function PhoneBox(props) {
           }
           <div className={classes.callButtonsContainer}>
             {returnCallButton(
-              props.callData.isCallIncoming,
+              props.callData,
               props.createCall,
               props.acceptCall,
               props.recipientName,
+              micMuted,
+              setMicMuted,
               classes,
             )}
           </div>
@@ -104,29 +123,44 @@ export default function PhoneBox(props) {
 }
 
 function returnCallButton(
-  isCallIncoming,
+  callData,
   createCall,
   acceptCall,
   recipientName,
+  micMuted,
+  setMicMuted,
   classes,
 ) {
   return (
     <>
-      {isCallIncoming ? (
-        <>
-          <IconButton onClick={() => acceptCall(recipientName)}>
-            <BiPhoneCall
-              fontSize="xx-large"
-              className={classes.acceptCallBtn}
-            />
+      {callData.isCallIncoming && !callData.isCallConnected && (
+        <IconButton onClick={() => acceptCall(recipientName)}>
+          <BiPhoneIncoming
+            fontSize="xx-large"
+            className={classes.acceptCallBtn}
+          />
+        </IconButton>
+      )}
+      {!callData.isCallActive && (
+        <IconButton onClick={() => createCall(recipientName)}>
+          <BiPhone fontSize="xx-large" />
+        </IconButton>
+      )}
+      {callData.isCallActive && (
+        <div className={classes.callOptionsContainer}>
+          <IconButton
+            onClick={() => (micMuted ? setMicMuted(false) : setMicMuted(true))}
+          >
+            {micMuted ? (
+              <BiMicrophone fontSize="medium" />
+            ) : (
+              <BiMicrophoneOff fontSize="medium" />
+            )}
           </IconButton>
-        </>
-      ) : (
-        <>
-          <IconButton onClick={() => createCall(recipientName)}>
-            <BiPhone fontSize="xx-large" />
+          <IconButton>
+            <BiPhoneOff fontSize="medium" />
           </IconButton>
-        </>
+        </div>
       )}
     </>
   );
