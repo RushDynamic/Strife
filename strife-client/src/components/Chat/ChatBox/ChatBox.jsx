@@ -41,12 +41,6 @@ function ChatBox(props) {
           recipient={recipient}
           handleLeaveRoomClicked={handleLeaveRoomClicked}
         />
-        <PhoneBox
-          createCall={props.createCall}
-          acceptCall={props.acceptCall}
-          isCallIncoming={recipient.isCallIncoming}
-          remoteAudioRef={props.remoteAudioRef}
-        />
       </div>
       {recipient.isRoom && (
         <OnlineRoomMembers onlineMembers={props.onlineMembers} />
