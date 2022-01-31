@@ -17,6 +17,7 @@ import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
 import changeRecipient from '../../actions/recipient-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
+import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 
 var privateKey = '';
 export default function Chat() {
@@ -127,6 +128,7 @@ export default function Chat() {
 
         // Receive updated ice candidates
         socket.current.on('get-ice-candidate', async (candidateInfo) => {
+          console.log('Received new ICE candidate from server');
           await StrifeLive.addIceCandidate(candidateInfo.candidate);
         });
 
@@ -205,18 +207,22 @@ export default function Chat() {
   useEffect(() => {
     if (!peerConnection) return;
     peerConnection.onaddstream = (e) => {
+      console.log('Setting remote audio stream');
       remoteAudioRef.current.srcObject = e?.stream;
     };
 
-    peerConnection.onicecandidate = (e) => {
-      if (!e.candidate) return;
-      const candidateInfo = {
-        candidate: e.candidate,
-        receiver: recipient.username,
+    if (recipient.username) {
+      peerConnection.onicecandidate = (e) => {
+        if (!e.candidate) return;
+        const candidateInfo = {
+          candidate: e.candidate,
+          receiver: recipient.username,
+        };
+        console.log('Sending ICE candidate to:', recipient.username);
+        socket.current.emit('new-ice-candidate', candidateInfo);
       };
-      socket.current.emit('new-ice-candidate', candidateInfo);
-    };
-  }, [peerConnection]);
+    }
+  }, [peerConnection, recipient]);
 
   function manageRooms(action, roomname, callback) {
     switch (action) {
@@ -300,7 +306,6 @@ export default function Chat() {
   }
 
   async function createCall() {
-    // TODO: Create offer and receive answer
     const offer = await StrifeLive.createOffer();
     const offerData = {
       caller: user,
@@ -401,6 +406,12 @@ export default function Chat() {
                 flexDirection: 'column',
               }}
             >
+              <PhoneBox
+                createCall={createCall}
+                acceptCall={acceptCall}
+                isCallIncoming={recipient.isCallIncoming}
+                remoteAudioRef={remoteAudioRef}
+              />
               <RoomsList
                 onlineRoomsCount={onlineRoomsCount}
                 roomsList={onlineRoomsList != null ? onlineRoomsList : []}
@@ -435,9 +446,6 @@ export default function Chat() {
                       : [user.username]
                   }
                   manageRooms={manageRooms}
-                  createCall={createCall}
-                  acceptCall={acceptCall}
-                  remoteAudioRef={remoteAudioRef}
                 />
               )}
             </Grid>
