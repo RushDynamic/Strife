@@ -146,7 +146,7 @@ function returnCallButton(
           <BiPhone fontSize="xx-large" />
         </IconButton>
       )}
-      {callData.isCallActive && (
+      {callData.isCallConnected && (
         <div className={classes.callOptionsContainer}>
           <IconButton
             onClick={() => (micMuted ? setMicMuted(false) : setMicMuted(true))}
