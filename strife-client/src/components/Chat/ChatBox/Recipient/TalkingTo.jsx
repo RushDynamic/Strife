@@ -1,5 +1,6 @@
 import React from 'react';
 import chatStyles from '../../../styles/chat-styles.js';
+import { BiPhone } from 'react-icons/bi';
 import { Typography, IconButton, Tooltip } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
@@ -36,6 +37,11 @@ export default function TalkingTo(props) {
       >
         {props.recipient.username}
       </Typography>
+      {!props.callData?.isCallActive && (
+        <IconButton onClick={() => props.createCall(props.recipient.username)}>
+          <BiPhone />
+        </IconButton>
+      )}
       {props.recipient.isRoom && (
         <Tooltip title="Leave Room" arrow>
           <IconButton>
