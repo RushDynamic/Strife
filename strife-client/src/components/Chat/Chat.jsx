@@ -504,7 +504,6 @@ export default function Chat() {
                     acceptCall,
                     broadcastAndEndCall,
                   }}
-                  recipientName={recipient.username}
                   micMuted={micMuted}
                   setMicMuted={setMicMuted}
                 />

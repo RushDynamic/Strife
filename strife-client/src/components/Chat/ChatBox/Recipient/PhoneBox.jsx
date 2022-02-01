@@ -91,7 +91,7 @@ export default function PhoneBox(props) {
                             fontSize: '1.2rem',
                           }}
                         >
-                          {props.recipientName}
+                          {props.callData.participant}
                         </Typography>
                       </div>
                     </Typography>
@@ -134,19 +134,14 @@ function returnCallButton(props, classes) {
     <>
       {props.callData.isCallIncoming && !props.callData.isCallConnected && (
         <IconButton
-          onClick={() => props.callOptions.acceptCall(props.recipientName)}
+          onClick={() =>
+            props.callOptions.acceptCall(props.callData.participant)
+          }
         >
           <BiPhoneIncoming
             fontSize="xx-large"
             className={classes.shakeCallBtn}
           />
-        </IconButton>
-      )}
-      {!props.callData.isCallActive && (
-        <IconButton
-          onClick={() => props.callOptions.createCall(props.recipientName)}
-        >
-          <BiPhone fontSize="xx-large" />
         </IconButton>
       )}
       {props.callData.isCallActive && !props.callData.isCallConnected && (
