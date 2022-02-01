@@ -75,6 +75,17 @@ class StrifeLive {
     await this.peerConnection.setRemoteDescription(answer);
     console.log('Done setting answer');
   }
+
+  /**
+   * Accepts a Boolean value and sets it as the status for every input track
+   * @param {Boolean} enable
+   */
+  muteAudio(enable) {
+    let senderList = this.peerConnection.getSenders();
+    senderList.forEach((sender) => {
+      sender.track.enabled = !!enable;
+    });
+  }
 }
 
 const instance = new StrifeLive();

@@ -44,6 +44,7 @@ export default function Chat() {
   const [peerConnection, setPeerConnection] = useState(null);
   const remoteAudioRef = useRef(null);
   const [iceCandidates, setIceCandidates] = useState([]);
+  const [micMuted, setMicMuted] = useState(false);
 
   useEffect(() => {
     // TODO: Probably find a better way to do this
@@ -234,6 +235,11 @@ export default function Chat() {
       };
     }
   }, [peerConnection, callData]);
+
+  // Handle mic mute/unmute
+  useEffect(() => {
+    if (callData.isCallConnected) StrifeLive.muteAudio(!micMuted);
+  }, [micMuted]);
 
   function manageRooms(action, roomname, callback) {
     switch (action) {
@@ -473,6 +479,8 @@ export default function Chat() {
                   acceptCall={acceptCall}
                   callData={callData}
                   recipientName={recipient.username}
+                  micMuted={micMuted}
+                  setMicMuted={setMicMuted}
                 />
               )}
               <RoomsList

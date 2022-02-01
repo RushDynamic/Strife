@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   BiPhone,
   BiPhoneIncoming,
@@ -19,7 +19,6 @@ import useStyles from '../../../styles/chat-styles.js';
 
 export default function PhoneBox(props) {
   const classes = useStyles();
-  const [micMuted, setMicMuted] = useState(false);
   return (
     <>
       <Paper elevation={2} style={{ marginBottom: '10px' }}>
@@ -127,8 +126,8 @@ export default function PhoneBox(props) {
               props.createCall,
               props.acceptCall,
               props.recipientName,
-              micMuted,
-              setMicMuted,
+              props.micMuted,
+              props.setMicMuted,
               classes,
             )}
           </div>
