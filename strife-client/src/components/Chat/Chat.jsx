@@ -233,6 +233,16 @@ export default function Chat() {
         console.log('Sending ICE candidate to:', callData.participant);
         socket.current.emit('new-ice-candidate', candidateInfo);
       };
+      peerConnection.onconnectionstatechange = (e) => {
+        if (
+          ['disconnected', 'failed', 'closed'].includes(
+            peerConnection.connectionState,
+          )
+        ) {
+          console.log('Detected closed connection');
+          endCall();
+        }
+      };
     }
   }, [peerConnection, callData]);
 
@@ -392,6 +402,20 @@ export default function Chat() {
     }
   }
 
+  async function endCall() {
+    StrifeLive.endCall();
+    dispatch(
+      changeCallData({
+        participant: '',
+        callDuration: 0,
+        isCallIncoming: false,
+        isCallActive: false,
+        isCallConnected: false,
+      }),
+    );
+    setupPeerConnection();
+  }
+
   function updateMessageList(msgData) {
     if (msgData.recipientUsername === undefined || msgData.systemMsg) return;
     setMsgList((oldList) => [...oldList, msgData]);
@@ -477,6 +501,12 @@ export default function Chat() {
                 <PhoneBox
                   createCall={createCall}
                   acceptCall={acceptCall}
+                  endCall={endCall}
+                  callOptions={{
+                    createCall,
+                    acceptCall,
+                    endCall,
+                  }}
                   callData={callData}
                   recipientName={recipient.username}
                   micMuted={micMuted}

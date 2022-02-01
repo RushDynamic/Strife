@@ -125,6 +125,7 @@ export default function PhoneBox(props) {
               props.callData,
               props.createCall,
               props.acceptCall,
+              props.endCall,
               props.recipientName,
               props.micMuted,
               props.setMicMuted,
@@ -141,6 +142,7 @@ function returnCallButton(
   callData,
   createCall,
   acceptCall,
+  endCall,
   recipientName,
   micMuted,
   setMicMuted,
@@ -162,7 +164,7 @@ function returnCallButton(
         </IconButton>
       )}
       {callData.isCallActive && !callData.isCallConnected && (
-        <IconButton>
+        <IconButton onClick={() => endCall()}>
           <BiPhoneOff
             fontSize="xx-large"
             className={!callData.isCallIncoming && classes.shakeCallBtn}
@@ -180,7 +182,7 @@ function returnCallButton(
               <BiMicrophoneOff fontSize="medium" />
             )}
           </IconButton>
-          <IconButton>
+          <IconButton onClick={() => endCall()}>
             <BiPhoneOff fontSize="medium" />
           </IconButton>
         </div>

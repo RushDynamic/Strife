@@ -86,6 +86,10 @@ class StrifeLive {
       sender.track.enabled = !!enable;
     });
   }
+
+  endCall() {
+    this.peerConnection.close();
+  }
 }
 
 const instance = new StrifeLive();
