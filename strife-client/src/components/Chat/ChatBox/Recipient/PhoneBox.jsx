@@ -141,6 +141,7 @@ function returnCallButton(props, classes) {
           <BiPhoneIncoming
             fontSize="xx-large"
             className={classes.shakeCallBtn}
+            style={{ color: '#A6BF4B' }}
           />
         </IconButton>
       )}
@@ -149,6 +150,7 @@ function returnCallButton(props, classes) {
           <BiPhoneOff
             fontSize="xx-large"
             className={!props.callData.isCallIncoming && classes.shakeCallBtn}
+            style={{ color: '#BB2020' }}
           />
         </IconButton>
       )}
@@ -162,13 +164,13 @@ function returnCallButton(props, classes) {
             }
           >
             {props.micMuted ? (
-              <BiMicrophone fontSize="medium" />
+              <BiMicrophoneOff fontSize="medium" style={{ color: '#BB2020' }} />
             ) : (
-              <BiMicrophoneOff fontSize="medium" />
+              <BiMicrophone fontSize="medium" style={{ color: '#A6BF4B' }} />
             )}
           </IconButton>
           <IconButton onClick={() => props.callOptions.broadcastAndEndCall()}>
-            <BiPhoneOff fontSize="medium" />
+            <BiPhoneOff fontSize="medium" style={{ color: '#BB2020' }} />
           </IconButton>
         </div>
       )}
