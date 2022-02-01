@@ -121,16 +121,7 @@ export default function PhoneBox(props) {
             </>
           }
           <div className={classes.callButtonsContainer}>
-            {returnCallButton(
-              props.callData,
-              props.createCall,
-              props.acceptCall,
-              props.endCall,
-              props.recipientName,
-              props.micMuted,
-              props.setMicMuted,
-              classes,
-            )}
+            {returnCallButton(props, classes)}
           </div>
         </motion.div>
       </Paper>
@@ -138,51 +129,50 @@ export default function PhoneBox(props) {
   );
 }
 
-function returnCallButton(
-  callData,
-  createCall,
-  acceptCall,
-  endCall,
-  recipientName,
-  micMuted,
-  setMicMuted,
-  classes,
-) {
+function returnCallButton(props, classes) {
   return (
     <>
-      {callData.isCallIncoming && !callData.isCallConnected && (
-        <IconButton onClick={() => acceptCall(recipientName)}>
+      {props.callData.isCallIncoming && !props.callData.isCallConnected && (
+        <IconButton
+          onClick={() => props.callOptions.acceptCall(props.recipientName)}
+        >
           <BiPhoneIncoming
             fontSize="xx-large"
             className={classes.shakeCallBtn}
           />
         </IconButton>
       )}
-      {!callData.isCallActive && (
-        <IconButton onClick={() => createCall(recipientName)}>
+      {!props.callData.isCallActive && (
+        <IconButton
+          onClick={() => props.callOptions.createCall(props.recipientName)}
+        >
           <BiPhone fontSize="xx-large" />
         </IconButton>
       )}
-      {callData.isCallActive && !callData.isCallConnected && (
-        <IconButton onClick={() => endCall()}>
+      {props.callData.isCallActive && !props.callData.isCallConnected && (
+        <IconButton onClick={() => props.callOptions.broadcastAndEndCall()}>
           <BiPhoneOff
             fontSize="xx-large"
-            className={!callData.isCallIncoming && classes.shakeCallBtn}
+            className={!props.callData.isCallIncoming && classes.shakeCallBtn}
           />
         </IconButton>
       )}
-      {callData.isCallConnected && (
+      {props.callData.isCallConnected && (
         <div className={classes.callOptionsContainer}>
           <IconButton
-            onClick={() => (micMuted ? setMicMuted(false) : setMicMuted(true))}
+            onClick={() =>
+              props.micMuted
+                ? props.setMicMuted(false)
+                : props.setMicMuted(true)
+            }
           >
-            {micMuted ? (
+            {props.micMuted ? (
               <BiMicrophone fontSize="medium" />
             ) : (
               <BiMicrophoneOff fontSize="medium" />
             )}
           </IconButton>
-          <IconButton onClick={() => endCall()}>
+          <IconButton onClick={() => props.callOptions.broadcastAndEndCall()}>
             <BiPhoneOff fontSize="medium" />
           </IconButton>
         </div>
