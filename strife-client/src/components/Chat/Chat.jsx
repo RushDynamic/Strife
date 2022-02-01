@@ -160,6 +160,10 @@ export default function Chat() {
           );
         });
 
+        socket.current.on('end-call', () => {
+          endCall();
+        });
+
         // Receive error from server if user is already online elsewhere
         socket.current.on('chat-already-open', () => {
           setShowChatAlreadyOpen(true);
@@ -402,6 +406,11 @@ export default function Chat() {
     }
   }
 
+  async function broadcastAndEndCall() {
+    socket.current.emit('end-call');
+    endCall();
+  }
+
   async function endCall() {
     StrifeLive.endCall();
     dispatch(
@@ -501,11 +510,11 @@ export default function Chat() {
                 <PhoneBox
                   createCall={createCall}
                   acceptCall={acceptCall}
-                  endCall={endCall}
+                  endCall={broadcastAndEndCall}
                   callOptions={{
                     createCall,
                     acceptCall,
-                    endCall,
+                    broadcastAndEndCall,
                   }}
                   callData={callData}
                   recipientName={recipient.username}
