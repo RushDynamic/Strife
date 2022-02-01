@@ -1,13 +1,13 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { ListItemIcon, IconButton, Badge } from '@material-ui/core';
-import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
-import ChatIcon from '@material-ui/icons/Chat';
-import CallIcon from '@material-ui/icons/Call';
+import { BiPhone } from 'react-icons/bi';
+import { BsFillChatSquareFill, BsFillChatSquareTextFill } from 'react-icons/bs';
 import changeRecipient from '../../../../actions/recipient-actions.js';
 
 function FriendButtons(props) {
   const dispatch = useDispatch();
+  const callData = useSelector((state) => state.callData);
   return (
     <>
       <ListItemIcon
@@ -18,48 +18,48 @@ function FriendButtons(props) {
               avatar: props.friend.avatar,
               publicKey: props.friend.publicKey,
               isRoom: false,
+              isCallIncoming: false,
             }),
           )
         }
       >
-        {returnButtons(props.unseen, props.friend.status)}
+        {returnChatButton(props.unseen, props.friend.status)}
+      </ListItemIcon>
+      <ListItemIcon
+        onClick={() => {
+          props.createCall(props.friend.username);
+        }}
+      >
+        {returnCallButton(props.friend.status, callData)}
       </ListItemIcon>
     </>
   );
 }
 
-const returnButtons = (unseen, status) => {
-  if (unseen && status === 'online')
-    return (
-      <>
-        <IconButton size="medium">
-          <Badge color="primary" variant="dot">
-            <ChatIcon fontSize="small" />
-          </Badge>
-        </IconButton>
-        <IconButton size="medium">
-          <CallIcon fontSize="small" />
-        </IconButton>
-      </>
-    );
-  if (status === 'online')
-    return (
-      <>
-        <IconButton size="medium">
-          <ChatBubbleIcon fontSize="small" />
-        </IconButton>
-        <IconButton size="medium">
-          <CallIcon fontSize="small" />
-        </IconButton>
-      </>
-    );
+const returnChatButton = (unseen, status) => {
   return (
     <>
-      <IconButton size="medium" disabled>
-        <ChatBubbleIcon fontSize="small" />
+      <IconButton size="medium" disabled={status !== 'online'}>
+        {unseen && status === 'online' ? (
+          <Badge color="primary" variant="dot">
+            <BsFillChatSquareTextFill fontSize="small" />
+          </Badge>
+        ) : (
+          <BsFillChatSquareFill fontSize="small" />
+        )}
       </IconButton>
-      <IconButton size="medium" disabled>
-        <CallIcon fontSize="small" />
+    </>
+  );
+};
+
+const returnCallButton = (status, callData) => {
+  return (
+    <>
+      <IconButton
+        size="medium"
+        disabled={status !== 'online' || callData.isCallActive}
+      >
+        <BiPhone fontSize="small" />
       </IconButton>
     </>
   );

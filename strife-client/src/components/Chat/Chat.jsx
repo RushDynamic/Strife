@@ -15,6 +15,10 @@ import ChatBox from './ChatBox/ChatBox.jsx';
 import LandingChatBox from './ChatBox/LandingChatBox.jsx';
 import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
+import changeRecipient from '../../actions/recipient-actions.js';
+import changeCallData from '../../actions/call-data-actions.js';
+import { StrifeLive } from '../../services/strife-live.js';
+import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 
 var privateKey = '';
 export default function Chat() {
@@ -22,6 +26,7 @@ export default function Chat() {
   const history = useHistory();
   const socket = useRef();
   const recipient = useSelector((state) => state.recipient);
+  const callData = useSelector((state) => state.callData);
   const socketConnected = useRef(false);
   const { user, setUser } = useContext(UserContext);
   const [loadingStages, setLoadingStages] = useState([]);
@@ -36,6 +41,10 @@ export default function Chat() {
   const [msgList, setMsgList] = useState([]);
   const msgMap = useRef(new Map());
   const [newMsg, setNewMsg] = useState({});
+  const [peerConnection, setPeerConnection] = useState(null);
+  const remoteAudioRef = useRef(null);
+  const [iceCandidates, setIceCandidates] = useState([]);
+  const [micMuted, setMicMuted] = useState(false);
 
   useEffect(() => {
     // TODO: Probably find a better way to do this
@@ -119,6 +128,42 @@ export default function Chat() {
           },
         );
 
+        await setupPeerConnection();
+
+        // Receive updated ice candidates
+        socket.current.on('get-ice-candidate', async (candidateInfo) => {
+          console.log('Received new ICE candidate from server', candidateInfo);
+          if (callData.isCallIncoming || callData.isCallConnected) {
+            await StrifeLive.addIceCandidate(candidateInfo.candidate);
+          } else {
+            console.log('Offer not set, caching ICE candidate');
+            setIceCandidates((prev) => [...prev, candidateInfo.candidate]);
+          }
+        });
+
+        // Receive offer from incoming call
+        socket.current.on('get-offer', async (offerData) => {
+          changeCallData({
+            isCallActive: true,
+          });
+          console.log('Received offer from server:', offerData);
+
+          await StrifeLive.setOffer(offerData.offer);
+          dispatch(
+            changeCallData({
+              participant: offerData.caller.username,
+              callDuration: 0,
+              isCallIncoming: true,
+              isCallActive: true,
+              isCallConnected: false,
+            }),
+          );
+        });
+
+        socket.current.on('end-call', () => {
+          endCall();
+        });
+
         // Receive error from server if user is already online elsewhere
         socket.current.on('chat-already-open', () => {
           setShowChatAlreadyOpen(true);
@@ -174,6 +219,31 @@ export default function Chat() {
     }
     updateMessageList(newMsg);
   }, [newMsg]);
+
+  useEffect(() => {
+    if (!peerConnection) return;
+    peerConnection.onaddstream = (e) => {
+      console.log('Setting remote audio stream');
+      remoteAudioRef.current.srcObject = e?.stream;
+    };
+
+    if (callData.participant) {
+      peerConnection.onicecandidate = (e) => {
+        if (!e.candidate) return;
+        const candidateInfo = {
+          candidate: e.candidate,
+          receiver: callData.participant,
+        };
+        console.log('Sending ICE candidate to:', callData.participant);
+        socket.current.emit('new-ice-candidate', candidateInfo);
+      };
+    }
+  }, [peerConnection, callData]);
+
+  // Handle mic mute/unmute
+  useEffect(() => {
+    if (callData.isCallConnected) StrifeLive.muteAudio(!micMuted);
+  }, [micMuted]);
 
   function manageRooms(action, roomname, callback) {
     switch (action) {
@@ -247,6 +317,102 @@ export default function Chat() {
       }
       socket.current.emit('add-msg', encMsg);
     }
+  }
+
+  async function setupPeerConnection() {
+    let myAudioStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+    setPeerConnection(StrifeLive.createPeerConnection(myAudioStream));
+  }
+
+  async function createCall(recipientName) {
+    dispatch(
+      changeCallData({
+        participant: recipientName,
+        callDuration: 0,
+        isCallIncoming: false,
+        isCallActive: true,
+        isCallConnected: false,
+      }),
+    );
+    const offer = await StrifeLive.createOffer();
+    const offerData = {
+      caller: user,
+      receiver: recipientName,
+      offer: offer,
+    };
+
+    socket.current.on('get-answer', async (answerData) => {
+      console.log('Received answer from server');
+      await StrifeLive.setAnswer(answerData.answer);
+      dispatch(
+        changeCallData({
+          participant: recipientName,
+          callDuration: 0,
+          isCallIncoming: false,
+          isCallActive: true,
+          isCallConnected: true,
+        }),
+      );
+
+      if (iceCandidates.length > 0) {
+        console.log('Found cached ICE candidates');
+        iceCandidates.forEach(async (candidate) => {
+          await StrifeLive.addIceCandidate(candidate);
+        });
+        setIceCandidates([]);
+      }
+    });
+    socket.current.emit('get-offer', offerData);
+    console.log('Sent offer to:', recipientName);
+  }
+
+  async function acceptCall() {
+    const answer = await StrifeLive.createAnswer();
+    const answerData = {
+      caller: callData.participant,
+      receiver: user.username,
+      answer: answer,
+    };
+
+    socket.current.emit('get-answer', answerData);
+    dispatch(
+      changeCallData({
+        participant: callData.participant,
+        callDuration: 0,
+        isCallIncoming: false,
+        isCallActive: true,
+        isCallConnected: true,
+      }),
+    );
+
+    if (iceCandidates.length > 0) {
+      console.log('Found cached ICE candidates');
+      iceCandidates.forEach(async (candidate) => {
+        await StrifeLive.addIceCandidate(candidate);
+      });
+      setIceCandidates([]);
+    }
+  }
+
+  function broadcastAndEndCall() {
+    socket.current.emit('end-call');
+    endCall();
+  }
+
+  function endCall() {
+    StrifeLive.endCall();
+    dispatch(
+      changeCallData({
+        participant: '',
+        callDuration: 0,
+        isCallIncoming: false,
+        isCallActive: false,
+        isCallConnected: false,
+      }),
+    );
+    setupPeerConnection();
   }
 
   function updateMessageList(msgData) {
@@ -323,6 +489,25 @@ export default function Chat() {
                 flexDirection: 'column',
               }}
             >
+              <audio
+                id="remote-audio"
+                ref={remoteAudioRef}
+                autoPlay
+                controls
+                style={{ display: 'none' }}
+              />
+              {(callData.isCallActive || callData.isCallIncoming) && (
+                <PhoneBox
+                  callData={callData}
+                  callOptions={{
+                    createCall,
+                    acceptCall,
+                    broadcastAndEndCall,
+                  }}
+                  micMuted={micMuted}
+                  setMicMuted={setMicMuted}
+                />
+              )}
               <RoomsList
                 onlineRoomsCount={onlineRoomsCount}
                 roomsList={onlineRoomsList != null ? onlineRoomsList : []}
@@ -335,6 +520,8 @@ export default function Chat() {
                 friendsList={friendsList}
                 unseenMsgUsersList={unseenMsgUsersList}
                 setUnseenMsgUsersList={setUnseenMsgUsersList}
+                createCall={createCall}
+                acceptCall={acceptCall}
               />
             </Grid>
             <Grid
@@ -355,6 +542,8 @@ export default function Chat() {
                       : [user.username]
                   }
                   manageRooms={manageRooms}
+                  callData={callData}
+                  createCall={createCall}
                 />
               )}
             </Grid>

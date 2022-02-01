@@ -32,6 +32,7 @@ function FriendsList(props) {
       <FriendButtons
         unseen={unseenMsgUserList.includes(friend.username)}
         friend={friend}
+        createCall={props.createCall}
       />
     );
   }

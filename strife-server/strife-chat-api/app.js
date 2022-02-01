@@ -9,6 +9,7 @@ const io = require('socket.io')(5000, {
 var onlineRoomsMap = new Map();
 var onlineUsersMap = new Map();
 var userMessagesMap = new Map();
+var userCallsMap = new Map();
 var userRoomsMap = new Map();
 var messagesMap = new Map();
 
@@ -71,6 +72,32 @@ io.on('connect', (socket) => {
     updateMsgList(newMsg);
   });
 
+  socket.on('new-ice-candidate', (candidateInfo) => {
+    console.log('Received new ICE candidates for:', candidateInfo.receiver);
+    candidateInfo.sender = socket.username;
+    socket
+      .to(onlineUsersMap.get(candidateInfo.receiver))
+      .emit('get-ice-candidate', candidateInfo);
+  });
+
+  socket.on('get-offer', (offerData) => {
+    userCallsMap.set(socket.username, offerData.receiver);
+    userCallsMap.set(offerData.receiver, socket.username);
+    socket
+      .to(onlineUsersMap.get(offerData.receiver))
+      .emit('get-offer', offerData);
+  });
+
+  socket.on('get-answer', (answerData) => {
+    socket
+      .to(onlineUsersMap.get(answerData.caller))
+      .emit('get-answer', answerData);
+  });
+
+  socket.on('end-call', () => {
+    endCallIfActive(socket);
+  });
+
   // For sending the chat history back to the requested user
   socket.on(
     'request-msg-history',
@@ -123,6 +150,9 @@ io.on('connect', (socket) => {
 
     // Delete message history
     deleteUserMsgHistory(socket.username);
+
+    // End any active call
+    endCallIfActive(socket);
 
     // Send updated onlineUsers list to all users
     socket.broadcast.emit(
@@ -260,6 +290,11 @@ function deleteUserMsgHistory(username) {
       }
     });
   }
+}
+
+function endCallIfActive(socket) {
+  const receiver = userCallsMap.get(socket.username);
+  socket.to(onlineUsersMap.get(receiver)).emit('end-call');
 }
 
 function updateMsgList(newMsg) {

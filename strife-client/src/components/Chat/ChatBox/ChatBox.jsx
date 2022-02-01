@@ -6,6 +6,7 @@ import CreateMessage from './CreateMessage.jsx';
 import MessageBox from './MessageBox.jsx';
 import Announcement from '../Announcement.jsx';
 import TalkingTo from './Recipient/TalkingTo.jsx';
+import PhoneBox from './Recipient/PhoneBox.jsx';
 import OnlineRoomMembers from './Recipient/RoomDetails/OnlineRoomMembers.jsx';
 import changeRecipient from '../../../actions/recipient-actions.js';
 
@@ -30,10 +31,19 @@ function ChatBox(props) {
   const classes = chatStyles();
   return (
     <>
-      <TalkingTo
-        recipient={recipient}
-        handleLeaveRoomClicked={handleLeaveRoomClicked}
-      />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <TalkingTo
+          recipient={recipient}
+          handleLeaveRoomClicked={handleLeaveRoomClicked}
+          callData={props.callData}
+          createCall={props.createCall}
+        />
+      </div>
       {recipient.isRoom && (
         <OnlineRoomMembers onlineMembers={props.onlineMembers} />
       )}

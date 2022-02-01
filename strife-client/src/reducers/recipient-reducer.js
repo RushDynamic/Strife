@@ -5,6 +5,7 @@ const initialState = {
   avatar: '',
   publicKey: '',
   isRoom: false,
+  isCallIncoming: false,
 };
 
 export default function recipientUpdate(state = initialState, action) {
@@ -15,6 +16,7 @@ export default function recipientUpdate(state = initialState, action) {
         avatar: action.payload.avatar,
         publicKey: action.payload.publicKey,
         isRoom: action.payload.isRoom,
+        isCallIncoming: action.payload?.isCallIncoming,
       };
     default:
       return state;
