@@ -74,6 +74,29 @@ export default function PhoneBox(props) {
                       </div>
                     </Typography>
                   )}
+                {props.callData.isCallActive &&
+                  !props.callData.isCallIncoming &&
+                  !props.callData.isCallConnected && (
+                    <Typography
+                      style={{
+                        fontVariant: 'small-caps',
+                        fontFamily: "'Syne', sans-serif",
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        calling
+                        <Typography
+                          style={{
+                            marginLeft: '5px',
+                            color: '#1fd1f9',
+                            fontSize: '1.2rem',
+                          }}
+                        >
+                          {props.recipientName}
+                        </Typography>
+                      </div>
+                    </Typography>
+                  )}
                 {props.callData.isCallConnected && (
                   <Typography
                     style={{
