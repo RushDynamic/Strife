@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { ListItemIcon, IconButton, Badge } from '@material-ui/core';
 import { BiPhone } from 'react-icons/bi';
 import { BsFillChatSquareFill, BsFillChatSquareTextFill } from 'react-icons/bs';
@@ -7,29 +7,30 @@ import changeRecipient from '../../../../actions/recipient-actions.js';
 
 function FriendButtons(props) {
   const dispatch = useDispatch();
-  const dispatchChangeRecipient = () => {
-    dispatch(
-      changeRecipient({
-        username: props.friend.username,
-        avatar: props.friend.avatar,
-        publicKey: props.friend.publicKey,
-        isRoom: false,
-        isCallIncoming: false,
-      }),
-    );
-  };
+  const callData = useSelector((state) => state.callData);
   return (
     <>
-      <ListItemIcon onClick={() => dispatchChangeRecipient()}>
+      <ListItemIcon
+        onClick={() =>
+          dispatch(
+            changeRecipient({
+              username: props.friend.username,
+              avatar: props.friend.avatar,
+              publicKey: props.friend.publicKey,
+              isRoom: false,
+              isCallIncoming: false,
+            }),
+          )
+        }
+      >
         {returnChatButton(props.unseen, props.friend.status)}
       </ListItemIcon>
       <ListItemIcon
         onClick={() => {
-          dispatchChangeRecipient();
-          props.createCall();
+          props.createCall(props.friend.username);
         }}
       >
-        {returnCallButton(props.friend.status)}
+        {returnCallButton(props.friend.status, callData)}
       </ListItemIcon>
     </>
   );
@@ -51,10 +52,13 @@ const returnChatButton = (unseen, status) => {
   );
 };
 
-const returnCallButton = (status) => {
+const returnCallButton = (status, callData) => {
   return (
     <>
-      <IconButton size="medium" disabled={status !== 'online'}>
+      <IconButton
+        size="medium"
+        disabled={status !== 'online' || callData.isCallActive}
+      >
         <BiPhone fontSize="small" />
       </IconButton>
     </>
