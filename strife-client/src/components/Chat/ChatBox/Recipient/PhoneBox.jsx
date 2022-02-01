@@ -153,13 +153,21 @@ function returnCallButton(
         <IconButton onClick={() => acceptCall(recipientName)}>
           <BiPhoneIncoming
             fontSize="xx-large"
-            className={classes.acceptCallBtn}
+            className={classes.shakeCallBtn}
           />
         </IconButton>
       )}
       {!callData.isCallActive && (
         <IconButton onClick={() => createCall(recipientName)}>
           <BiPhone fontSize="xx-large" />
+        </IconButton>
+      )}
+      {callData.isCallActive && !callData.isCallConnected && (
+        <IconButton>
+          <BiPhoneOff
+            fontSize="xx-large"
+            className={!callData.isCallIncoming && classes.shakeCallBtn}
+          />
         </IconButton>
       )}
       {callData.isCallConnected && (

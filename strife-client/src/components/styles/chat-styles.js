@@ -58,7 +58,7 @@ const chatStyles = makeStyles({
     justifyContent: 'center',
   },
 
-  acceptCallBtn: {
+  shakeCallBtn: {
     animation: `$shake 1s`,
     animationIterationCount: 'infinite',
   },
