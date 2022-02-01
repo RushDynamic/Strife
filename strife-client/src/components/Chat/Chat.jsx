@@ -43,6 +43,7 @@ export default function Chat() {
   const [newMsg, setNewMsg] = useState({});
   const [peerConnection, setPeerConnection] = useState(null);
   const remoteAudioRef = useRef(null);
+  const [iceCandidates, setIceCandidates] = useState([]);
 
   useEffect(() => {
     // TODO: Probably find a better way to do this
@@ -130,13 +131,23 @@ export default function Chat() {
 
         // Receive updated ice candidates
         socket.current.on('get-ice-candidate', async (candidateInfo) => {
-          console.log('Received new ICE candidate from server');
-          await StrifeLive.addIceCandidate(candidateInfo.candidate);
+          console.log('Received new ICE candidate from server', candidateInfo);
+          if (callData.isCallIncoming || callData.isCallConnected) {
+            await StrifeLive.addIceCandidate(candidateInfo.candidate);
+          } else {
+            console.log('Offer not set, caching ICE candidate');
+            setIceCandidates((prev) => [...prev, candidateInfo.candidate]);
+          }
         });
 
         // Receive offer from incoming call
         socket.current.on('get-offer', async (offerData) => {
-          console.log('Received offer from server');
+          changeCallData({
+            isCallActive: true,
+          });
+          console.log('Received offer from server:', offerData);
+
+          await StrifeLive.setOffer(offerData.offer);
           dispatch(
             changeCallData({
               participant: offerData.caller.username,
@@ -144,17 +155,6 @@ export default function Chat() {
               isCallIncoming: true,
               isCallActive: true,
               isCallConnected: false,
-            }),
-          );
-          await StrifeLive.setOffer(offerData.offer);
-          // TODO: set state to show incoming call
-          dispatch(
-            changeRecipient({
-              username: offerData.caller.username,
-              avatar: offerData.caller.avatar,
-              publicKey: offerData.caller.publicKey,
-              isRoom: false,
-              isCallIncoming: true,
             }),
           );
         });
@@ -222,18 +222,18 @@ export default function Chat() {
       remoteAudioRef.current.srcObject = e?.stream;
     };
 
-    if (recipient.username) {
+    if (callData.participant) {
       peerConnection.onicecandidate = (e) => {
         if (!e.candidate) return;
         const candidateInfo = {
           candidate: e.candidate,
-          receiver: recipient.username,
+          receiver: callData.participant,
         };
-        console.log('Sending ICE candidate to:', recipient.username);
+        console.log('Sending ICE candidate to:', callData.participant);
         socket.current.emit('new-ice-candidate', candidateInfo);
       };
     }
-  }, [peerConnection, recipient]);
+  }, [peerConnection, callData]);
 
   function manageRooms(action, roomname, callback) {
     switch (action) {
@@ -329,9 +329,10 @@ export default function Chat() {
     const offer = await StrifeLive.createOffer();
     const offerData = {
       caller: user,
-      receiver: recipient.username,
+      receiver: recipientName,
       offer: offer,
     };
+
     socket.current.on('get-answer', async (answerData) => {
       console.log('Received answer from server');
       await StrifeLive.setAnswer(answerData.answer);
@@ -344,14 +345,23 @@ export default function Chat() {
           isCallConnected: true,
         }),
       );
+
+      if (iceCandidates.length > 0) {
+        console.log('Found cached ICE candidates');
+        iceCandidates.forEach(async (candidate) => {
+          await StrifeLive.addIceCandidate(candidate);
+        });
+        setIceCandidates([]);
+      }
     });
     socket.current.emit('get-offer', offerData);
+    console.log('Sent offer to:', recipientName);
   }
 
-  async function acceptCall(recipientName) {
+  async function acceptCall() {
     const answer = await StrifeLive.createAnswer();
     const answerData = {
-      caller: recipient.username,
+      caller: callData.participant,
       receiver: user.username,
       answer: answer,
     };
@@ -359,13 +369,21 @@ export default function Chat() {
     socket.current.emit('get-answer', answerData);
     dispatch(
       changeCallData({
-        participant: recipientName,
+        participant: callData.participant,
         callDuration: 0,
         isCallIncoming: false,
         isCallActive: true,
         isCallConnected: true,
       }),
     );
+
+    if (iceCandidates.length > 0) {
+      console.log('Found cached ICE candidates');
+      iceCandidates.forEach(async (candidate) => {
+        await StrifeLive.addIceCandidate(candidate);
+      });
+      setIceCandidates([]);
+    }
   }
 
   function updateMessageList(msgData) {
@@ -442,12 +460,18 @@ export default function Chat() {
                 flexDirection: 'column',
               }}
             >
-              {callData.isCallActive && (
+              <audio
+                id="remote-audio"
+                ref={remoteAudioRef}
+                autoPlay
+                controls
+                style={{ display: 'none' }}
+              />
+              {(callData.isCallActive || callData.isCallIncoming) && (
                 <PhoneBox
                   createCall={createCall}
                   acceptCall={acceptCall}
                   callData={callData}
-                  remoteAudioRef={remoteAudioRef}
                   recipientName={recipient.username}
                 />
               )}

@@ -109,13 +109,6 @@ export default function PhoneBox(props) {
               classes,
             )}
           </div>
-          <audio
-            id="remote-audio"
-            ref={props.remoteAudioRef}
-            autoPlay
-            controls
-            style={{ display: 'none' }}
-          />
         </motion.div>
       </Paper>
     </>
