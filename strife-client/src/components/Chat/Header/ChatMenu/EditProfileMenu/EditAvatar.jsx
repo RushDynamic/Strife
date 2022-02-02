@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Typography, IconButton } from '@material-ui/core';
-import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
-import FaceIcon from '@material-ui/icons/Face';
+import { Typography, IconButton } from '@mui/material';
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import FaceIcon from '@mui/icons-material/Face';
 import chatStyles from '../../../../styles/chat-styles';
 
 function EditAvatar(props) {
@@ -60,7 +60,7 @@ function EditAvatar(props) {
             onChange={handleAvatarFileChanged}
           />
           <label htmlFor="avatarFileInput">
-            <IconButton color="primary" component="span">
+            <IconButton color="primary" component="span" size="large">
               <AddAPhotoIcon />
             </IconButton>
           </label>

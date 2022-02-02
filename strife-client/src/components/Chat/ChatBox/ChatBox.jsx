@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import chatStyles from '../../styles/chat-styles.js';
 import CreateMessage from './CreateMessage.jsx';
 import MessageBox from './MessageBox.jsx';

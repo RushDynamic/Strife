@@ -12,10 +12,10 @@ import {
   IconButton,
   Typography,
   Badge,
-} from '@material-ui/core';
-import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
-import ChatIcon from '@material-ui/icons/Chat';
-import PeopleIcon from '@material-ui/icons/People';
+} from '@mui/material';
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import ChatIcon from '@mui/icons-material/Chat';
+import PeopleIcon from '@mui/icons-material/People';
 import useStyles from '../../styles/chat-styles.js';
 
 function RoomsList(props) {
@@ -39,7 +39,7 @@ function RoomsList(props) {
     if (unseenMsgUserList.includes(roomname)) {
       return (
         <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
-          <IconButton>
+          <IconButton size="large">
             <Badge color="primary" variant="dot">
               <ChatIcon />
             </Badge>
@@ -49,7 +49,7 @@ function RoomsList(props) {
     }
     return (
       <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
-        <IconButton>
+        <IconButton size="large">
           <ChatBubbleIcon />
         </IconButton>
       </ListItemIcon>

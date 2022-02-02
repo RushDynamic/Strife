@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { ListItemIcon, IconButton, Badge } from '@material-ui/core';
+import { ListItemIcon, IconButton, Badge } from '@mui/material';
 import { BiPhone } from 'react-icons/bi';
 import { BsFillChatSquareFill, BsFillChatSquareTextFill } from 'react-icons/bs';
 import changeRecipient from '../../../../actions/recipient-actions.js';

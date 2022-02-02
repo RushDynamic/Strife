@@ -8,7 +8,7 @@ import {
   ListItemAvatar,
   Paper,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import NoFriends from './NoFriends.jsx';
 import FriendButtons from './FriendButtons.jsx';
 import useStyles from '../../../styles/chat-styles.js';

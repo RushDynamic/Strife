@@ -1,7 +1,7 @@
 import React from 'react';
 import useStyles from '../../styles/chat-styles';
 import { motion } from 'framer-motion';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import ChatMenu from './ChatMenu/ChatMenu.jsx';
 import constants from '../../../constants/strife-constants.js';
 

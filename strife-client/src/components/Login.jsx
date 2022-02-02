@@ -9,16 +9,19 @@ import {
   CardContent,
   CardHeader,
   Snackbar,
-} from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+} from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
+import MuiAlert from '@mui/material/Alert';
+import CheckIcon from '@mui/icons-material/Check';
+import ErrorIcon from '@mui/icons-material/Error';
 import useStyles from './styles/login-styles.js';
 import { UserContext } from '../UserContext.js';
 import { loginUser, checkLoggedIn } from '../services/login-service.js';
 import * as cryptoService from '../services/crypto-service.js';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function Login() {
   const classes = useStyles();
@@ -28,10 +31,12 @@ function Login() {
     password: '',
   });
   const [loginStatus, setLoginStatus] = useState({ failure: false, msg: '' });
+  const [fetchingData, setFetchingData] = useState(false);
   const history = useHistory();
 
   useEffect(() => {
     (async function () {
+      setFetchingData(true);
       const isUserLoggedIn = await checkLoggedIn();
       console.log('isUserLoggedIn: ', isUserLoggedIn);
       if (
@@ -45,10 +50,12 @@ function Login() {
         console.log("You're NOT logged in!");
         setUser({ username: null, accessToken: null });
       }
+      setFetchingData(false);
     })();
   }, []);
 
   async function handleLoginBtnClick() {
+    setFetchingData(true);
     const loginResult = await loginUser(currentData);
     if (loginResult.success === true) {
       // Decrypt secureStorageKey key and store it in localStorage
@@ -85,6 +92,7 @@ function Login() {
       });
       console.log('Invalid credentials!');
     }
+    setFetchingData(false);
   }
 
   return (
@@ -174,14 +182,15 @@ function Login() {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <Button
+                    <LoadingButton
+                      loading={fetchingData}
                       variant="contained"
                       color="primary"
                       style={{ width: '80%', marginRight: '1vh' }}
                       onClick={() => handleLoginBtnClick()}
                     >
                       Login
-                    </Button>
+                    </LoadingButton>
                     <Button
                       variant="outlined"
                       color="primary"
@@ -197,18 +206,24 @@ function Login() {
           </Card>
         </div>
         <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           open={loginStatus.failure}
           autoHideDuration={3000}
-          onClose={() => setLoginStatus({ failure: false, msg: '' })}
+          onClose={() => setLoginStatus({ ...loginStatus, failure: false })}
         >
-          <Alert severity="error">{loginStatus.msg}</Alert>
+          <Alert icon={<ErrorIcon fontSize="inherit" />} severity="error">
+            {loginStatus.msg}
+          </Alert>
         </Snackbar>
         <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           open={loginStatus.success}
           autoHideDuration={3000}
-          onClose={() => setLoginStatus({ success: false, msg: '' })}
+          onClose={() => setLoginStatus({ ...loginStatus, success: false })}
         >
-          <Alert severity="success">{loginStatus.msg}</Alert>
+          <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
+            {loginStatus.msg}
+          </Alert>
         </Snackbar>
       </div>
     </>
