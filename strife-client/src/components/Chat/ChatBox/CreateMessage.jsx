@@ -35,9 +35,14 @@ export default function CreateMessage(props) {
 
   function handleOnKeyDown(e) {
     if (e.keyCode === 13) {
-      props.sendMessage(newMsg);
-      setMsgText('');
+      sendMessage();
     }
+  }
+
+  function sendMessage() {
+    props.sendMessage(newMsg);
+    setMsgText('');
+    setNewMsg({ message: '' });
   }
 
   return (
@@ -55,7 +60,7 @@ export default function CreateMessage(props) {
           autoFocus
         />
         <IconButton
-          onClick={() => props.sendMessage(newMsg)}
+          onClick={() => sendMessage()}
           style={{ backgroundColor: 'transparent', marginLeft: '15px' }}
           size="large"
         >
