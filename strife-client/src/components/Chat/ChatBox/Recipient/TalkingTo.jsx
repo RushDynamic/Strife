@@ -38,7 +38,10 @@ export default function TalkingTo(props) {
         {props.recipient.username}
       </Typography>
       {!props.callData?.isCallActive && (
-        <IconButton onClick={() => props.createCall(props.recipient.username)} size="large">
+        <IconButton
+          onClick={() => props.createCall(props.recipient.username)}
+          size="large"
+        >
           <BiPhone />
         </IconButton>
       )}

@@ -130,48 +130,58 @@ export default function PhoneBox(props) {
 }
 
 function returnCallButton(props, classes) {
-  return <>
-    {props.callData.isCallIncoming && !props.callData.isCallConnected && (
-      <IconButton
-        onClick={() =>
-          props.callOptions.acceptCall(props.callData.participant)
-        }
-        size="large">
-        <BiPhoneIncoming
-          fontSize="xx-large"
-          className={classes.shakeCallBtn}
-          style={{ color: '#A6BF4B' }}
-        />
-      </IconButton>
-    )}
-    {props.callData.isCallActive && !props.callData.isCallConnected && (
-      <IconButton onClick={() => props.callOptions.broadcastAndEndCall()} size="large">
-        <BiPhoneOff
-          fontSize="xx-large"
-          className={!props.callData.isCallIncoming && classes.shakeCallBtn}
-          style={{ color: '#BB2020' }}
-        />
-      </IconButton>
-    )}
-    {props.callData.isCallConnected && (
-      <div className={classes.callOptionsContainer}>
+  return (
+    <>
+      {props.callData.isCallIncoming && !props.callData.isCallConnected && (
         <IconButton
           onClick={() =>
-            props.micMuted
-              ? props.setMicMuted(false)
-              : props.setMicMuted(true)
+            props.callOptions.acceptCall(props.callData.participant)
           }
-          size="large">
-          {props.micMuted ? (
-            <BiMicrophoneOff fontSize="medium" style={{ color: '#BB2020' }} />
-          ) : (
-            <BiMicrophone fontSize="medium" style={{ color: '#A6BF4B' }} />
-          )}
+          size="large"
+        >
+          <BiPhoneIncoming
+            fontSize="xx-large"
+            className={classes.shakeCallBtn}
+            style={{ color: '#A6BF4B' }}
+          />
         </IconButton>
-        <IconButton onClick={() => props.callOptions.broadcastAndEndCall()} size="large">
-          <BiPhoneOff fontSize="medium" style={{ color: '#BB2020' }} />
+      )}
+      {props.callData.isCallActive && !props.callData.isCallConnected && (
+        <IconButton
+          onClick={() => props.callOptions.broadcastAndEndCall()}
+          size="large"
+        >
+          <BiPhoneOff
+            fontSize="xx-large"
+            className={!props.callData.isCallIncoming && classes.shakeCallBtn}
+            style={{ color: '#BB2020' }}
+          />
         </IconButton>
-      </div>
-    )}
-  </>;
+      )}
+      {props.callData.isCallConnected && (
+        <div className={classes.callOptionsContainer}>
+          <IconButton
+            onClick={() =>
+              props.micMuted
+                ? props.setMicMuted(false)
+                : props.setMicMuted(true)
+            }
+            size="large"
+          >
+            {props.micMuted ? (
+              <BiMicrophoneOff fontSize="medium" style={{ color: '#BB2020' }} />
+            ) : (
+              <BiMicrophone fontSize="medium" style={{ color: '#A6BF4B' }} />
+            )}
+          </IconButton>
+          <IconButton
+            onClick={() => props.callOptions.broadcastAndEndCall()}
+            size="large"
+          >
+            <BiPhoneOff fontSize="medium" style={{ color: '#BB2020' }} />
+          </IconButton>
+        </div>
+      )}
+    </>
+  );
 }

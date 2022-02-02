@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Typography,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import { Typography, Dialog, DialogContent, DialogTitle } from '@mui/material';
 
 export default function ChatAlreadyOpen(props) {
   return (

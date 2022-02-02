@@ -40,30 +40,34 @@ export default function CreateMessage(props) {
     }
   }
 
-  return <>
-    <div className={classes.createMessageContainer}>
-      <TextField
-        id="filled-basic"
-        value={msgText}
-        label="Say something"
-        variant="filled"
-        fullWidth
-        onKeyDown={handleOnKeyDown}
-        autoComplete="off"
-        onChange={(event) => setMsgText(event.target.value)}
-        autoFocus
-      />
-      <IconButton
-        onClick={() => props.sendMessage(newMsg)}
-        style={{ backgroundColor: 'transparent', marginLeft: '15px' }}
-        size="large">
-        <SendIcon />
-      </IconButton>
-      <IconButton
-        style={{ backgroundColor: 'transparent', marginLeft: '15px' }}
-        size="large">
-        <NoteAddIcon />
-      </IconButton>
-    </div>
-  </>;
+  return (
+    <>
+      <div className={classes.createMessageContainer}>
+        <TextField
+          id="filled-basic"
+          value={msgText}
+          label="Say something"
+          variant="filled"
+          fullWidth
+          onKeyDown={handleOnKeyDown}
+          autoComplete="off"
+          onChange={(event) => setMsgText(event.target.value)}
+          autoFocus
+        />
+        <IconButton
+          onClick={() => props.sendMessage(newMsg)}
+          style={{ backgroundColor: 'transparent', marginLeft: '15px' }}
+          size="large"
+        >
+          <SendIcon />
+        </IconButton>
+        <IconButton
+          style={{ backgroundColor: 'transparent', marginLeft: '15px' }}
+          size="large"
+        >
+          <NoteAddIcon />
+        </IconButton>
+      </div>
+    </>
+  );
 }

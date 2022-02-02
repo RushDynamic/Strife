@@ -7,7 +7,11 @@ import Login from '../components/Login.jsx';
 import Register from './Register.jsx';
 import Chat from '../components/Chat/Chat.jsx';
 import { CssBaseline, adaptV4Theme } from '@mui/material';
-import { createTheme, ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import {
+  createTheme,
+  ThemeProvider,
+  StyledEngineProvider,
+} from '@mui/material/styles';
 
 function App() {
   const [user, setUser] = useState({
@@ -15,25 +19,27 @@ function App() {
     avatarUrl: null,
     accessToken: null,
   });
-  const darkTheme = createTheme(adaptV4Theme({
-    palette: {
-      mode: 'dark',
-      primary: {
-        main: '#1fd1f9',
+  const darkTheme = createTheme(
+    adaptV4Theme({
+      palette: {
+        mode: 'dark',
+        primary: {
+          main: '#1fd1f9',
+        },
+        secondary: {
+          main: '#b621fe',
+        },
+        background: {
+          default: '#1b1d1e',
+          paper: '#181a1b',
+        },
+        text: {
+          primary: '#cdcbc9',
+          secondary: '#a8a8a8',
+        },
       },
-      secondary: {
-        main: '#b621fe',
-      },
-      background: {
-        default: '#1b1d1e',
-        paper: '#181a1b',
-      },
-      text: {
-        primary: '#cdcbc9',
-        secondary: '#a8a8a8',
-      },
-    },
-  }));
+    }),
+  );
 
   return (
     <Router>
