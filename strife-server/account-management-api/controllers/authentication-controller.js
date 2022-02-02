@@ -57,6 +57,7 @@ export async function handleUserLogin(req, res) {
         sameSite: 'strict',
         path: '/',
         httpOnly: true,
+        maxAge: 20 * 24 * 60 * 60 * 1000,
       });
       res.status(200).json({
         success: true,
