@@ -98,16 +98,8 @@ io.on('connect', (socket) => {
     endCallIfActive(socket);
   });
 
-  // For sending the chat history back to the requested user
-  socket.on(
-    'request-msg-history',
-    (senderUsername, recipientUsername, isRoom) => {
-      const msgList = getMsgList(senderUsername, recipientUsername, isRoom);
-      socket.emit('receive-msg-history', msgList, recipientUsername);
-    },
-  );
-
   // Send updated friendslist everytime a user connects/disconnects
+  // usernameList required to update friendsList for both parties after adding/removing a friend
   socket.on('request-friends-list', (usernameList) => {
     sendUpdatedFriendsList(usernameList, socket);
   });
@@ -327,33 +319,6 @@ function updateMsgList(newMsg) {
   //console.log("Updated UserMessagesMap:", userMessagesMap.get(newMsg.senderUsername));
 }
 
-function getMsgList(senderUsername, recipientUsername, isRoom) {
-  // TODO: Clean up this code
-  var msgList = [];
-  if (isRoom) {
-    msgList = userMessagesMap.get(recipientUsername);
-  } else {
-    if (userMessagesMap.has(senderUsername)) {
-      if (userMessagesMap.get(senderUsername).has(recipientUsername)) {
-        msgList = userMessagesMap.get(senderUsername).get(recipientUsername);
-      }
-    }
-    if (userMessagesMap.has(recipientUsername)) {
-      if (userMessagesMap.get(recipientUsername).has(senderUsername)) {
-        msgList = msgList.concat(
-          userMessagesMap.get(recipientUsername).get(senderUsername),
-        );
-      }
-    }
-  }
-  //console.log(userMessagesMap);
-  msgList =
-    msgList != undefined && msgList.length > 0
-      ? msgList.sort((a, b) => a.timestamp - b.timestamp)
-      : [];
-  return msgList;
-}
-
 function updateOnlineUsers(operation, username, socketid) {
   if (operation.addUser == true) {
     onlineUsersMap.set(username, socketid);
@@ -380,22 +345,10 @@ function prepareFriendsList(friendsList) {
   const onlineFriends = getOnlineFriends(friendsList);
   const friendsListWithStatus = [];
   friendsList.map((friend) => {
-    var friendStatus = { username: '', avatar: '', status: '', publicKey: '' };
-    if (onlineFriends.includes(friend.username)) {
-      friendStatus = {
-        username: friend.username,
-        avatar: friend.avatar,
-        publicKey: friend.publicKey,
-        status: 'online',
-      };
-    } else {
-      friendStatus = {
-        username: friend.username,
-        avatar: friend.avatar,
-        publicKey: friend.publicKey,
-        status: 'offline',
-      };
-    }
+    const friendStatus = {
+      ...friend,
+      status: onlineFriends.includes(friend.username) ? 'online' : 'offline',
+    };
     friendsListWithStatus.push(friendStatus);
   });
   friendsListWithStatus.sort((a) => {
