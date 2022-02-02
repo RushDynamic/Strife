@@ -93,7 +93,9 @@ function Login() {
   return (
     <>
       <video
-        onContextMenu="return false;"
+        onContextMenu={() => {
+          return false;
+        }}
         src="http://localhost:3000/media/bgclips/clip1_mop_guy.mp4"
         muted
         loop
