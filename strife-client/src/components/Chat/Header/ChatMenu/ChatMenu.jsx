@@ -14,12 +14,12 @@ import {
   Tabs,
   Tab,
   Tooltip,
-} from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
-import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import FaceIcon from '@material-ui/icons/Face';
-import Paper from '@material-ui/core/Paper';
+} from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import FaceIcon from '@mui/icons-material/Face';
+import Paper from '@mui/material/Paper';
 import JoinRoom from './RoomsMenu/JoinRoom.jsx';
 import CreateRoom from './RoomsMenu/CreateRoom.jsx';
 import EditAvatar from './EditProfileMenu/EditAvatar.jsx';

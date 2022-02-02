@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { UserContext } from '../../../UserContext';
 import chatStyles from '../../styles/chat-styles';
 

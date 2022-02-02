@@ -6,8 +6,8 @@ import { UserContext } from '../UserContext.js';
 import Login from '../components/Login.jsx';
 import Register from './Register.jsx';
 import Chat from '../components/Chat/Chat.jsx';
-import { CssBaseline } from '@material-ui/core';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { CssBaseline, adaptV4Theme } from '@mui/material';
+import { createTheme, ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
 function App() {
   const [user, setUser] = useState({
@@ -15,9 +15,9 @@ function App() {
     avatarUrl: null,
     accessToken: null,
   });
-  const darkTheme = createMuiTheme({
+  const darkTheme = createTheme(adaptV4Theme({
     palette: {
-      type: 'dark',
+      mode: 'dark',
       primary: {
         main: '#1fd1f9',
       },
@@ -33,24 +33,26 @@ function App() {
         secondary: '#a8a8a8',
       },
     },
-  });
+  }));
 
   return (
     <Router>
-      <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
-        <Provider store={store}>
-          <div className="App">
-            <UserContext.Provider value={{ user, setUser }}>
-              <Switch>
-                <Route path="/" exact component={Chat} />
-                <Route path="/login" component={Login} />
-                <Route path="/register" component={Register} />
-              </Switch>
-            </UserContext.Provider>
-          </div>
-        </Provider>
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
+          <Provider store={store}>
+            <div className="App">
+              <UserContext.Provider value={{ user, setUser }}>
+                <Switch>
+                  <Route path="/" exact component={Chat} />
+                  <Route path="/login" component={Login} />
+                  <Route path="/register" component={Register} />
+                </Switch>
+              </UserContext.Provider>
+            </div>
+          </Provider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </Router>
   );
 }

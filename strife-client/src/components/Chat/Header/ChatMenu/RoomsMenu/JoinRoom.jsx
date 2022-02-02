@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Typography } from '@material-ui/core';
+import { TextField, Typography } from '@mui/material';
 
 function JoinRoom(props) {
   return (

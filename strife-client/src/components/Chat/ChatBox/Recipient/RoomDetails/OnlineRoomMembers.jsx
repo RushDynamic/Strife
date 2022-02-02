@@ -7,9 +7,9 @@ import {
   List,
   ListItem,
   ListItemText,
-} from '@material-ui/core';
+} from '@mui/material';
 import MemberName from './MemberName.jsx';
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 export default function OnlineRoomMembers(props) {
   const classes = chatStyles();

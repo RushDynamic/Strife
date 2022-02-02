@@ -9,17 +9,17 @@ import {
   CardContent,
   CardHeader,
   Snackbar,
-} from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+} from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 import useStyles from './styles/login-styles.js';
 import { registerUser } from '../services/registration-service.js';
 import { checkLoggedIn } from '../services/login-service.js';
 import * as cryptoService from '../services/crypto-service.js';
 import { UserContext } from '../UserContext.js';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function Register() {
   const classes = useStyles();

@@ -6,9 +6,9 @@ import {
   ListItemIcon,
   ListItemAvatar,
   Paper,
-} from '@material-ui/core';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
+} from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import useStyles from '../../styles/chat-styles.js';
 
 function OnlineUsers(props) {
