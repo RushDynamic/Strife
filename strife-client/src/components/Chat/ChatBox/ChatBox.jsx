@@ -6,7 +6,6 @@ import CreateMessage from './CreateMessage.jsx';
 import MessageBox from './MessageBox.jsx';
 import Announcement from '../Announcement.jsx';
 import TalkingTo from './Recipient/TalkingTo.jsx';
-import PhoneBox from './Recipient/PhoneBox.jsx';
 import OnlineRoomMembers from './Recipient/RoomDetails/OnlineRoomMembers.jsx';
 import changeRecipient from '../../../actions/recipient-actions.js';
 

@@ -15,7 +15,6 @@ import ChatBox from './ChatBox/ChatBox.jsx';
 import LandingChatBox from './ChatBox/LandingChatBox.jsx';
 import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
-import changeRecipient from '../../actions/recipient-actions.js';
 import changeCallData from '../../actions/call-data-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
