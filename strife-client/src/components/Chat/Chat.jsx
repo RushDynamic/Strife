@@ -59,7 +59,10 @@ export default function Chat() {
 
   useEffect(() => {
     (async function () {
-      const isUserLoggedIn = await checkLoggedIn();
+      let isUserLoggedIn = { ...user };
+      if (!user.privateKey) {
+        isUserLoggedIn = await checkLoggedIn();
+      }
       console.log('isUserLoggedIn: ', isUserLoggedIn);
       if (
         isUserLoggedIn.username != null &&

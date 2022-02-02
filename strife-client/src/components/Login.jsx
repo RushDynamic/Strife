@@ -39,10 +39,7 @@ function Login() {
         isUserLoggedIn.username.length !== 0
       ) {
         console.log("You're logged in!");
-        setUser({
-          username: isUserLoggedIn.username,
-          accessToken: isUserLoggedIn.accessToken,
-        });
+        setUser({ ...isUserLoggedIn });
         history.push('/');
       } else {
         console.log("You're NOT logged in!");
