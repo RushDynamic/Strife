@@ -7,7 +7,7 @@ function Avatar(props) {
     <>
       <img
         alt="avatar_online"
-        src={props.avatarUrl}
+        src={`https://strife-playground.s3.ap-south-1.amazonaws.com/${props.avatarUrl}`}
         style={props.online ? onlineStyle : offlineStyle}
         height="25px"
         width="25px"

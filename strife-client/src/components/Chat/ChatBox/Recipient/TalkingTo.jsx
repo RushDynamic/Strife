@@ -15,7 +15,7 @@ export default function TalkingTo(props) {
         alt="user_avatar"
         hidden={props.recipient.isRoom}
         className={classes.expandFastOnHover}
-        src={props.recipient.avatar}
+        src={`https://strife-playground.s3.ap-south-1.amazonaws.com/${props.recipient.avatar}`}
         // TODO: replace URL string with constant
         onError={({ target }) => {
           target.onerror = null;

@@ -46,9 +46,17 @@ function EditAvatar(props) {
             <img
               alt="avatar_preview"
               className={classes.expandFastOnHover}
-              src={imagePath}
+              src={
+                imagePath.includes('blob')
+                  ? imagePath
+                  : `https://strife-playground.s3.ap-south-1.amazonaws.com/${imagePath}`
+              }
               height="100px"
               width="100px"
+              onError={({ target }) => {
+                target.onerror = null;
+                target.src = 'http://localhost:3001/images/default_avatar.jpg';
+              }}
               style={{ borderRadius: '50%' }}
             />
           )}
