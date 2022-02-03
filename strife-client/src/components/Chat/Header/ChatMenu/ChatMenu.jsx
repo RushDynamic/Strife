@@ -28,9 +28,9 @@ import { UserContext } from '../../../../UserContext.js';
 import { addFriend } from '../../../../services/friend-service.js';
 import { editAvatar } from '../../../../services/profile-service.js';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function ChatMenu(props) {
   const { user, setUser } = useContext(UserContext);
