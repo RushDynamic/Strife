@@ -13,7 +13,7 @@ import NoFriends from './NoFriends.jsx';
 import FriendButtons from './FriendButtons.jsx';
 import useStyles from '../../../styles/chat-styles.js';
 import Avatar from '../../Avatar.jsx';
-import { deepCompare } from '../../../../utils/array-utils.js';
+import { deepCompare } from '../../../../utils/utils.js';
 function FriendsList(props) {
   const classes = useStyles();
   //const recipient = useSelector(state => state.recipient);
@@ -107,7 +107,6 @@ function FriendsList(props) {
   );
 }
 
-// export default React.memo(FriendsList, (prevProps, curProps) =>
-//   deepCompare(prevProps.friendsList, curProps.friendsList),
-// );
-export default FriendsList;
+export default React.memo(FriendsList, (prevProps, curProps) =>
+  deepCompare(prevProps.friendsList, curProps.friendsList),
+);
