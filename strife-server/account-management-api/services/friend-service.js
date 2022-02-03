@@ -41,12 +41,7 @@ export async function addFriend(username, friendUsername) {
         (friend) => friend.username === friendUsername,
       )
     ) {
-      const newFriend = {
-        username: targetUserAccount.username,
-        avatar: targetUserAccount.avatar,
-        publicKey: JSON.parse(targetUserAccount.encodedKeyPair).publicKey,
-      };
-      currentUserFriend.friends.push(newFriend);
+      currentUserFriend.friends.push(targetUserAccount);
       await currentUserFriend.save();
       console.log('Successfully added friend for user:', username);
 
@@ -54,11 +49,6 @@ export async function addFriend(username, friendUsername) {
       const currentUserAccount = accountObjList.filter(
         (account) => account.username === username,
       )[0];
-      newFriend.username = currentUserAccount.username;
-      newFriend.avatar = currentUserAccount.avatar;
-      newFriend.publicKey = JSON.parse(
-        currentUserAccount.encodedKeyPair,
-      ).publicKey;
       var targetUserFriend = friendObjList.filter(
         (account) => account.username === friendUsername,
       )[0];
@@ -68,7 +58,7 @@ export async function addFriend(username, friendUsername) {
           friends: [],
         });
       }
-      targetUserFriend.friends.push(newFriend);
+      targetUserFriend.friends.push(currentUserAccount);
       await targetUserFriend.save();
       console.log('Successfully added friend for user:', friendUsername);
       return { success: true };
@@ -89,8 +79,15 @@ export async function fetchFriends(username) {
     }
     const currentAcc = await Friend.findOne({
       username: username,
+    }).populate('friends');
+    const friends = currentAcc.friends.map((friend) => {
+      return {
+        username: friend.username,
+        avatar: friend.avatar,
+        publicKey: JSON.parse(friend.encodedKeyPair).publicKey,
+      };
     });
-    return { success: true, friendsList: currentAcc.friends };
+    return { success: true, friendsList: friends };
   } catch (ex) {
     console.log('An error occurred while fetching friends:', ex.toString());
     return { success: false, friendsList: [] };
