@@ -47,7 +47,7 @@ function EditAvatar(props) {
               alt="avatar_preview"
               className={classes.expandFastOnHover}
               src={
-                imagePath.includes('blob')
+                imagePath?.includes('blob')
                   ? imagePath
                   : `https://strife-playground.s3.ap-south-1.amazonaws.com/${imagePath}`
               }
