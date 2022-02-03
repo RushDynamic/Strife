@@ -18,6 +18,7 @@ export async function registerUser(currentUserData) {
     return {
       username: registrationData.username,
       accessToken: registrationData.accessToken,
+      avatar: registrationData.avatar,
     };
   }
   return { success: false, duplicate: registrationData.duplicate };

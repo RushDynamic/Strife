@@ -21,6 +21,7 @@ export async function handleUserRegistration(req, res) {
         success: true,
         username: registrationResponse.user.username,
         accessToken: registrationResponse.user.accessToken, // send generated access token here
+        avatar: registrationResponse.user.avatar,
       });
     }
     if (

@@ -16,6 +16,9 @@ export async function registerUser(userInfo) {
       username: userInfo.username,
       password: hashedPassword,
       encodedKeyPair: JSON.stringify(userInfo.encodedKeyPair),
+      avatar: `avatars/default/default${Math.floor(
+        Math.random() * 22 + 1,
+      )}.png`,
     });
 
     const savedUser = await newAccount.save();
@@ -23,6 +26,7 @@ export async function registerUser(userInfo) {
     const authTokenData = await generateAll(userInfo.username);
     const user = {
       username: savedUser.username,
+      avatar: savedUser.avatar,
       accessToken: authTokenData.accessToken,
       refreshToken: authTokenData.refreshToken,
     };
