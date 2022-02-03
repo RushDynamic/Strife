@@ -189,6 +189,7 @@ function ChatMenu(props) {
             onChange={(event) => setFriendUsername(event.target.value)}
             onKeyDown={handleAddFriendOnKeyDown}
             fullWidth
+            variant="standard"
             autoFocus={true}
           />
         </DialogContent>

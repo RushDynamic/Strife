@@ -15,10 +15,9 @@ export async function addFriend(username, friendUsername) {
       { username: friendUsername },
       { username: username },
     ]);
-    const friendObjList = await Friend.find().or([
-      { username: friendUsername },
-      { username: username },
-    ]);
+    const friendObjList = await Friend.find()
+      .populate('friends')
+      .or([{ username: friendUsername }, { username: username }]);
 
     const targetUserAccount = accountObjList.filter(
       (account) => account.username === friendUsername,
