@@ -46,8 +46,7 @@ function Register() {
       ) {
         console.log("You're logged in!");
         setUser({
-          username: isUserLoggedIn.username,
-          accessToken: isUserLoggedIn.accessToken,
+          ...isUserLoggedIn,
         });
         history.push('/');
       } else {
@@ -71,6 +70,7 @@ function Register() {
     );
     return {
       publicKey: publicKeyBase64,
+      privateKey: privateKeyBase64,
       encryptedPrivateKey: encryptedPrivateKey.encInputWithNonceBase64,
       secureStorageKey: encryptedPrivateKey.secureStoragekeyBase64,
       encryptedSecureStorageKey: encryptedSecureStorageKey,
@@ -105,6 +105,8 @@ function Register() {
       setUser({
         username: registrationResult.username,
         accessToken: registrationResult.accessToken,
+        publicKey: keyPairData.publicKey,
+        privateKey: keyPairData.privateKey,
       });
       // redirect to homepage
       history.push('/');
