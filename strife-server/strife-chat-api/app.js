@@ -19,34 +19,27 @@ io.on('connect', (socket) => {
   socket.on('username', (username) => {
     if (onlineUsersMap.has(username)) {
       socket.emit('chat-already-open');
-    } else {
-      updateOnlineUsers({ addUser: true }, username, socket.id);
-      socket.broadcast.emit(
-        'update-user-status',
-        Array.from(onlineUsersMap.keys()),
-      );
-      // console.log("Online Users: ", onlineUsersMap);
-      socket.username = username;
-      const newUserAnnouncementMsg = `User ${username} has joined`;
-      //socket.broadcast.emit('system-msg', newUserAnnouncementMsg)
-
-      // Send friends list
-      fetchFriendsList(username)
-        .then((friends) => {
-          const onlineFriends = prepareFriendsList(friends.friendsList);
-          socket.emit('friends-list', onlineFriends);
-        })
-        .catch((err) =>
-          console.log('An error occurred while sending friends list', err),
-        );
-
-      // Send user's roomslist
-      socket.emit(
-        'rooms-list',
-        userRoomsMap.get(username),
-        onlineRoomsMap.size,
-      );
+      return;
     }
+    updateOnlineUsers({ addUser: true }, username, socket.id);
+    socket.broadcast.emit(
+      'update-user-status',
+      Array.from(onlineUsersMap.keys()),
+    );
+    socket.username = username;
+
+    // Send friends list
+    fetchFriendsList(username)
+      .then((friends) => {
+        const onlineFriends = prepareFriendsList(friends.friendsList);
+        socket.emit('friends-list', onlineFriends);
+      })
+      .catch((err) =>
+        console.log('An error occurred while sending friends list', err),
+      );
+
+    // Send user's roomslist
+    socket.emit('rooms-list', userRoomsMap.get(username), onlineRoomsMap.size);
   });
 
   console.log('New connection ', socket.id);
@@ -57,15 +50,13 @@ io.on('connect', (socket) => {
     };
 
     // Check if recipient is a room
-    if (msgData.isRoom) {
-      // Send to all users in room
-      socket.to(msgData.recipientUsername).emit('echo-msg', newMsg);
-    } else {
-      // Send message to only a particular user
-      socket
-        .to(onlineUsersMap.get(msgData.recipientUsername))
-        .emit('echo-msg', newMsg);
-    }
+    socket
+      .to(
+        msgData.isRoom
+          ? msgData.recipientUsername
+          : onlineUsersMap.get(msgData.recipientUsername),
+      )
+      .emit('echo-msg', newMsg);
     console.log(
       `${msgData.senderUsername} says: "${msgData.message}" to ${msgData.recipientUsername}`,
     );
@@ -320,12 +311,13 @@ function updateMsgList(newMsg) {
 }
 
 function updateOnlineUsers(operation, username, socketid) {
-  if (operation.addUser == true) {
-    onlineUsersMap.set(username, socketid);
-  }
-
-  if (operation.removeUser == true) {
-    onlineUsersMap.delete(username);
+  switch (true) {
+    case operation.addUser:
+      onlineUsersMap.set(username, socketid);
+      break;
+    case operation.removeUser:
+      onlineUsersMap.delete(username);
+      break;
   }
 }
 
