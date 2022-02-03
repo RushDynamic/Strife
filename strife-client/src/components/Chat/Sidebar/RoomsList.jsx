@@ -87,6 +87,7 @@ function RoomsList(props) {
                     style={{
                       fontVariant: 'small-caps',
                       fontFamily: "'Syne', sans-serif",
+                      letterSpacing: '2px',
                     }}
                   >
                     {'online: ' + props.onlineRoomsCount}

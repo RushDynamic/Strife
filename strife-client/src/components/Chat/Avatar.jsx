@@ -14,7 +14,7 @@ function Avatar(props) {
         // TODO: replace URL string with constant
         onError={({ target }) => {
           target.onerror = null;
-          target.src = 'http://localhost:3001/images/default_avatar.jpg';
+          target.src = `https://strife-playground.s3.ap-south-1.amazonaws.com/avatars/default/default1.png`;
         }}
       />
     </>
