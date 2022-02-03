@@ -107,6 +107,7 @@ function FriendsList(props) {
   );
 }
 
-export default React.memo(FriendsList, (prevProps, curProps) =>
-  deepCompare(prevProps.friendsList, curProps.friendsList),
-);
+// export default React.memo(FriendsList, (prevProps, curProps) =>
+//   deepCompare(prevProps.friendsList, curProps.friendsList),
+// );
+export default FriendsList;
