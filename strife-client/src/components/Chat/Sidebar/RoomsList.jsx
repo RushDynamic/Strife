@@ -13,8 +13,7 @@ import {
   Typography,
   Badge,
 } from '@mui/material';
-import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
-import ChatIcon from '@mui/icons-material/Chat';
+import { BsFillChatSquareFill, BsFillChatSquareTextFill } from 'react-icons/bs';
 import PeopleIcon from '@mui/icons-material/People';
 import useStyles from '../../styles/chat-styles.js';
 
@@ -39,9 +38,9 @@ function RoomsList(props) {
     if (unseenMsgUserList.includes(roomname)) {
       return (
         <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
-          <IconButton size="large">
+          <IconButton>
             <Badge color="primary" variant="dot">
-              <ChatIcon />
+              <BsFillChatSquareTextFill fontSize="large" />
             </Badge>
           </IconButton>
         </ListItemIcon>
@@ -49,8 +48,8 @@ function RoomsList(props) {
     }
     return (
       <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
-        <IconButton size="large">
-          <ChatBubbleIcon />
+        <IconButton>
+          <BsFillChatSquareFill fontSize="large" />
         </IconButton>
       </ListItemIcon>
     );
