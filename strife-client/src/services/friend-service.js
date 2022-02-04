@@ -1,6 +1,6 @@
 export async function addFriend(username, friendUsername, setAddFriendStatus) {
   console.log(username, friendUsername);
-  const addFriendResponse = await fetch('http://localhost:3001/friend/add', {
+  const addFriendResponse = await fetch('http://am-api:3001/friend/add', {
     method: 'POST',
     body: JSON.stringify({
       username: username,

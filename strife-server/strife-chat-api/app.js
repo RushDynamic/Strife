@@ -2,7 +2,7 @@ const accountMgmtApiClient = require('./clients/account-management-api-client.js
 
 const io = require('socket.io')(5000, {
   cors: {
-    origin: ['http://localhost:3000'],
+    origin: ['http://sc-client:3000'],
   },
 });
 

@@ -116,7 +116,7 @@ function Register() {
   return (
     <>
       <video
-        src="http://localhost:3000/media/bgclips/clip1_mop_guy.mp4"
+        src="http://sc-client:3000/media/bgclips/clip1_mop_guy.mp4"
         muted
         loop
         autoPlay={true}

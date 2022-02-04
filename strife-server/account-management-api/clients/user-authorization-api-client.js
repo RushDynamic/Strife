@@ -34,7 +34,7 @@ export async function generateRefreshToken(username) {
 
 export async function generateAll(name) {
   const generateAllResponse = await fetch(
-    'http://localhost:3002/auth/generate/all',
+    'http://ua-api:3002/auth/generate/all',
     {
       method: 'POST',
       body: JSON.stringify({
@@ -49,7 +49,7 @@ export async function generateAll(name) {
 
 export async function validateAccessToken(accessToken) {
   const validateAccessTokenResponse = await fetch(
-    'http://localhost:3002/auth/verify/access',
+    'http://ua-api:3002/auth/verify/access',
     {
       method: 'POST',
       body: JSON.stringify({
@@ -65,7 +65,7 @@ export async function validateAccessToken(accessToken) {
 
 export async function validateRefreshToken(refreshToken) {
   const validateRefreshTokenResponse = await fetch(
-    'http://localhost:3002/auth/verify/refresh',
+    'http://ua-api:3002/auth/verify/refresh',
     {
       method: 'POST',
       body: JSON.stringify({

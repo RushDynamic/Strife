@@ -72,7 +72,7 @@ export default function Chat() {
         setUser({ ...isUserLoggedIn });
         privateKey = isUserLoggedIn.privateKey;
         // If the user is logged in, setup the socket connection
-        socket.current = io.connect('http://localhost:5000');
+        socket.current = io.connect('http://sc-api:5000');
         socket.current.on('connect', () => {
           // Send username to server
           socket.current.emit('username', isUserLoggedIn.username);
