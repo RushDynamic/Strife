@@ -4,7 +4,7 @@ export async function generateAccessToken(username) {
   // TODO: Replace URLs with constants
   // TODO: Exception handling
   const generateAccessTokenResponse = await fetch(
-    'http://localhost:3002/auth/generate/access',
+    'http://ua-api:3002/auth/generate/access',
     {
       method: 'POST',
       body: JSON.stringify({
@@ -19,7 +19,7 @@ export async function generateAccessToken(username) {
 
 export async function generateRefreshToken(username) {
   const generateRefreshTokenResponse = await fetch(
-    'http://localhost:3002/auth/generate/refresh',
+    'http://ua-api:3002/auth/generate/refresh',
     {
       method: 'POST',
       body: JSON.stringify({

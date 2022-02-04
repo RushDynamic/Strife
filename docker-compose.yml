@@ -7,7 +7,6 @@ services:
     build:
       context: './strife-server/account-management-api'
       dockerfile: './Dockerfile'
-    image: 'am-api'
     ports:
       - '3001:3001'
   ua-api:
@@ -16,7 +15,6 @@ services:
     build:
       context: './strife-server/user-authorization-api'
       dockerfile: './Dockerfile'
-    image: 'ua-api'
     ports:
       - '3002:3002'
   sc-api:
@@ -24,7 +22,6 @@ services:
     build:
       context: './strife-server/strife-chat-api'
       dockerfile: './Dockerfile'
-    image: 'sc-api'
     ports:
       - '5000:5000'
   sc-client:
@@ -32,7 +29,6 @@ services:
     build:
       context: './strife-client/'
       dockerfile: './Dockerfile'
-    image: 'sc-client'
     ports:
       - '3000:3000'
     depends_on:
