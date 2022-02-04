@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  am-api:
+    container_name: am-api
+    env_file: './strife-server/account-management-api/.env'
+    build:
+      context: './strife-server/account-management-api'
+      dockerfile: './Dockerfile'
+    image: 'am-api'
+    ports:
+      - '3001:3001'
+  ua-api:
+    container_name: ua-api
+    env_file: './strife-server/user-authorization-api/.env'
+    build:
+      context: './strife-server/user-authorization-api'
+      dockerfile: './Dockerfile'
+    image: 'ua-api'
+    ports:
+      - '3002:3002'
+  sc-api:
+    container_name: sc-api
+    build:
+      context: './strife-server/strife-chat-api'
+      dockerfile: './Dockerfile'
+    image: 'sc-api'
+    ports:
+      - '5000:5000'
+  sc-client:
+    container_name: sc-client
+    build:
+      context: './strife-client/'
+      dockerfile: './Dockerfile'
+    image: 'sc-client'
+    ports:
+      - '3000:3000'
+    depends_on:
+      - am-api
+      - ua-api
+      - sc-api
