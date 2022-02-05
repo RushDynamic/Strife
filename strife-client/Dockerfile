@@ -18,7 +18,9 @@ EXPOSE 80
 
 #certbot SSL
 RUN apk update && \
-    apk add --virtual certbot python3-certbot-nginx
+    apk add python3 python3-dev py3-pip build-base libressl-dev musl-dev libffi-dev rust cargo
+RUN pip3 install pip --upgrade
+RUN pip3 install certbot-nginx
 RUN certbot certonly --webroot --webroot-path=/var/www/strife/html --email rushdynamic1ms@gmail.com --agree-tos --no-eff-email -d strife.chat
 EXPOSE 80 443
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
