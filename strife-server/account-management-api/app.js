@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   cors({
     credentials: true,
-    origin: ['http://sc-client:3000', 'http://localhost:3000'],
+    origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
   }),
 );
 //app.use(express.json());
