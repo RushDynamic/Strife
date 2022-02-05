@@ -17,7 +17,8 @@ COPY nginx.conf /etc/nginx/conf.d
 EXPOSE 80
 
 #certbot SSL
-RUN apt install certbot python3-certbot-nginx
+RUN apk update && \
+    apk add --virtual certbot python3-certbot-nginx
 RUN certbot certonly --webroot --webroot-path=/var/www/strife/html --email rushdynamic1ms@gmail.com --agree-tos --no-eff-email -d strife.chat
 EXPOSE 80 443
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
