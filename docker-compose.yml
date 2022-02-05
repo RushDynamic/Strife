@@ -19,6 +19,7 @@ services:
       - '3002:3002'
   sc-api:
     container_name: sc-api
+    env_file: './strife-server/strife-chat-api/.env'
     build:
       context: './strife-server/strife-chat-api'
       dockerfile: './Dockerfile'
@@ -31,7 +32,7 @@ services:
       context: './strife-client/'
       dockerfile: './Dockerfile'
     ports:
-      - '3000:3000'
+      - '80:80'
     depends_on:
       - am-api
       - ua-api
