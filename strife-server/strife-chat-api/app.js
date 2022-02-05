@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+require('dotenv').config();
 const accountMgmtApiClient = require('./clients/account-management-api-client.js');
 
 const io = require('socket.io')(5000, {
