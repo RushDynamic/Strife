@@ -1,16 +1,19 @@
 export async function addFriend(username, friendUsername, setAddFriendStatus) {
   console.log(username, friendUsername);
-  const addFriendResponse = await fetch('http://localhost:3001/friend/add', {
-    method: 'POST',
-    body: JSON.stringify({
-      username: username,
-      friendUsername: friendUsername,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
+  const addFriendResponse = await fetch(
+    `${process.env.REACT_APP_AM_API_URL}/friend/add`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        username: username,
+        friendUsername: friendUsername,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
     },
-    credentials: 'include',
-  });
+  );
   const addFriendResult = await addFriendResponse.json();
   console.log(addFriendResult);
   if (addFriendResult.success === true) {

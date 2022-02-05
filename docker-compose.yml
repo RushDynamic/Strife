@@ -26,6 +26,7 @@ services:
       - '5000:5000'
   sc-client:
     container_name: sc-client
+    env_file: './strife-client/.env'
     build:
       context: './strife-client/'
       dockerfile: './Dockerfile'
