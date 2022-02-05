@@ -1,15 +1,18 @@
 import * as cryptoService from './crypto-service.js';
 
 export async function loginUser(currentUserData, setUser) {
-  const loginResponse = await fetch('http://localhost:3001/account/login', {
-    method: 'POST',
-    body: JSON.stringify({
-      username: currentUserData.username,
-      password: currentUserData.password,
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+  const loginResponse = await fetch(
+    `${process.env.REACT_APP_AM_API_URL}/account/login`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        username: currentUserData.username,
+        password: currentUserData.password,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    },
+  );
   return await loginResponse.json();
 }
 
@@ -19,7 +22,7 @@ export async function checkLoggedIn() {
     return { username: null };
   }
   const loggedInResponse = await fetch(
-    'http://localhost:3001/account/logged_in',
+    `${process.env.REACT_APP_AM_API_URL}/account/logged_in`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

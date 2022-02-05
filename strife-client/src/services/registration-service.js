@@ -1,6 +1,6 @@
 export async function registerUser(currentUserData) {
   const registrationResponse = await fetch(
-    'http://localhost:3001/account/register',
+    `${process.env.REACT_APP_AM_API_URL}/account/register`,
     {
       method: 'POST',
       body: JSON.stringify({

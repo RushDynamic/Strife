@@ -28,7 +28,12 @@ mongoose
     console.log(`Error occured during app startup: ${err}`);
   });
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
+  }),
+);
 //app.use(express.json());
 
 app.use(cookieParser());

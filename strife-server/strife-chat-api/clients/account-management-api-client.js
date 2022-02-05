@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 module.exports = {
   fetchFriendsList: async function (username) {
     const fetchFriendsListResponse = await fetch(
-      'http://localhost:3001/friend/fetch',
+      'http://am-api:3001/friend/fetch',
       {
         method: 'POST',
         headers: {

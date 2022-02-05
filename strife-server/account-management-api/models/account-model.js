@@ -10,7 +10,9 @@ const accountSchema = new Schema(
     avatar: {
       type: String,
       required: false,
-      default: 'http://localhost:3001/images/default_avatar.jpg',
+      default: `avatars/default/default${Math.floor(
+        Math.random() * 22 + 1,
+      )}.png`,
     },
   },
   {
