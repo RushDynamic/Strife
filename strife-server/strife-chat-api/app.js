@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 const accountMgmtApiClient = require('./clients/account-management-api-client.js');
 
 const io = require('socket.io')(5000, {
   cors: {
-    origin: ['http://sc-client:3000', 'http://localhost:3000'],
+    origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
   },
 });
 
