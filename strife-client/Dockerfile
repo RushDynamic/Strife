@@ -9,18 +9,10 @@ FROM nginx:alpine
 RUN apk add --no-cache bash
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
-WORKDIR /var/www/strife/html
+WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=builder /app/build/ .
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d
 EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
-
-#certbot SSL
-RUN apk update && \
-    apk add python3 python3-dev py3-pip build-base libressl-dev musl-dev libffi-dev rust cargo
-RUN pip3 install pip --upgrade
-RUN pip3 install certbot-nginx
-RUN certbot certonly --webroot --webroot-path=/var/www/strife/html --email rushdynamic1ms@gmail.com --agree-tos --no-eff-email -d strife.chat
-EXPOSE 443
