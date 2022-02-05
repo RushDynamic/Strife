@@ -15,6 +15,7 @@ COPY --from=builder /app/build/ .
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d
 EXPOSE 80
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
 #certbot SSL
 RUN apk update && \
@@ -22,5 +23,4 @@ RUN apk update && \
 RUN pip3 install pip --upgrade
 RUN pip3 install certbot-nginx
 RUN certbot certonly --webroot --webroot-path=/var/www/strife/html --email rushdynamic1ms@gmail.com --agree-tos --no-eff-email -d strife.chat
-EXPOSE 80 443
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+EXPOSE 443
