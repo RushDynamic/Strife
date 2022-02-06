@@ -12,7 +12,7 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 COPY --from=builder /app/build/ .
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d
+RUN rm /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
