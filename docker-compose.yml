@@ -33,6 +33,9 @@ services:
       dockerfile: './Dockerfile'
     ports:
       - '80:80'
+      - '443:443'
+    volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
     depends_on:
       - am-api
       - ua-api
