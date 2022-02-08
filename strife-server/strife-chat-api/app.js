@@ -154,6 +154,9 @@ io.on('connect', (socket) => {
       Array.from(onlineUsersMap.keys()),
     );
   });
+}).catch((err) => {
+  console.log('Socket.IO Error');
+  console.log(err);
 });
 
 function sendUpdatedFriendsList(usernameList, socket) {
