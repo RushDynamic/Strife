@@ -72,14 +72,22 @@ export default function Chat() {
         setUser({ ...isUserLoggedIn });
         privateKey = isUserLoggedIn.privateKey;
         // If the user is logged in, setup the socket connection
-        socket.current = io.connect(process.env.REACT_APP_SC_API_URL, {
-          path: '/socket.io',
-        });
+        socket.current = io.connect(process.env.REACT_APP_SC_API_URL);
         socket.current.on('connect', () => {
           // Send username to server
           socket.current.emit('username', isUserLoggedIn.username);
           setLoadingStages((oldList) => [...oldList, 'socketConnected']);
           socketConnected.current = true;
+        });
+
+        socket.current.on('error', (err) => {
+          console.log('Socket.IO Error');
+          console.log(err);
+        });
+
+        socket.current.on('connect_failed', () => {
+          console.log('Socket.IO Error');
+          console.log('connect_failed handler invoked');
         });
 
         // Receive new messages from the server
