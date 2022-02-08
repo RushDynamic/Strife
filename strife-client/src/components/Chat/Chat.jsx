@@ -72,7 +72,9 @@ export default function Chat() {
         setUser({ ...isUserLoggedIn });
         privateKey = isUserLoggedIn.privateKey;
         // If the user is logged in, setup the socket connection
-        socket.current = io.connect(process.env.REACT_APP_SC_API_URL);
+        socket.current = io.connect(process.env.REACT_APP_SC_API_URL, {
+          path: '/socket.io',
+        });
         socket.current.on('connect', () => {
           // Send username to server
           socket.current.emit('username', isUserLoggedIn.username);
