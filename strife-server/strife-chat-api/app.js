@@ -17,6 +17,16 @@ var messagesMap = new Map();
 // io.emit
 // socket.broadcast.emit
 io.on('connect', (socket) => {
+  socket.on('error', function (err) {
+    console.log('Socket.IO Error');
+    console.log(err);
+  });
+
+  socket.on('connect_failed', function () {
+    console.log('Socket.IO Error');
+    console.log('connect_failed handler invoked');
+  });
+
   socket.on('username', (username) => {
     if (onlineUsersMap.has(username)) {
       socket.emit('chat-already-open');
