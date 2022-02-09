@@ -1,10 +1,12 @@
 import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export async function generateAccessToken(username) {
   // TODO: Replace URLs with constants
   // TODO: Exception handling
   const generateAccessTokenResponse = await fetch(
-    'http://ua-api:3002/auth/generate/access',
+    `${process.env.UA_API_URL}/auth/generate/access`,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -19,7 +21,7 @@ export async function generateAccessToken(username) {
 
 export async function generateRefreshToken(username) {
   const generateRefreshTokenResponse = await fetch(
-    'http://ua-api:3002/auth/generate/refresh',
+    `${process.env.UA_API_URL}/auth/generate/refresh`,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -34,7 +36,7 @@ export async function generateRefreshToken(username) {
 
 export async function generateAll(name) {
   const generateAllResponse = await fetch(
-    'http://ua-api:3002/auth/generate/all',
+    `${process.env.UA_API_URL}/auth/generate/all`,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -49,7 +51,7 @@ export async function generateAll(name) {
 
 export async function validateAccessToken(accessToken) {
   const validateAccessTokenResponse = await fetch(
-    'http://ua-api:3002/auth/verify/access',
+    `${process.env.UA_API_URL}/auth/verify/access`,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -65,7 +67,7 @@ export async function validateAccessToken(accessToken) {
 
 export async function validateRefreshToken(refreshToken) {
   const validateRefreshTokenResponse = await fetch(
-    'http://ua-api:3002/auth/verify/refresh',
+    `${process.env.UA_API_URL}/auth/verify/refresh`,
     {
       method: 'POST',
       body: JSON.stringify({
