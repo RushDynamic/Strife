@@ -27,10 +27,12 @@ export default function Header(props) {
           {constants.APP_VERSION}
         </Typography>
         {/* TODO: Add login/logout/control buttons under the header */}
-        <ChatMenu
-          requestFriendsList={props.requestFriendsList}
-          manageRooms={props.manageRooms}
-        />
+        {props.loaded && (
+          <ChatMenu
+            requestFriendsList={props.requestFriendsList}
+            manageRooms={props.manageRooms}
+          />
+        )}
       </div>
     </>
   );

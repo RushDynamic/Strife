@@ -487,6 +487,7 @@ export default function Chat() {
           <Header
             requestFriendsList={requestFriendsList}
             manageRooms={manageRooms}
+            loaded={loaded}
           />
         </Grid>
         {loaded ? (
