@@ -10,6 +10,7 @@ import {
   CardHeader,
   Snackbar,
 } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import MuiAlert from '@mui/material/Alert';
 import useStyles from './styles/login-styles.js';
 import { registerUser } from '../services/registration-service.js';
@@ -30,6 +31,7 @@ function Register() {
     encodedKeyPair: null,
   });
   const { setUser } = useContext(UserContext);
+  const [fetchingData, setFetchingData] = useState(false);
   const [showRegistrationFailure, setShowRegistrationFailure] = useState({
     showError: false,
     msg: 'Could not register your account, please try again later!',
@@ -38,6 +40,7 @@ function Register() {
 
   useEffect(() => {
     (async function () {
+      setFetchingData(true);
       const isUserLoggedIn = await checkLoggedIn();
       console.log('isUserLoggedIn: ', isUserLoggedIn);
       if (
@@ -53,6 +56,7 @@ function Register() {
         console.log("You're NOT logged in!");
         setUser({ username: null, accessToken: null });
       }
+      setFetchingData(false);
     })();
   }, []);
 
@@ -78,6 +82,7 @@ function Register() {
   };
 
   async function handleRegisterBtnClick() {
+    setFetchingData(true);
     const keyPairData = generateKeyPair(currentUserData.password);
     // Store raw Secure Storage Key in local storage
     localStorage.setItem('secureStorageKey', keyPairData.secureStorageKey);
@@ -111,6 +116,7 @@ function Register() {
       // redirect to homepage
       history.push('/');
     }
+    setFetchingData(false);
   }
 
   return (
@@ -222,14 +228,15 @@ function Register() {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <Button
+                    <LoadingButton
+                      loading={fetchingData}
                       variant="contained"
                       color="primary"
                       style={{ width: '80%', marginRight: '1vh' }}
                       onClick={() => handleRegisterBtnClick()}
                     >
                       Register
-                    </Button>
+                    </LoadingButton>
                     <Button
                       variant="outlined"
                       color="primary"
@@ -245,9 +252,15 @@ function Register() {
           </Card>
         </div>
         <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           open={showRegistrationFailure.showError}
           autoHideDuration={3000}
-          onClose={() => setShowRegistrationFailure(false)}
+          onClose={() =>
+            setShowRegistrationFailure({
+              ...showRegistrationFailure,
+              showError: false,
+            })
+          }
         >
           <Alert severity="error">{showRegistrationFailure.msg}</Alert>
         </Snackbar>
