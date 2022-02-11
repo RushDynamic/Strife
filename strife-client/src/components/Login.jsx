@@ -101,7 +101,7 @@ function Login() {
         onContextMenu={() => {
           return false;
         }}
-        src={`${process.env.REACT_APP_CLIENT_URL}/media/bgclips/clip1_mop_guy.mp4`}
+        src={`${process.env.REACT_APP_S3_BUCKET_URL}/static/bgclips/clip1_mop_guy.mp4`}
         muted
         loop
         autoPlay={true}

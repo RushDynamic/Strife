@@ -122,7 +122,10 @@ function Register() {
   return (
     <>
       <video
-        src={`${process.env.REACT_APP_CLIENT_URL}/media/bgclips/clip1_mop_guy.mp4`}
+        onContextMenu={() => {
+          return false;
+        }}
+        src={`${process.env.REACT_APP_S3_BUCKET_URL}/static/bgclips/clip1_mop_guy.mp4`}
         muted
         loop
         autoPlay={true}
