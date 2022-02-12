@@ -66,12 +66,6 @@ export default function CreateMessage(props) {
         >
           <SendIcon />
         </IconButton>
-        <IconButton
-          style={{ backgroundColor: 'transparent', marginLeft: '15px' }}
-          size="large"
-        >
-          <NoteAddIcon />
-        </IconButton>
       </div>
     </>
   );

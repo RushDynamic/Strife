@@ -1,22 +1,14 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Paper,
-  Typography,
-} from '@mui/material';
+import { Typography } from '@mui/material';
 import NoFriends from './NoFriends.jsx';
 import FriendButtons from './FriendButtons.jsx';
-import useStyles from '../../../styles/chat-styles.js';
+import useStyles from '../../../styles/sidebar-styles.js';
 import Avatar from '../../Avatar.jsx';
 import { deepCompare } from '../../../../utils/utils.js';
 function FriendsList(props) {
   const classes = useStyles();
-  //const recipient = useSelector(state => state.recipient);
   const unseenMsgUserList = useSelector(
     (state) => state.notifications.unseenMsgUserList,
   );
@@ -33,77 +25,48 @@ function FriendsList(props) {
         unseen={unseenMsgUserList.includes(friend.username)}
         friend={friend}
         createCall={props.createCall}
+        setSidebarOpen={props.setSidebarOpen}
       />
     );
   }
 
   return (
-    <>
-      <Paper elevation={2}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className={classes.onlineUsersContainer}
-          style={{ overflow: 'auto' }}
-        >
-          {props.friendsList.length > 0 ? (
-            <List>
-              <ListItem>
-                <ListItemText
-                  disableTypography
-                  primary={
-                    <Typography
-                      style={{
-                        color: '#1fd1f9',
-                        fontVariant: 'small-caps',
-                        fontFamily: "'Syne', sans-serif",
-                        fontSize: '1.3rem',
-                        letterSpacing: '3px',
-                      }}
-                    >
-                      friends
-                    </Typography>
-                  }
-                  secondary={
-                    <Typography
-                      style={{
-                        fontVariant: 'small-caps',
-                        fontFamily: "'Syne', sans-serif",
-                      }}
-                    >
-                      {props.friendsList
-                        .filter((friend) => friend.status === 'online')
-                        .reduce((total, friend) => total + 1, 0) +
-                        ' / ' +
-                        props.friendsList.length}
-                    </Typography>
-                  }
-                />
-              </ListItem>
-              {props.friendsList.map((friend) => (
-                <ListItem key={friend.username}>
-                  <ListItemAvatar>
-                    {returnAvatar(friend.status, friend.avatar)}
-                  </ListItemAvatar>
-                  <ListItemText
-                    disableTypography
-                    primary={
-                      <Typography style={{ fontFamily: "'Rubik', sans-serif" }}>
-                        {friend.username}
-                      </Typography>
-                    }
-                  />
-                  {returnFriendButtons(friend)}
-                </ListItem>
-              ))}
-            </List>
-          ) : (
-            <NoFriends />
-          )}
-        </motion.div>
-      </Paper>
-    </>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className={classes.onlineUsersCard}
+    >
+      {props.friendsList.length > 0 ? (
+        <>
+          <div className={classes.cardTitleTextContainer}>
+            <Typography className={classes.cardTitleText}>friends</Typography>
+            <Typography className={classes.cardSubTitleText}>
+              {props.friendsList
+                .filter((friend) => friend.status === 'online')
+                .reduce((total, friend) => total + 1, 0) +
+                ' / ' +
+                props.friendsList.length}
+            </Typography>
+          </div>
+          <div>
+            {props.friendsList.map((friend) => (
+              <div className={classes.singleRowContainer}>
+                <div className={classes.avatarNameContainer}>
+                  {returnAvatar(friend.status, friend.avatar)}
+                  <Typography className={classes.nameText}>
+                    {friend.username}
+                  </Typography>
+                </div>
+                <div>{returnFriendButtons(friend)}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <NoFriends />
+      )}
+    </motion.div>
   );
 }
 
