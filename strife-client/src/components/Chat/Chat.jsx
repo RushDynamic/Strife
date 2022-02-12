@@ -555,40 +555,7 @@ export default function Chat() {
                 display: { xs: 'none', md: 'none', lg: 'block' },
               }}
             >
-              <audio
-                id="remote-audio"
-                ref={remoteAudioRef}
-                autoPlay
-                controls
-                style={{ display: 'none' }}
-              />
-              {(callData.isCallActive || callData.isCallIncoming) && (
-                <PhoneBox
-                  callData={callData}
-                  callOptions={{
-                    createCall,
-                    acceptCall,
-                    broadcastAndEndCall,
-                  }}
-                  micMuted={micMuted}
-                  setMicMuted={setMicMuted}
-                />
-              )}
-              <RoomsList
-                onlineRoomsCount={onlineRoomsCount}
-                roomsList={onlineRoomsList != null ? onlineRoomsList : []}
-                manageRooms={manageRooms}
-                unseenMsgUsersList={unseenMsgUsersList}
-                setUnseenMsgUsersList={setUnseenMsgUsersList}
-              />
-              <Box m={0.5} />
-              <FriendsList
-                friendsList={friendsList}
-                unseenMsgUsersList={unseenMsgUsersList}
-                setUnseenMsgUsersList={setUnseenMsgUsersList}
-                createCall={createCall}
-                acceptCall={acceptCall}
-              />
+              {drawerContent()}
             </Box>
             <Drawer
               container={container}
