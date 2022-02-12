@@ -515,6 +515,7 @@ export default function Chat() {
             setUnseenMsgUsersList={setUnseenMsgUsersList}
             createCall={createCall}
             acceptCall={acceptCall}
+            setSidebarOpen={setMobileOpen}
           />
         </Paper>
       </>

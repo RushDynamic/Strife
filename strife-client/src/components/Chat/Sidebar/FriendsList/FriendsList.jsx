@@ -25,6 +25,7 @@ function FriendsList(props) {
         unseen={unseenMsgUserList.includes(friend.username)}
         friend={friend}
         createCall={props.createCall}
+        setSidebarOpen={props.setSidebarOpen}
       />
     );
   }
