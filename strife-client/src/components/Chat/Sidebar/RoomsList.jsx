@@ -42,45 +42,41 @@ function RoomsList(props) {
   }
 
   return (
-    <>
-      <Paper elevation={2}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className={classes.onlineUsersContainer}
-          style={{ overflow: 'auto' }}
-        >
-          <>
-            <div className={classes.cardTitleTextContainer}>
-              <Typography className={classes.cardTitleText}>rooms</Typography>
-              <Typography className={classes.cardSubTitleText}>
-                {'online: ' + props.onlineRoomsCount}
+    <Paper elevation={2}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className={classes.onlineUsersContainer}
+        style={{ overflow: 'auto' }}
+      >
+        <>
+          <div className={classes.cardTitleTextContainer}>
+            <Typography className={classes.cardTitleText}>rooms</Typography>
+            <Typography className={classes.cardSubTitleText}>
+              {'online: ' + props.onlineRoomsCount}
+            </Typography>
+          </div>
+          <div>
+            {props.roomsList.length === 0 ? (
+              <Typography className={classes.noFriendsText}>
+                You have not joined any online rooms right now
               </Typography>
-            </div>
-            <div>
-              {props.roomsList.length === 0 ? (
-                <Typography className={classes.noFriendsText}>
-                  You have not joined any online rooms right now
-                </Typography>
-              ) : (
-                props.roomsList.map((room) => (
-                  <div className={classes.singleRowContainer}>
-                    <div className={classes.avatarNameContainer}>
-                      <PeopleIcon />
-                      <Typography className={classes.nameText}>
-                        {room}
-                      </Typography>
-                    </div>
-                    {returnChatButton(room)}
+            ) : (
+              props.roomsList.map((room) => (
+                <div className={classes.singleRowContainer}>
+                  <div className={classes.avatarNameContainer}>
+                    <PeopleIcon />
+                    <Typography className={classes.nameText}>{room}</Typography>
                   </div>
-                ))
-              )}
-            </div>
-          </>
-        </motion.div>
-      </Paper>
-    </>
+                  {returnChatButton(room)}
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      </motion.div>
+    </Paper>
   );
 }
 
