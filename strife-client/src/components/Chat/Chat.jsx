@@ -5,7 +5,7 @@ import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
 import * as cryptoService from '../../services/crypto-service.js';
 import { io } from 'socket.io-client';
-import { Box } from '@mui/material';
+import { Box, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Loading from './Loading.jsx';
 import RoomsList from './Sidebar/RoomsList/RoomsList.jsx';
@@ -489,33 +489,34 @@ export default function Chat() {
           controls
           style={{ display: 'none' }}
         />
-        {(callData.isCallActive || callData.isCallIncoming) && (
-          <PhoneBox
-            callData={callData}
-            callOptions={{
-              createCall,
-              acceptCall,
-              broadcastAndEndCall,
-            }}
-            micMuted={micMuted}
-            setMicMuted={setMicMuted}
+        <Paper elevation={2}>
+          {(callData.isCallActive || callData.isCallIncoming) && (
+            <PhoneBox
+              callData={callData}
+              callOptions={{
+                createCall,
+                acceptCall,
+                broadcastAndEndCall,
+              }}
+              micMuted={micMuted}
+              setMicMuted={setMicMuted}
+            />
+          )}
+          <RoomsList
+            onlineRoomsCount={onlineRoomsCount}
+            roomsList={onlineRoomsList != null ? onlineRoomsList : []}
+            manageRooms={manageRooms}
+            unseenMsgUsersList={unseenMsgUsersList}
+            setUnseenMsgUsersList={setUnseenMsgUsersList}
           />
-        )}
-        <RoomsList
-          onlineRoomsCount={onlineRoomsCount}
-          roomsList={onlineRoomsList != null ? onlineRoomsList : []}
-          manageRooms={manageRooms}
-          unseenMsgUsersList={unseenMsgUsersList}
-          setUnseenMsgUsersList={setUnseenMsgUsersList}
-        />
-        <Box m={0.5} />
-        <FriendsList
-          friendsList={friendsList}
-          unseenMsgUsersList={unseenMsgUsersList}
-          setUnseenMsgUsersList={setUnseenMsgUsersList}
-          createCall={createCall}
-          acceptCall={acceptCall}
-        />
+          <FriendsList
+            friendsList={friendsList}
+            unseenMsgUsersList={unseenMsgUsersList}
+            setUnseenMsgUsersList={setUnseenMsgUsersList}
+            createCall={createCall}
+            acceptCall={acceptCall}
+          />
+        </Paper>
       </>
     );
   };
