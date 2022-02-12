@@ -168,7 +168,7 @@ function Register() {
               <Grid container spacing={1} style={{ display: 'block' }}>
                 <Grid item>
                   <TextField
-                    id="outlined-basic"
+                    id="outlined-email"
                     label="Email"
                     variant="outlined"
                     size="small"
@@ -195,7 +195,7 @@ function Register() {
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="outlined-basic"
+                    id="outlined-username"
                     label="Username"
                     variant="outlined"
                     size="small"
@@ -222,7 +222,7 @@ function Register() {
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="outlined-basic"
+                    id="outlined-password"
                     label="Password"
                     variant="outlined"
                     size="small"

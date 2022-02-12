@@ -37,6 +37,7 @@ const loginStyles = makeStyles({
     fontSize: '5em',
     '@media screen and (max-width: 768px)': {
       fontSize: '2em',
+      textAlign: 'center',
     },
   },
 
