@@ -611,7 +611,9 @@ export default function Chat() {
             </Drawer>
             <Grid
               item
-              xs={10}
+              xs={12}
+              md={12}
+              lg={10}
               style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}
             >
               {recipient.username === '' ? (
