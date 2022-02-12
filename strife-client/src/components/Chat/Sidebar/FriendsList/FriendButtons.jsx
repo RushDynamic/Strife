@@ -10,6 +10,7 @@ function FriendButtons(props) {
   const callData = useSelector((state) => state.callData);
 
   const handleClickChat = () => {
+    props.setSidebarOpen(false);
     dispatch(
       changeRecipient({
         username: props.friend.username,
