@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
-import changeRecipient from '../../../actions/recipient-actions.js';
+import changeRecipient from '../../../../actions/recipient-actions.js';
 import { Paper, IconButton, Typography, Badge } from '@mui/material';
 import { BsFillChatSquareFill, BsFillChatSquareTextFill } from 'react-icons/bs';
 import PeopleIcon from '@mui/icons-material/People';
-import useStyles from '../../styles/sidebar-styles.js';
+import useStyles from '../../../styles/sidebar-styles.js';
 
 function RoomsList(props) {
   const classes = useStyles();

@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Loading from './Loading.jsx';
-import RoomsList from './Sidebar/RoomsList.jsx';
+import RoomsList from './Sidebar/RoomsList/RoomsList.jsx';
 import FriendsList from './Sidebar/FriendsList/FriendsList.jsx';
 import Header from './Header/Header.jsx';
 import ChatBox from './ChatBox/ChatBox.jsx';
@@ -18,6 +18,8 @@ import { UserContext } from '../../UserContext.js';
 import changeCallData from '../../actions/call-data-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
+import Drawer from '@mui/material/Drawer';
+const drawerWidth = 300;
 
 var privateKey = '';
 export default function Chat() {
@@ -44,6 +46,7 @@ export default function Chat() {
   const remoteAudioRef = useRef(null);
   const [iceCandidates, setIceCandidates] = useState([]);
   const [micMuted, setMicMuted] = useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   useEffect(() => {
     // TODO: Probably find a better way to do this
@@ -470,6 +473,52 @@ export default function Chat() {
     msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
   }
 
+  const container = window !== undefined ? window.document.body : undefined;
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const drawerContent = () => {
+    return (
+      <>
+        <audio
+          id="remote-audio"
+          ref={remoteAudioRef}
+          autoPlay
+          controls
+          style={{ display: 'none' }}
+        />
+        {(callData.isCallActive || callData.isCallIncoming) && (
+          <PhoneBox
+            callData={callData}
+            callOptions={{
+              createCall,
+              acceptCall,
+              broadcastAndEndCall,
+            }}
+            micMuted={micMuted}
+            setMicMuted={setMicMuted}
+          />
+        )}
+        <RoomsList
+          onlineRoomsCount={onlineRoomsCount}
+          roomsList={onlineRoomsList != null ? onlineRoomsList : []}
+          manageRooms={manageRooms}
+          unseenMsgUsersList={unseenMsgUsersList}
+          setUnseenMsgUsersList={setUnseenMsgUsersList}
+        />
+        <Box m={0.5} />
+        <FriendsList
+          friendsList={friendsList}
+          unseenMsgUsersList={unseenMsgUsersList}
+          setUnseenMsgUsersList={setUnseenMsgUsersList}
+          createCall={createCall}
+          acceptCall={acceptCall}
+        />
+      </>
+    );
+  };
   return (
     // Show error dialog if multiple instances of Strife are running (user is already online)
     <div>
@@ -481,25 +530,29 @@ export default function Chat() {
           maxHeight: '100vh',
           margin: 0,
           width: '100%',
+          zIndex: '1300',
         }}
       >
-        <Grid item xs={12} style={{ height: '20vh', padding: '0px' }}>
+        <Grid
+          item
+          xs={12}
+          style={{ height: '20vh', padding: '0px', zIndex: '1300' }}
+        >
           <Header
             requestFriendsList={requestFriendsList}
             manageRooms={manageRooms}
             loaded={loaded}
+            handleDrawerToggle={handleDrawerToggle}
           />
         </Grid>
         {loaded ? (
           <>
-            <Grid
+            <Box
+              component={Grid}
               item
               xs={2}
-              style={{
-                height: '80vh',
-                overflow: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
+              sx={{
+                display: { xs: 'none', md: 'none', lg: 'block' },
               }}
             >
               <audio
@@ -536,7 +589,26 @@ export default function Chat() {
                 createCall={createCall}
                 acceptCall={acceptCall}
               />
-            </Grid>
+            </Box>
+            <Drawer
+              container={container}
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}
+              sx={{
+                display: { xs: 'block', sm: 'block', md: 'block' },
+                '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                },
+                zIndex: '1500',
+              }}
+            >
+              {drawerContent()}
+            </Drawer>
             <Grid
               item
               xs={10}

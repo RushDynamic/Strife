@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Typography } from '@mui/material';
 import ChatMenu from './ChatMenu/ChatMenu.jsx';
 import constants from '../../../constants/strife-constants.js';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 
 export default function Header(props) {
   const classes = useStyles();
@@ -23,6 +25,15 @@ export default function Header(props) {
         >
           strife
         </motion.h1>
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={props.handleDrawerToggle}
+          sx={{ mr: 2, display: { md: 'block', lg: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
         <Typography style={{ fontSize: '0.6rem' }}>
           {constants.APP_VERSION}
         </Typography>
