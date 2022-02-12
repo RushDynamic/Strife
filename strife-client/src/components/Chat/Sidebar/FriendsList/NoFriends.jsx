@@ -1,25 +1,17 @@
 import React from 'react';
 import { Typography } from '@mui/material';
-
+import useStyles from '../../../styles/sidebar-styles.js';
 function NoFriends() {
+  const classes = useStyles();
   return (
-    <div
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-    >
+    <div className={classes.noFriendsContainer}>
       <img
         alt="error_nofriends"
         src={process.env.PUBLIC_URL + '/images/uhoh.svg'}
         height="150"
         width="150"
       />
-      <Typography
-        style={{
-          padding: '15px',
-          color: '#1fd1f9',
-          fontFamily: "'Syne', sans-serif",
-          fontSize: '0.9rem',
-        }}
-      >
+      <Typography className={classes.noFriendsText}>
         You don't have any friends
       </Typography>
     </div>

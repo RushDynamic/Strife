@@ -2,20 +2,10 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import changeRecipient from '../../../actions/recipient-actions.js';
-import {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  ListItemAvatar,
-  Paper,
-  IconButton,
-  Typography,
-  Badge,
-} from '@mui/material';
+import { Paper, IconButton, Typography, Badge } from '@mui/material';
 import { BsFillChatSquareFill, BsFillChatSquareTextFill } from 'react-icons/bs';
 import PeopleIcon from '@mui/icons-material/People';
-import useStyles from '../../styles/chat-styles.js';
+import useStyles from '../../styles/sidebar-styles.js';
 
 function RoomsList(props) {
   const classes = useStyles();
@@ -37,21 +27,17 @@ function RoomsList(props) {
   function returnChatButton(roomname) {
     if (unseenMsgUserList.includes(roomname)) {
       return (
-        <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
-          <IconButton>
-            <Badge color="primary" variant="dot">
-              <BsFillChatSquareTextFill fontSize="large" />
-            </Badge>
-          </IconButton>
-        </ListItemIcon>
+        <IconButton onClick={() => handleChatButtonOnClick(roomname)}>
+          <Badge color="primary" variant="dot">
+            <BsFillChatSquareTextFill fontSize="large" />
+          </Badge>
+        </IconButton>
       );
     }
     return (
-      <ListItemIcon onClick={() => handleChatButtonOnClick(roomname)}>
-        <IconButton>
-          <BsFillChatSquareFill fontSize="large" />
-        </IconButton>
-      </ListItemIcon>
+      <IconButton onClick={() => handleChatButtonOnClick(roomname)}>
+        <BsFillChatSquareFill fontSize="large" />
+      </IconButton>
     );
   }
 
@@ -65,65 +51,33 @@ function RoomsList(props) {
           className={classes.onlineUsersContainer}
           style={{ overflow: 'auto' }}
         >
-          <List>
-            <ListItem>
-              <ListItemText
-                disableTypography
-                primary={
-                  <Typography
-                    style={{
-                      color: '#1fd1f9',
-                      fontVariant: 'small-caps',
-                      fontFamily: "'Syne', sans-serif",
-                      fontSize: '1.3rem',
-                      letterSpacing: '3px',
-                    }}
-                  >
-                    rooms
-                  </Typography>
-                }
-                secondary={
-                  <Typography
-                    style={{
-                      fontVariant: 'small-caps',
-                      fontFamily: "'Syne', sans-serif",
-                      letterSpacing: '2px',
-                    }}
-                  >
-                    {'online: ' + props.onlineRoomsCount}
-                  </Typography>
-                }
-              />
-            </ListItem>
-            {props.roomsList.length === 0 ? (
-              <Typography
-                style={{
-                  padding: '15px',
-                  fontFamily: "'Syne', sans-serif",
-                  fontSize: '0.9rem',
-                }}
-              >
-                You have not joined any online rooms right now
+          <>
+            <div className={classes.cardTitleTextContainer}>
+              <Typography className={classes.cardTitleText}>rooms</Typography>
+              <Typography className={classes.cardSubTitleText}>
+                {'online: ' + props.onlineRoomsCount}
               </Typography>
-            ) : (
-              props.roomsList.map((room) => (
-                <ListItem>
-                  <ListItemAvatar>
-                    <PeopleIcon />
-                  </ListItemAvatar>
-                  <ListItemText
-                    disableTypography
-                    primary={
-                      <Typography style={{ fontFamily: "'Rubik', sans-serif" }}>
+            </div>
+            <div>
+              {props.roomsList.length === 0 ? (
+                <Typography className={classes.noFriendsText}>
+                  You have not joined any online rooms right now
+                </Typography>
+              ) : (
+                props.roomsList.map((room) => (
+                  <div className={classes.singleRowContainer}>
+                    <div className={classes.avatarNameContainer}>
+                      <PeopleIcon />
+                      <Typography className={classes.nameText}>
                         {room}
                       </Typography>
-                    }
-                  />
-                  {returnChatButton(room)}
-                </ListItem>
-              ))
-            )}
-          </List>
+                    </div>
+                    {returnChatButton(room)}
+                  </div>
+                ))
+              )}
+            </div>
+          </>
         </motion.div>
       </Paper>
     </>
