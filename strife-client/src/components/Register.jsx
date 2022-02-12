@@ -9,9 +9,12 @@ import {
   CardContent,
   CardHeader,
   Snackbar,
+  InputAdornment,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MuiAlert from '@mui/material/Alert';
+import { BiUser, BiKey } from 'react-icons/bi';
+import { AiOutlineMail } from 'react-icons/ai';
 import useStyles from './styles/login-styles.js';
 import { registerUser } from '../services/registration-service.js';
 import { checkLoggedIn } from '../services/login-service.js';
@@ -146,7 +149,7 @@ function Register() {
             <Typography variant="h1" className={classes.mainText}>
               Welcome to <span style={{ color: '#1fd1f9' }}>Strife</span>
             </Typography>
-            <Typography variant="h4" className={classes.mainText}>
+            <Typography variant="h4" className={classes.subText}>
               where all the cool kids hangout
             </Typography>
           </div>
@@ -165,12 +168,22 @@ function Register() {
               <Grid container spacing={1} style={{ display: 'block' }}>
                 <Grid item>
                   <TextField
-                    id="outlined-basic"
+                    id="outlined-email"
                     label="Email"
                     variant="outlined"
                     size="small"
                     fullWidth
                     required={true}
+                    style={{
+                      paddingBottom: '1vh',
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <AiOutlineMail style={{ color: '#a8a8a8' }} />
+                        </InputAdornment>
+                      ),
+                    }}
                     onChange={(event) => {
                       setCurrentUserData({
                         username: currentUserData.username,
@@ -178,19 +191,26 @@ function Register() {
                         password: currentUserData.password,
                       });
                     }}
-                    style={{
-                      paddingBottom: '1vh',
-                    }}
                   />
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="outlined-basic"
+                    id="outlined-username"
                     label="Username"
                     variant="outlined"
                     size="small"
                     fullWidth
                     required={true}
+                    style={{
+                      paddingBottom: '1vh',
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <BiUser style={{ color: '#a8a8a8' }} />
+                        </InputAdornment>
+                      ),
+                    }}
                     onChange={(event) => {
                       setCurrentUserData({
                         username: event.target.value,
@@ -198,29 +218,33 @@ function Register() {
                         password: currentUserData.password,
                       });
                     }}
-                    style={{
-                      paddingBottom: '1vh',
-                    }}
                   />
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="outlined-basic"
+                    id="outlined-password"
                     label="Password"
                     variant="outlined"
                     size="small"
                     fullWidth
                     required={true}
+                    type="password"
+                    style={{
+                      paddingBottom: '1vh',
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <BiKey style={{ color: '#a8a8a8' }} />
+                        </InputAdornment>
+                      ),
+                    }}
                     onChange={(event) => {
                       setCurrentUserData({
                         username: currentUserData.username,
                         email: currentUserData.email,
                         password: event.target.value,
                       });
-                    }}
-                    type="password"
-                    style={{
-                      paddingBottom: '1vh',
                     }}
                   />
                 </Grid>
