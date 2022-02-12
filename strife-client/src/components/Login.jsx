@@ -9,11 +9,13 @@ import {
   CardContent,
   CardHeader,
   Snackbar,
+  InputAdornment,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MuiAlert from '@mui/material/Alert';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
+import { BiUser, BiKey } from 'react-icons/bi';
 import useStyles from './styles/login-styles.js';
 import { UserContext } from '../UserContext.js';
 import { loginUser, checkLoggedIn } from '../services/login-service.js';
@@ -114,14 +116,14 @@ function Login() {
           top: 0,
           left: 0,
         }}
-      ></video>
+      />
       <div className={classes.loginContainer}>
         <div className={classes.loginPanelLeft}>
           <div className={classes.blurredBackground}>
-            <Typography variant="h1" className={classes.mainText}>
+            <Typography className={classes.mainText}>
               Welcome to <span style={{ color: '#1fd1f9' }}>Strife</span>
             </Typography>
-            <Typography variant="h4" className={classes.mainText}>
+            <Typography className={classes.subText}>
               where all the cool kids hangout
             </Typography>
           </div>
@@ -148,6 +150,13 @@ function Login() {
                     style={{
                       paddingBottom: '1vh',
                     }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <BiUser style={{ color: '#a8a8a8' }} />
+                        </InputAdornment>
+                      ),
+                    }}
                     onChange={(event) =>
                       setCurrentData({
                         username: event.target.value,
@@ -166,6 +175,13 @@ function Login() {
                     type="password"
                     style={{
                       paddingBottom: '1vh',
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <BiKey style={{ color: '#a8a8a8' }} />
+                        </InputAdornment>
+                      ),
                     }}
                     onChange={(event) =>
                       setCurrentData({
