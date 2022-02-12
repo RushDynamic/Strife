@@ -5,7 +5,7 @@ import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
 import * as cryptoService from '../../services/crypto-service.js';
 import { io } from 'socket.io-client';
-import { Box, Paper } from '@mui/material';
+import { Box, Paper, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Loading from './Loading.jsx';
 import RoomsList from './Sidebar/RoomsList/RoomsList.jsx';
@@ -487,7 +487,7 @@ export default function Chat() {
           controls
           style={{ display: 'none' }}
         />
-        <Paper elevation={2}>
+        <Paper elevation={2} style={{ margin: '0 0.5rem 0.5rem 0.5rem' }}>
           {(callData.isCallActive || callData.isCallIncoming) && (
             <PhoneBox
               callData={callData}
@@ -573,6 +573,20 @@ export default function Chat() {
                 zIndex: '1500',
               }}
             >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  margin: '1rem',
+                }}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => handleDrawerToggle()}
+                >
+                  Close
+                </Button>
+              </div>
               {drawerContent()}
             </Drawer>
             <Grid
