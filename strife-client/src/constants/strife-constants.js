@@ -1,5 +1,5 @@
 const constants = {
-  APP_VERSION: '1.0.4 (PRE-ALPHA)',
+  APP_VERSION: 'v1.0.5-alpha',
 };
 
 export default constants;

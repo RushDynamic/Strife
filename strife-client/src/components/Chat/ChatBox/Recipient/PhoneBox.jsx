@@ -11,7 +11,6 @@ import {
   ListItemText,
   IconButton,
   Typography,
-  Paper,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import useStyles from '../../../styles/chat-styles.js';
@@ -20,82 +19,37 @@ export default function PhoneBox(props) {
   const classes = useStyles();
   return (
     <>
-      <Paper elevation={2} style={{ marginBottom: '10px' }}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className={classes.callContainer}
-        >
-          {
-            <>
-              <List>
-                <ListItem>
-                  <ListItemText
-                    disableTypography
-                    primary={
-                      <Typography
-                        style={{
-                          color: '#1fd1f9',
-                          fontVariant: 'small-caps',
-                          fontFamily: "'Syne', sans-serif",
-                          fontSize: '1.3rem',
-                          letterSpacing: '3px',
-                        }}
-                      >
-                        voice chat
-                      </Typography>
-                    }
-                  />
-                </ListItem>
-              </List>
-              <div className={classes.callInfoContainer}>
-                {props.callData.isCallIncoming &&
-                  !props.callData.isCallConnected && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className={classes.callContainer}
+      >
+        {
+          <>
+            <List>
+              <ListItem>
+                <ListItemText
+                  disableTypography
+                  primary={
                     <Typography
                       style={{
+                        color: '#1fd1f9',
                         fontVariant: 'small-caps',
                         fontFamily: "'Syne', sans-serif",
+                        fontSize: '1.3rem',
+                        letterSpacing: '3px',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        incoming call from
-                        <Typography
-                          style={{
-                            marginLeft: '5px',
-                            color: '#1fd1f9',
-                            fontSize: '1.2rem',
-                          }}
-                        >
-                          {props.callData.participant}
-                        </Typography>
-                      </div>
+                      voice chat
                     </Typography>
-                  )}
-                {props.callData.isCallActive &&
-                  !props.callData.isCallIncoming &&
-                  !props.callData.isCallConnected && (
-                    <Typography
-                      style={{
-                        fontVariant: 'small-caps',
-                        fontFamily: "'Syne', sans-serif",
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        calling
-                        <Typography
-                          style={{
-                            marginLeft: '5px',
-                            color: '#1fd1f9',
-                            fontSize: '1.2rem',
-                          }}
-                        >
-                          {props.callData.participant}
-                        </Typography>
-                      </div>
-                    </Typography>
-                  )}
-                {props.callData.isCallConnected && (
+                  }
+                />
+              </ListItem>
+            </List>
+            <div className={classes.callInfoContainer}>
+              {props.callData.isCallIncoming &&
+                !props.callData.isCallConnected && (
                   <Typography
                     style={{
                       fontVariant: 'small-caps',
@@ -103,7 +57,7 @@ export default function PhoneBox(props) {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      on call with
+                      incoming call from
                       <Typography
                         style={{
                           marginLeft: '5px',
@@ -116,14 +70,57 @@ export default function PhoneBox(props) {
                     </div>
                   </Typography>
                 )}
-              </div>
-            </>
-          }
-          <div className={classes.callButtonsContainer}>
-            {returnCallButton(props, classes)}
-          </div>
-        </motion.div>
-      </Paper>
+              {props.callData.isCallActive &&
+                !props.callData.isCallIncoming &&
+                !props.callData.isCallConnected && (
+                  <Typography
+                    style={{
+                      fontVariant: 'small-caps',
+                      fontFamily: "'Syne', sans-serif",
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      calling
+                      <Typography
+                        style={{
+                          marginLeft: '5px',
+                          color: '#1fd1f9',
+                          fontSize: '1.2rem',
+                        }}
+                      >
+                        {props.callData.participant}
+                      </Typography>
+                    </div>
+                  </Typography>
+                )}
+              {props.callData.isCallConnected && (
+                <Typography
+                  style={{
+                    fontVariant: 'small-caps',
+                    fontFamily: "'Syne', sans-serif",
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    on call with
+                    <Typography
+                      style={{
+                        marginLeft: '5px',
+                        color: '#1fd1f9',
+                        fontSize: '1.2rem',
+                      }}
+                    >
+                      {props.callData.participant}
+                    </Typography>
+                  </div>
+                </Typography>
+              )}
+            </div>
+          </>
+        }
+        <div className={classes.callButtonsContainer}>
+          {returnCallButton(props, classes)}
+        </div>
+      </motion.div>
     </>
   );
 }

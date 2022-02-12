@@ -25,8 +25,8 @@ function LandingChatBox() {
           alt="friendly_robot"
           className={`${classes.nonSelectable} ${classes.expandOnHover}`}
           src={process.env.PUBLIC_URL + '/images/chatbot.svg'}
-          height="600"
-          width="600"
+          height="80%"
+          width="80%"
         />
         <Typography variant="h2" className={classes.nonSelectable}>
           Hey {user.username},

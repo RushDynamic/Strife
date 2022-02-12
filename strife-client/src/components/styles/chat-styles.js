@@ -40,10 +40,6 @@ const chatStyles = makeStyles({
     },
   },
 
-  onlineUsersContainer: {
-    marginBottom: '10px',
-  },
-
   callContainer: {
     marginBottom: '10px',
   },
