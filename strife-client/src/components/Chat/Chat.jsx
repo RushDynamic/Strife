@@ -46,7 +46,11 @@ export default function Chat() {
   const remoteAudioRef = useRef(null);
   const [iceCandidates, setIceCandidates] = useState([]);
   const [micMuted, setMicMuted] = useState(false);
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   useEffect(() => {
     // TODO: Probably find a better way to do this
@@ -473,12 +477,6 @@ export default function Chat() {
     msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
   }
 
-  const container = window !== undefined ? window.document.body : undefined;
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
   const drawerContent = () => {
     return (
       <>
@@ -560,7 +558,6 @@ export default function Chat() {
               {drawerContent()}
             </Box>
             <Drawer
-              container={container}
               variant="temporary"
               open={mobileOpen}
               onClose={handleDrawerToggle}
