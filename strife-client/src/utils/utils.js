@@ -8,3 +8,7 @@ import _ from 'lodash';
 export function deepCompare(arr1, arr2) {
   return _(arr1).xorWith(arr2, _.isEqual).isEmpty();
 }
+
+export function pickRandomElement(arr) {
+  return _.sample(arr);
+}

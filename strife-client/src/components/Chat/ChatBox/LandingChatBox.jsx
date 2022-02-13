@@ -2,6 +2,8 @@ import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { Typography } from '@mui/material';
 import { UserContext } from '../../../UserContext';
+import * as CONSTANTS from '../../../constants/strife-constants.js';
+import { pickRandomElement } from '../../../utils/utils';
 import chatStyles from '../../styles/chat-styles';
 
 function LandingChatBox() {
@@ -28,15 +30,18 @@ function LandingChatBox() {
           height="80%"
           width="80%"
         />
-        <Typography variant="h2" className={classes.nonSelectable}>
+        <Typography
+          variant="h4"
+          style={{ padding: '0 0.5rem 0 0.5rem' }}
+          className={classes.nonSelectable}
+        >
           Hey {user.username},
         </Typography>
         <Typography
-          variant="h4"
-          style={{ fontFamily: "'Rubik', sans-serif" }}
+          style={{ fontFamily: "'Rubik', sans-serif", padding: '1rem' }}
           className={classes.nonSelectable}
         >
-          why don't you talk to someone about it?
+          {pickRandomElement(CONSTANTS.welcomeMessages)}
         </Typography>
       </motion.div>
     </>
