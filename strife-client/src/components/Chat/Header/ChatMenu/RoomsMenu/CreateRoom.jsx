@@ -9,12 +9,14 @@ function CreateRoom(props) {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: '60px',
-          height: '40vh',
-          width: '20vw',
+          padding: '2rem',
+          height: '100%',
+          width: '100%',
         }}
       >
-        <Typography variant="h4">Create a new room</Typography>
+        <Typography variant="h5" paddingTop="1rem">
+          Create a new room
+        </Typography>
         <TextField
           id="roomname"
           label="Room name"

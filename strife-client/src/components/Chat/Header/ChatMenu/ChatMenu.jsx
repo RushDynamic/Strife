@@ -191,6 +191,7 @@ function ChatMenu(props) {
             fullWidth
             variant="standard"
             autoFocus={true}
+            autoComplete="off"
           />
         </DialogContent>
         <DialogActions>
@@ -229,16 +230,11 @@ function ChatMenu(props) {
       >
         <DialogTitle>Rooms</DialogTitle>
         <DialogContent>
-          <div
-            className={classes.roomsMenuContainer}
-            style={{ display: 'flex' }}
-          >
+          <div className={classes.roomsMenuContainer}>
             <Tabs
               value={roomsTabValue}
               onChange={handleRoomsTabChange}
-              orientation="vertical"
-              variant="scrollable"
-              style={{ borderRight: `1px solid #cfcfcf` }}
+              orientation="horizontal"
             >
               <Tab label="Join" />
               <Tab label="Create" />
@@ -276,16 +272,12 @@ function ChatMenu(props) {
       >
         <DialogTitle>Edit Profile</DialogTitle>
         <DialogContent>
-          <div
-            className={classes.editProfileContainer}
-            style={{ display: 'flex' }}
-          >
+          <div className={classes.editProfileContainer}>
             <Tabs
               value={profileTabValue}
               onChange={handleProfileTabChange}
-              orientation="vertical"
+              orientation="horizontal"
               variant="scrollable"
-              style={{ borderRight: `1px solid #cfcfcf` }}
             >
               <Tab label="Edit Avatar" />
               <Tab label="Change Password" />
