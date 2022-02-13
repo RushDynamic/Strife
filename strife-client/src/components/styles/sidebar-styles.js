@@ -4,6 +4,7 @@ const sidebarStyles = makeStyles({
   cardTitleTextContainer: {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
 
   cardTitleText: {
@@ -17,8 +18,10 @@ const sidebarStyles = makeStyles({
 
   cardSubTitleText: {
     fontVariant: 'small-caps',
-    fontFamily: "'Syne', sans-serif",
-    margin: '1rem 0 0 1rem',
+    fontFamily: "'Syncopate', sans-serif",
+    margin: '1rem 1rem 0 1rem',
+    fontSize: '0.7em',
+    color: '#696A6B',
   },
 
   // friendslist/roomslist
