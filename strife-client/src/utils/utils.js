@@ -12,3 +12,7 @@ export function deepCompare(arr1, arr2) {
 export function pickRandomElement(arr) {
   return _.sample(arr);
 }
+
+export function pickRandomBetweenRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
