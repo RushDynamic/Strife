@@ -35,10 +35,9 @@ pipeline {
     }
     stage('NGINX Reload') {
       steps {
-        sh ""
-        "
-        nginx - s reload ""
-        "
+        sh """
+          nginx -s reload
+        """
       }
     }
   }
