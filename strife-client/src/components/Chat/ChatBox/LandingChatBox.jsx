@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Typography } from '@mui/material';
 import { UserContext } from '../../../UserContext';
@@ -11,6 +11,7 @@ import chatStyles from '../../styles/chat-styles';
 
 function LandingChatBox() {
   const { user } = useContext(UserContext);
+  const memoizedIndex = useMemo(() => pickRandomBetweenRange(1, 20), []);
   const classes = chatStyles();
 
   return (
@@ -31,8 +32,7 @@ function LandingChatBox() {
           alt="friendly_robot"
           className={`${classes.nonSelectable} ${classes.expandOnHover}`}
           src={
-            process.env.PUBLIC_URL +
-            `/images/welcome/illu${pickRandomBetweenRange(1, 20)}.svg`
+            process.env.PUBLIC_URL + `/images/welcome/illu${memoizedIndex}.svg`
           }
           height="60%"
           width="60%"
