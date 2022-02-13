@@ -1,5 +1,5 @@
 export const meta = {
-  appVersion: 'v1.0.5-alpha',
+  appVersion: 'v1.0.6-alpha',
 };
 
 export const welcomeMessages = [
