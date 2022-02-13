@@ -2,6 +2,11 @@ import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { Typography } from '@mui/material';
 import { UserContext } from '../../../UserContext';
+import * as CONSTANTS from '../../../constants/strife-constants.js';
+import {
+  pickRandomElement,
+  pickRandomBetweenRange,
+} from '../../../utils/utils';
 import chatStyles from '../../styles/chat-styles';
 
 function LandingChatBox() {
@@ -18,26 +23,42 @@ function LandingChatBox() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'space-around',
           height: '70vh',
         }}
       >
         <img
           alt="friendly_robot"
           className={`${classes.nonSelectable} ${classes.expandOnHover}`}
-          src={process.env.PUBLIC_URL + '/images/chatbot.svg'}
-          height="80%"
-          width="80%"
+          src={
+            process.env.PUBLIC_URL +
+            `/images/welcome/illu${pickRandomBetweenRange(1, 20)}.svg`
+          }
+          height="60%"
+          width="60%"
+          style={{ margin: '1rem' }}
         />
-        <Typography variant="h2" className={classes.nonSelectable}>
-          Hey {user.username},
-        </Typography>
-        <Typography
-          variant="h4"
-          style={{ fontFamily: "'Rubik', sans-serif" }}
-          className={classes.nonSelectable}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
         >
-          why don't you talk to someone about it?
-        </Typography>
+          <Typography
+            variant="h4"
+            style={{ padding: '0 0.5rem 0 0.5rem' }}
+            className={classes.nonSelectable}
+          >
+            Hey {user.username},
+          </Typography>
+          <Typography
+            style={{ fontFamily: "'Rubik', sans-serif", padding: '1rem' }}
+            className={classes.nonSelectable}
+          >
+            {pickRandomElement(CONSTANTS.welcomeMessages)}
+          </Typography>
+        </div>
       </motion.div>
     </>
   );

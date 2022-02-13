@@ -37,7 +37,7 @@ function EditAvatar(props) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            padding: '50px',
+            padding: '2rem',
           }}
         >
           {imagePath === '' ? (
@@ -72,7 +72,7 @@ function EditAvatar(props) {
               <AddAPhotoIcon />
             </IconButton>
           </label>
-          <Typography variant="h4">Upload an avatar</Typography>
+          <Typography variant="h5">Upload an avatar</Typography>
           <Typography
             variant="body1"
             style={{ color: 'red' }}

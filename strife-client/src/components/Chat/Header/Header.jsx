@@ -3,7 +3,7 @@ import useStyles from '../../styles/chat-styles';
 import { motion } from 'framer-motion';
 import { Typography } from '@mui/material';
 import ChatMenu from './ChatMenu/ChatMenu.jsx';
-import constants from '../../../constants/strife-constants.js';
+import * as CONSTANTS from '../../../constants/strife-constants.js';
 import MenuIcon from '@mui/icons-material/Menu';
 
 export default function Header(props) {
@@ -26,20 +26,26 @@ export default function Header(props) {
       />
       <div className={classes.headerContainer}>
         <motion.h1
-          animate={{ fontSize: '50px' }}
+          animate={{
+            fontSize: '50px',
+          }}
           className={classes.nonSelectable}
           style={{
             paddingTop: '20px',
             letterSpacing: '1px',
             fontFamily: "'Syncopate', sans-serif",
             marginBottom: '0px',
+            background:
+              '-webkit-linear-gradient(155deg, #7f5a83 0%, #1fd1f9 100%)',
+            '-webkit-background-clip': 'text',
+            '-webkit-text-fill-color': 'transparent',
           }}
         >
           strife
         </motion.h1>
 
         <Typography style={{ fontSize: '0.6rem' }}>
-          {constants.APP_VERSION}
+          {CONSTANTS.meta.appVersion}
         </Typography>
         {/* TODO: Add login/logout/control buttons under the header */}
         {props.loaded && (
