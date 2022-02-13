@@ -14,7 +14,7 @@ export async function uploadAvatar(file, username) {
       fs.mkdirSync(filePath, { recursive: true });
     }
     await file.mv(`${filePath}/${newFileName}`);
-    const fileStream = fs.createReadStream(filePath);
+    const fileStream = fs.createReadStream(`${filePath}/${newFileName}`);
     const uploadParams = {
       Bucket: bucketName,
       Body: fileStream,
