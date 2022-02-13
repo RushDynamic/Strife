@@ -142,7 +142,10 @@ function ChatMenu(props) {
       console.log('Changing avatar');
       const result = await editAvatar(avatarFile, user.username);
       console.log('Result:', result);
-      setUser({ ...user, avatar: result.filePath });
+      setUser({
+        ...user,
+        avatar: `avatars/${result?.filePath?.split('/')?.at(-1)}`,
+      });
     }
     setOpenEditProfile(false);
   }
