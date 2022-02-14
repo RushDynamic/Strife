@@ -9,6 +9,7 @@ services:
       dockerfile: './Dockerfile'
     ports:
       - '3001:3001'
+
   ua-api:
     container_name: ua-api
     env_file: './strife-server/user-authorization-api/.env'
@@ -17,6 +18,7 @@ services:
       dockerfile: './Dockerfile'
     ports:
       - '3002:3002'
+
   sc-api:
     container_name: sc-api
     env_file: './strife-server/strife-chat-api/.env'
@@ -25,16 +27,15 @@ services:
       dockerfile: './Dockerfile'
     ports:
       - '5000:5000'
-  sc-client:
-    container_name: sc-client
-    env_file: './strife-client/.env'
+
+  nginx-config:
+    container_name: nginx-config
     build:
-      context: './strife-client/'
+      context: './nginx/'
       dockerfile: './Dockerfile'
     volumes:
       - /etc/letsencrypt/:/etc/letsencrypt/
       - /etc/nginx/conf.d/:/etc/nginx/conf.d/
-      - /usr/share/nginx/strife-html/:/usr/share/nginx/strife-html/
     depends_on:
       - am-api
       - ua-api
