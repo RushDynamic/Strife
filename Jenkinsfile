@@ -12,6 +12,11 @@ pipeline {
   }
 
   stages {
+    stage('Stop Running Containers') {
+      steps {
+        sh 'sudo docker-compose down'
+      }
+    }
     stage('Setup Environment Variables') {
       steps {
         script {
