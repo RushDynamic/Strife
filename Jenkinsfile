@@ -39,7 +39,7 @@ pipeline {
     stage('NGINX Reload') {
       steps {
         sh """
-          nginx -s reload
+          sudo nginx -s reload
         """
       }
     }
