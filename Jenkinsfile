@@ -20,7 +20,7 @@ pipeline {
           def envAccMgmtApi = "MONGODB_CONNECTION_URI=${MONGODB_CONNECTION_URI}\nS3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}\nS3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}\nS3_BUCKET_NAME=${S3_BUCKET_NAME}\nS3_AWS_REGION=${S3_AWS_REGION}\nCORS_ORIGIN_URL_ARRAY=${AM_CORS_ORIGIN_URL_ARRAY}\nUA_API_URL=${UA_API_URL}"
 
           def envUserAuthApi = "MONGODB_CONNECTION_URI=${MONGODB_CONNECTION_URI}\nACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}\nREFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}"
-          def envStrifeChatApi = "SC_CORS_ORIGIN_URL_ARRAY=${CORS_ORIGIN_URL_ARRAY}\nAM_API_URL=${AM_API_URL}"
+          def envStrifeChatApi = "CORS_ORIGIN_URL_ARRAY=${SC_CORS_ORIGIN_URL_ARRAY}\nAM_API_URL=${AM_API_URL}"
 
           writeFile(file: 'strife-client/.env', text: envStrifeClient)
           writeFile(file: 'strife-server/account-management-api/.env', text: envAccMgmtApi)
