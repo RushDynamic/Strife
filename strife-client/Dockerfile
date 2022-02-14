@@ -12,6 +12,6 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 WORKDIR /usr/share/nginx/strife-html
 RUN rm -rf ./*
 COPY --from=builder /app/build/ .
-RUN rm /etc/nginx/conf.d/strife.chat.conf
+RUN rm -f /etc/nginx/conf.d/strife.chat.conf
 COPY nginx.conf /etc/nginx/conf.d/strife.chat.conf
 ENTRYPOINT ["echo", "Copied NGINX config"]
