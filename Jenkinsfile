@@ -35,13 +35,6 @@ pipeline {
       steps {
         sh 'sudo docker-compose up --build -d'
       }
-      post {
-        success {
-          mail to: 'rushdynamic1ms@gmail.com',
-            subject: "Successful Pipeline Run: ${currentBuild.fullDisplayName}",
-            body: "Build completed: ${env.BUILD_URL}"
-        }
-      }
     }
     stage('NGINX Reload') {
       steps {
