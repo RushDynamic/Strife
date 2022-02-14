@@ -31,11 +31,10 @@ services:
     build:
       context: './strife-client/'
       dockerfile: './Dockerfile'
-    ports:
-      - '80:80'
-      - '443:443'
     volumes:
       - /etc/letsencrypt/:/etc/letsencrypt/
+      - /etc/nginx/conf.d/:/etc/nginx/conf.d/
+      - /usr/share/nginx/strife-html/:/usr/share/nginx/strife-html/
     depends_on:
       - am-api
       - ua-api
