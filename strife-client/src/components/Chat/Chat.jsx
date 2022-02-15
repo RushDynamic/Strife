@@ -19,7 +19,7 @@ import changeCallData from '../../actions/call-data-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 import Drawer from '@mui/material/Drawer';
-const drawerWidth = 300;
+import useAudio from '../../hooks/useAudio.jsx';
 
 var privateKey = '';
 export default function Chat() {
@@ -46,10 +46,13 @@ export default function Chat() {
   const remoteAudioRef = useRef(null);
   const [iceCandidates, setIceCandidates] = useState([]);
   const [micMuted, setMicMuted] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notify] = useAudio(
+    `${process.env.REACT_APP_S3_BUCKET_URL}/static/media/notif1.mp3`,
+  );
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setSidebarOpen(!sidebarOpen);
   };
 
   useEffect(() => {
@@ -220,9 +223,11 @@ export default function Chat() {
 
   // Push new message to the msgList
   useEffect(() => {
+    if (!newMsg?.message) return;
     if (newMsg.isRoom) {
       if (newMsg.recipientUsername !== recipient.username) {
         dispatch(addUnseen(newMsg.recipientUsername));
+        notify();
       }
     } else if (newMsg?.senderUsername) {
       // NOT required -- Fetch sender's publicKey from the friend's list and decrypt the message
@@ -234,6 +239,7 @@ export default function Chat() {
       );
       if (newMsg.senderUsername !== recipient.username) {
         dispatch(addUnseen(newMsg.senderUsername));
+        notify();
       }
     }
     updateMessageList(newMsg);
@@ -513,7 +519,7 @@ export default function Chat() {
             setUnseenMsgUsersList={setUnseenMsgUsersList}
             createCall={createCall}
             acceptCall={acceptCall}
-            setSidebarOpen={setMobileOpen}
+            setSidebarOpen={setSidebarOpen}
           />
         </Paper>
       </>
@@ -559,7 +565,7 @@ export default function Chat() {
             </Box>
             <Drawer
               variant="temporary"
-              open={mobileOpen}
+              open={sidebarOpen}
               onClose={handleDrawerToggle}
               ModalProps={{
                 keepMounted: true, // Better open performance on mobile.
@@ -568,7 +574,7 @@ export default function Chat() {
                 display: { xs: 'block', sm: 'block', md: 'block' },
                 '& .MuiDrawer-paper': {
                   boxSizing: 'border-box',
-                  width: drawerWidth,
+                  width: 300,
                 },
                 zIndex: '1500',
               }}
