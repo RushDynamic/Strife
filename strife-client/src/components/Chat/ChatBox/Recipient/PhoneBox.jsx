@@ -29,6 +29,8 @@ export default function PhoneBox(props) {
                       style={{
                         fontVariant: 'small-caps',
                         fontFamily: "'Syne', sans-serif",
+                        fontWeight: 'bold',
+                        letterSpacing: '1px',
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -38,6 +40,7 @@ export default function PhoneBox(props) {
                             marginLeft: '5px',
                             color: '#1fd1f9',
                             fontSize: '1.2rem',
+                            fontWeight: 'bold',
                           }}
                         >
                           {props.callData.participant}
@@ -52,6 +55,8 @@ export default function PhoneBox(props) {
                       style={{
                         fontVariant: 'small-caps',
                         fontFamily: "'Syne', sans-serif",
+                        fontWeight: 'bold',
+                        letterSpacing: '1px',
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -61,6 +66,7 @@ export default function PhoneBox(props) {
                             marginLeft: '5px',
                             color: '#1fd1f9',
                             fontSize: '1.2rem',
+                            fontWeight: 'bold',
                           }}
                         >
                           {props.callData.participant}
@@ -73,6 +79,8 @@ export default function PhoneBox(props) {
                     style={{
                       fontVariant: 'small-caps',
                       fontFamily: "'Syne', sans-serif",
+                      fontWeight: 'bold',
+                      letterSpacing: '1px',
                     }}
                   >
                     <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -82,6 +90,7 @@ export default function PhoneBox(props) {
                           marginLeft: '5px',
                           color: '#1fd1f9',
                           fontSize: '1.2rem',
+                          fontWeight: 'bold',
                         }}
                       >
                         {props.callData.participant}
@@ -110,6 +119,9 @@ function returnCallButton(props, classes) {
             props.callOptions.acceptCall(props.callData.participant)
           }
           size="large"
+          style={{
+            backgroundColor: 'transparent',
+          }}
         >
           <BiPhoneIncoming
             fontSize="x-large"
@@ -122,6 +134,9 @@ function returnCallButton(props, classes) {
         <IconButton
           onClick={() => props.callOptions.broadcastAndEndCall()}
           size="large"
+          style={{
+            backgroundColor: 'transparent',
+          }}
         >
           <BiPhoneOff
             fontSize="x-large"
@@ -139,6 +154,9 @@ function returnCallButton(props, classes) {
                 : props.setMicMuted(true)
             }
             size="large"
+            style={{
+              backgroundColor: 'transparent',
+            }}
           >
             {props.micMuted ? (
               <BiMicrophoneOff fontSize="medium" style={{ color: '#BB2020' }} />
@@ -149,6 +167,9 @@ function returnCallButton(props, classes) {
           <IconButton
             onClick={() => props.callOptions.broadcastAndEndCall()}
             size="large"
+            style={{
+              backgroundColor: 'transparent',
+            }}
           >
             <BiPhoneOff fontSize="medium" style={{ color: '#BB2020' }} />
           </IconButton>

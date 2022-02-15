@@ -61,7 +61,7 @@ export default function CreateMessage(props) {
         />
         <IconButton
           onClick={() => sendMessage()}
-          style={{ backgroundColor: 'transparent', marginLeft: '15px' }}
+          style={{ backgroundColor: 'transparent', margin: '0 0.5em 0 0.5em' }}
           size="large"
         >
           <SendIcon />
