@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import * as CONSTANTS from '../../constants/strife-constants.js';
 import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
@@ -47,8 +48,9 @@ export default function Chat() {
   const [iceCandidates, setIceCandidates] = useState([]);
   const [micMuted, setMicMuted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [notify] = useAudio(
-    `${process.env.REACT_APP_S3_BUCKET_URL}/static/media/notif1.mp3`,
+  const [msgNotify] = useAudio(CONSTANTS.urls.notificationSoundSrc);
+  const [callNotify, stopCallNotify] = useAudio(
+    CONSTANTS.urls.phoneCallSoundSrc,
   );
 
   const handleDrawerToggle = () => {
@@ -180,6 +182,7 @@ export default function Chat() {
               isCallConnected: false,
             }),
           );
+          callNotify(true);
         });
 
         socket.current.on('end-call', () => {
@@ -227,7 +230,7 @@ export default function Chat() {
     if (newMsg.isRoom) {
       if (newMsg.recipientUsername !== recipient.username) {
         dispatch(addUnseen(newMsg.recipientUsername));
-        notify();
+        msgNotify();
       }
     } else if (newMsg?.senderUsername) {
       // NOT required -- Fetch sender's publicKey from the friend's list and decrypt the message
@@ -239,7 +242,7 @@ export default function Chat() {
       );
       if (newMsg.senderUsername !== recipient.username) {
         dispatch(addUnseen(newMsg.senderUsername));
-        notify();
+        msgNotify();
       }
     }
     updateMessageList(newMsg);
@@ -411,6 +414,7 @@ export default function Chat() {
         isCallConnected: true,
       }),
     );
+    stopCallNotify();
 
     if (iceCandidates.length > 0) {
       console.log('Found cached ICE candidates');
@@ -437,6 +441,7 @@ export default function Chat() {
         isCallConnected: false,
       }),
     );
+    stopCallNotify();
     setupPeerConnection();
   }
 

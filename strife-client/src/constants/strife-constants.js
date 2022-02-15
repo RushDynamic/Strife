@@ -13,3 +13,8 @@ export const welcomeMessages = [
   'did you know that a group of ferrets is called a business?',
   'did you know that Cleopatra lived closer in time to the Moon landing than to the construction of the Great Pyramid of Giza?',
 ];
+
+export const urls = {
+  notificationSoundSrc: `${process.env.REACT_APP_S3_BUCKET_URL}/static/media/notif1.mp3`,
+  phoneCallSoundSrc: `${process.env.REACT_APP_S3_BUCKET_URL}/static/media/call-incoming1.mp3`,
+};
