@@ -11,7 +11,11 @@ import chatStyles from '../../styles/chat-styles';
 
 function LandingChatBox() {
   const { user } = useContext(UserContext);
-  const memoizedIndex = useMemo(() => pickRandomBetweenRange(1, 20), []);
+  const memIllustrationIndex = useMemo(() => pickRandomBetweenRange(1, 20), []);
+  const memWelcomeMessage = useMemo(
+    () => pickRandomElement(CONSTANTS.welcomeMessages),
+    [],
+  );
   const classes = chatStyles();
 
   return (
@@ -32,7 +36,8 @@ function LandingChatBox() {
           alt="friendly_robot"
           className={`${classes.nonSelectable} ${classes.expandOnHover}`}
           src={
-            process.env.PUBLIC_URL + `/images/welcome/illu${memoizedIndex}.svg`
+            process.env.PUBLIC_URL +
+            `/images/welcome/illu${memIllustrationIndex}.svg`
           }
           height="60%"
           width="60%"
@@ -56,7 +61,7 @@ function LandingChatBox() {
             style={{ fontFamily: "'Rubik', sans-serif", padding: '1rem' }}
             className={classes.nonSelectable}
           >
-            {pickRandomElement(CONSTANTS.welcomeMessages)}
+            {memWelcomeMessage}
           </Typography>
         </div>
       </motion.div>

@@ -11,6 +11,13 @@ const chatStyles = makeStyles({
     // backgroundColor: '#2a2a72', backgroundImage: 'linear-gradient(115deg, #2a2a72 0%, #009ffd 74%)'
   },
 
+  menuIcon: {
+    position: 'fixed',
+    margin: '1rem',
+    cursor: 'pointer',
+    color: '#1fd1f9',
+  },
+
   messageBoxContainer: {
     margin: '5px',
   },
@@ -20,7 +27,7 @@ const chatStyles = makeStyles({
   },
 
   createMessageContainer: {
-    marginTop: '10px',
+    margin: '0.2em',
     display: 'flex',
   },
 
@@ -31,6 +38,7 @@ const chatStyles = makeStyles({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   chatMenuIcon: {
     margin: '2vh',
     cursor: 'pointer',
@@ -41,12 +49,13 @@ const chatStyles = makeStyles({
   },
 
   callContainer: {
-    marginBottom: '10px',
+    margin: '0.5rem',
   },
 
   callInfoContainer: {
     display: 'flex',
     justifyContent: 'center',
+    padding: '0.2rem',
   },
 
   callButtonsContainer: {

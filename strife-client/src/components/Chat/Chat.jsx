@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import * as CONSTANTS from '../../constants/strife-constants.js';
 import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
@@ -19,7 +20,7 @@ import changeCallData from '../../actions/call-data-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 import Drawer from '@mui/material/Drawer';
-const drawerWidth = 300;
+import useAudio from '../../hooks/useAudio.jsx';
 
 var privateKey = '';
 export default function Chat() {
@@ -46,10 +47,14 @@ export default function Chat() {
   const remoteAudioRef = useRef(null);
   const [iceCandidates, setIceCandidates] = useState([]);
   const [micMuted, setMicMuted] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [msgNotify] = useAudio(CONSTANTS.urls.notificationSoundSrc);
+  const [callNotify, stopCallNotify] = useAudio(
+    CONSTANTS.urls.phoneCallSoundSrc,
+  );
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setSidebarOpen(!sidebarOpen);
   };
 
   useEffect(() => {
@@ -177,6 +182,7 @@ export default function Chat() {
               isCallConnected: false,
             }),
           );
+          callNotify(true);
         });
 
         socket.current.on('end-call', () => {
@@ -220,9 +226,11 @@ export default function Chat() {
 
   // Push new message to the msgList
   useEffect(() => {
+    if (!newMsg?.message) return;
     if (newMsg.isRoom) {
       if (newMsg.recipientUsername !== recipient.username) {
         dispatch(addUnseen(newMsg.recipientUsername));
+        msgNotify();
       }
     } else if (newMsg?.senderUsername) {
       // NOT required -- Fetch sender's publicKey from the friend's list and decrypt the message
@@ -234,6 +242,7 @@ export default function Chat() {
       );
       if (newMsg.senderUsername !== recipient.username) {
         dispatch(addUnseen(newMsg.senderUsername));
+        msgNotify();
       }
     }
     updateMessageList(newMsg);
@@ -405,6 +414,7 @@ export default function Chat() {
         isCallConnected: true,
       }),
     );
+    stopCallNotify();
 
     if (iceCandidates.length > 0) {
       console.log('Found cached ICE candidates');
@@ -431,6 +441,7 @@ export default function Chat() {
         isCallConnected: false,
       }),
     );
+    stopCallNotify();
     setupPeerConnection();
   }
 
@@ -488,18 +499,6 @@ export default function Chat() {
           style={{ display: 'none' }}
         />
         <Paper elevation={2} style={{ margin: '0 0.5rem 0.5rem 0.5rem' }}>
-          {(callData.isCallActive || callData.isCallIncoming) && (
-            <PhoneBox
-              callData={callData}
-              callOptions={{
-                createCall,
-                acceptCall,
-                broadcastAndEndCall,
-              }}
-              micMuted={micMuted}
-              setMicMuted={setMicMuted}
-            />
-          )}
           <RoomsList
             onlineRoomsCount={onlineRoomsCount}
             roomsList={onlineRoomsList != null ? onlineRoomsList : []}
@@ -513,7 +512,7 @@ export default function Chat() {
             setUnseenMsgUsersList={setUnseenMsgUsersList}
             createCall={createCall}
             acceptCall={acceptCall}
-            setSidebarOpen={setMobileOpen}
+            setSidebarOpen={setSidebarOpen}
           />
         </Paper>
       </>
@@ -523,6 +522,7 @@ export default function Chat() {
     // Show error dialog if multiple instances of Strife are running (user is already online)
     <div>
       <ChatAlreadyOpen showChatAlreadyOpen={showChatAlreadyOpen} />
+
       <Grid
         container
         spacing={2}
@@ -545,6 +545,7 @@ export default function Chat() {
             handleDrawerToggle={handleDrawerToggle}
           />
         </Grid>
+
         {loaded ? (
           <>
             <Box
@@ -559,7 +560,7 @@ export default function Chat() {
             </Box>
             <Drawer
               variant="temporary"
-              open={mobileOpen}
+              open={sidebarOpen}
               onClose={handleDrawerToggle}
               ModalProps={{
                 keepMounted: true, // Better open performance on mobile.
@@ -568,7 +569,7 @@ export default function Chat() {
                 display: { xs: 'block', sm: 'block', md: 'block' },
                 '& .MuiDrawer-paper': {
                   boxSizing: 'border-box',
-                  width: drawerWidth,
+                  width: 300,
                 },
                 zIndex: '1500',
               }}
@@ -594,8 +595,25 @@ export default function Chat() {
               xs={12}
               md={12}
               lg={10}
-              style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}
+              style={{
+                height: '80vh',
+                display: 'flex',
+                flexFlow: 'column',
+                paddingLeft: 0,
+              }}
             >
+              {(callData.isCallActive || callData.isCallIncoming) && (
+                <PhoneBox
+                  callData={callData}
+                  callOptions={{
+                    createCall,
+                    acceptCall,
+                    broadcastAndEndCall,
+                  }}
+                  micMuted={micMuted}
+                  setMicMuted={setMicMuted}
+                />
+              )}
               {recipient.username === '' ? (
                 <LandingChatBox />
               ) : (
