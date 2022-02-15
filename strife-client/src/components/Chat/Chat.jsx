@@ -6,8 +6,9 @@ import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
 import * as cryptoService from '../../services/crypto-service.js';
 import { io } from 'socket.io-client';
-import { Box, Paper, Button } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import { Box, Paper, Button, Grid, Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import ErrorIcon from '@mui/icons-material/Error';
 import Loading from './Loading.jsx';
 import RoomsList from './Sidebar/RoomsList/RoomsList.jsx';
 import FriendsList from './Sidebar/FriendsList/FriendsList.jsx';
@@ -48,6 +49,7 @@ export default function Chat() {
   const [iceCandidates, setIceCandidates] = useState([]);
   const [micMuted, setMicMuted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [callError, setCallError] = useState(false);
   const [msgNotify] = useAudio(CONSTANTS.urls.notificationSoundSrc);
   const [callNotify, stopCallNotify] = useAudio(
     CONSTANTS.urls.phoneCallSoundSrc,
@@ -57,6 +59,9 @@ export default function Chat() {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
   useEffect(() => {
     // TODO: Probably find a better way to do this
     if (
@@ -395,7 +400,10 @@ export default function Chat() {
     socket.current.emit('get-offer', offerData, (status) => {
       if (!status) {
         // means the recipient is on another call
-        endCall();
+        setCallError(true);
+        setTimeout(() => {
+          endCall();
+        }, 1000);
       }
     });
     console.log('Sent offer to:', recipientName);
@@ -503,6 +511,7 @@ export default function Chat() {
           controls
           style={{ display: 'none' }}
         />
+
         <Paper elevation={2} style={{ margin: '0 0.5rem 0.5rem 0.5rem' }}>
           <RoomsList
             onlineRoomsCount={onlineRoomsCount}
@@ -527,7 +536,16 @@ export default function Chat() {
     // Show error dialog if multiple instances of Strife are running (user is already online)
     <div>
       <ChatAlreadyOpen showChatAlreadyOpen={showChatAlreadyOpen} />
-
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        open={callError}
+        autoHideDuration={3000}
+        onClose={() => setCallError(false)}
+      >
+        <Alert icon={<ErrorIcon fontSize="inherit" />} severity="error">
+          {'Call failed, user is on another call!'}
+        </Alert>
+      </Snackbar>
       <Grid
         container
         spacing={2}
