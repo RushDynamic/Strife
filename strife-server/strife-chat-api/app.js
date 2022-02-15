@@ -82,12 +82,17 @@ io.on('connect', (socket) => {
       .emit('get-ice-candidate', candidateInfo);
   });
 
-  socket.on('get-offer', (offerData) => {
-    userCallsMap.set(socket.username, offerData.receiver);
-    userCallsMap.set(offerData.receiver, socket.username);
-    socket
-      .to(onlineUsersMap.get(offerData.receiver))
-      .emit('get-offer', offerData);
+  socket.on('get-offer', (offerData, callback) => {
+    if (userCallsMap.has(offerData.receiver)) {
+      console.log(userCallsMap);
+      callback(false);
+    } else {
+      userCallsMap.set(socket.username, offerData.receiver);
+      userCallsMap.set(offerData.receiver, socket.username);
+      socket
+        .to(onlineUsersMap.get(offerData.receiver))
+        .emit('get-offer', offerData);
+    }
   });
 
   socket.on('get-answer', (answerData) => {
@@ -288,7 +293,9 @@ function deleteUserMsgHistory(username) {
 
 function endCallIfActive(socket) {
   const receiver = userCallsMap.get(socket.username);
-  socket.to(onlineUsersMap.get(receiver)).emit('end-call');
+  socket.to(onlineUsersMap.get(receiver))?.emit('end-call');
+  userCallsMap.delete(socket.username);
+  userCallsMap.delete(receiver);
 }
 
 function updateMsgList(newMsg) {

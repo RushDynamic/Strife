@@ -392,7 +392,12 @@ export default function Chat() {
         setIceCandidates([]);
       }
     });
-    socket.current.emit('get-offer', offerData);
+    socket.current.emit('get-offer', offerData, (status) => {
+      if (!status) {
+        // means the recipient is on another call
+        endCall();
+      }
+    });
     console.log('Sent offer to:', recipientName);
   }
 
