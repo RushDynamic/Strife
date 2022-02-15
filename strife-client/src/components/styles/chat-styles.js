@@ -27,7 +27,7 @@ const chatStyles = makeStyles({
   },
 
   createMessageContainer: {
-    marginTop: '10px',
+    margin: '0.2em',
     display: 'flex',
   },
 
@@ -38,6 +38,7 @@ const chatStyles = makeStyles({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   chatMenuIcon: {
     margin: '2vh',
     cursor: 'pointer',
@@ -48,12 +49,13 @@ const chatStyles = makeStyles({
   },
 
   callContainer: {
-    marginBottom: '10px',
+    margin: '0.5rem',
   },
 
   callInfoContainer: {
     display: 'flex',
     justifyContent: 'center',
+    padding: '0.2rem',
   },
 
   callButtonsContainer: {

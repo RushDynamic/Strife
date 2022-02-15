@@ -499,18 +499,6 @@ export default function Chat() {
           style={{ display: 'none' }}
         />
         <Paper elevation={2} style={{ margin: '0 0.5rem 0.5rem 0.5rem' }}>
-          {(callData.isCallActive || callData.isCallIncoming) && (
-            <PhoneBox
-              callData={callData}
-              callOptions={{
-                createCall,
-                acceptCall,
-                broadcastAndEndCall,
-              }}
-              micMuted={micMuted}
-              setMicMuted={setMicMuted}
-            />
-          )}
           <RoomsList
             onlineRoomsCount={onlineRoomsCount}
             roomsList={onlineRoomsList != null ? onlineRoomsList : []}
@@ -534,6 +522,7 @@ export default function Chat() {
     // Show error dialog if multiple instances of Strife are running (user is already online)
     <div>
       <ChatAlreadyOpen showChatAlreadyOpen={showChatAlreadyOpen} />
+
       <Grid
         container
         spacing={2}
@@ -556,6 +545,7 @@ export default function Chat() {
             handleDrawerToggle={handleDrawerToggle}
           />
         </Grid>
+
         {loaded ? (
           <>
             <Box
@@ -605,8 +595,25 @@ export default function Chat() {
               xs={12}
               md={12}
               lg={10}
-              style={{ height: '80vh', display: 'flex', flexFlow: 'column' }}
+              style={{
+                height: '80vh',
+                display: 'flex',
+                flexFlow: 'column',
+                paddingLeft: 0,
+              }}
             >
+              {(callData.isCallActive || callData.isCallIncoming) && (
+                <PhoneBox
+                  callData={callData}
+                  callOptions={{
+                    createCall,
+                    acceptCall,
+                    broadcastAndEndCall,
+                  }}
+                  micMuted={micMuted}
+                  setMicMuted={setMicMuted}
+                />
+              )}
               {recipient.username === '' ? (
                 <LandingChatBox />
               ) : (

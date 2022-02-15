@@ -22,6 +22,7 @@ function FriendButtons(props) {
   };
 
   const handleCreateCall = () => {
+    props.setSidebarOpen(false);
     props.createCall(props.friend.username);
   };
 
