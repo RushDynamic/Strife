@@ -11,6 +11,13 @@ const chatStyles = makeStyles({
     // backgroundColor: '#2a2a72', backgroundImage: 'linear-gradient(115deg, #2a2a72 0%, #009ffd 74%)'
   },
 
+  menuIcon: {
+    position: 'fixed',
+    margin: '1rem',
+    cursor: 'pointer',
+    color: '#1fd1f9',
+  },
+
   messageBoxContainer: {
     margin: '5px',
   },

@@ -1,29 +1,44 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import useStyles from '../../styles/chat-styles';
 import { motion } from 'framer-motion';
-import { Typography } from '@mui/material';
+import { Typography, Badge } from '@mui/material';
 import ChatMenu from './ChatMenu/ChatMenu.jsx';
 import * as CONSTANTS from '../../../constants/strife-constants.js';
 import MenuIcon from '@mui/icons-material/Menu';
 
 export default function Header(props) {
   const classes = useStyles();
+  const unseenMsgUserList = useSelector(
+    (state) => state.notifications.unseenMsgUserList,
+  );
+
+  const menuIconProps = {
+    color: 'inherit',
+    ariaLabel: 'open drawer',
+    edge: 'start',
+    onClick: props.handleDrawerToggle,
+    className: classes.menuIcon,
+    sx: { mr: 2, display: { md: 'block', lg: 'none' } },
+  };
 
   return (
     <>
-      <MenuIcon
-        color="inherit"
-        aria-label="open drawer"
-        edge="start"
-        onClick={props.handleDrawerToggle}
-        style={{
-          position: 'fixed',
-          margin: '1rem',
-          cursor: 'pointer',
-          color: '#1fd1f9',
-        }}
-        sx={{ mr: 2, display: { md: 'block', lg: 'none' } }}
-      />
+      {props.loaded &&
+        (unseenMsgUserList.length > 0 ? (
+          <div {...menuIconProps}>
+            <Badge
+              badgeContent={unseenMsgUserList.length}
+              color="secondary"
+              max={999}
+              overlap="circular"
+            >
+              <MenuIcon />
+            </Badge>
+          </div>
+        ) : (
+          <MenuIcon {...menuIconProps} />
+        ))}
       <div className={classes.headerContainer}>
         <motion.h1
           animate={{
