@@ -6,9 +6,9 @@ if [[ "$VERCEL_GIT_COMMIT_REF" == "release" ]] ; then
     # Proceed with the build
     echo "✅ - Build can proceed"
     if [[git diff HEAD^ HEAD --quiet .]] ; then
-        exit 1;
-    else
         exit 0;
+    else
+        exit 1;
     fi
 else
   # Don't build
