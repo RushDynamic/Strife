@@ -578,6 +578,7 @@ export default function Chat() {
               sx={{
                 display: { xs: 'none', md: 'none', lg: 'block' },
               }}
+              style={{ height: '80vh', overflowY: 'auto' }}
             >
               {drawerContent()}
             </Box>
