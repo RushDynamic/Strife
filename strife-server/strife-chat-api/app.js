@@ -84,7 +84,6 @@ io.on('connect', (socket) => {
 
   socket.on('get-offer', (offerData, callback) => {
     if (userCallsMap.has(offerData.receiver)) {
-      console.log(userCallsMap);
       callback(false);
     } else {
       userCallsMap.set(socket.username, offerData.receiver);
