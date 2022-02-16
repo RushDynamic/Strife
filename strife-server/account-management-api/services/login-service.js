@@ -35,7 +35,7 @@ export async function loginUser(userInfo) {
 
 export async function checkLoggedIn(refreshToken) {
   // If the refresh token is valid, return the username and a new auth token
-  if (refreshToken == null || refreshToken == '') return false;
+  if (refreshToken == null || refreshToken == '') return { success: false };
   const rtVerificationResult = await validateRefreshToken(refreshToken);
   if (!rtVerificationResult.success) return { success: false };
   const newAccessToken = await generateAccessToken(
@@ -49,4 +49,15 @@ export async function checkLoggedIn(refreshToken) {
     accessToken: newAccessToken.accessToken,
     encodedKeyPair: user.encodedKeyPair,
   };
+}
+
+export async function logoutUser(req, res) {
+  try {
+    res.cookie('refreshToken', req.cookies?.refreshToken, {
+      expires: new Date(0),
+    });
+    return { success: true };
+  } catch (err) {
+    return { success: false };
+  }
 }

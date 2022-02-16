@@ -1,8 +1,10 @@
 import React, { useContext, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import changeRecipient from '../../../../actions/recipient-actions.js';
 import chatStyles from '../../../styles/chat-styles.js';
 import {
+  Paper,
   Button,
   Dialog,
   DialogActions,
@@ -18,13 +20,14 @@ import {
 import MuiAlert from '@mui/material/Alert';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import LogoutIcon from '@mui/icons-material/Logout';
 import FaceIcon from '@mui/icons-material/Face';
-import Paper from '@mui/material/Paper';
 import JoinRoom from './RoomsMenu/JoinRoom.jsx';
 import CreateRoom from './RoomsMenu/CreateRoom.jsx';
 import EditAvatar from './EditProfileMenu/EditAvatar.jsx';
 import ChangePassword from './EditProfileMenu/ChangePassword.jsx';
 import { UserContext } from '../../../../UserContext.js';
+import { logoutUser } from '../../../../services/login-service.js';
 import { addFriend } from '../../../../services/friend-service.js';
 import { editAvatar } from '../../../../services/profile-service.js';
 
@@ -34,6 +37,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 function ChatMenu(props) {
   const { user, setUser } = useContext(UserContext);
+  const history = useHistory();
   const dispatch = useDispatch();
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [profileTabValue, setProfileTabValue] = useState(0);
@@ -156,19 +160,34 @@ function ChatMenu(props) {
         <div className={classes.chatMenuContainer}>
           <Tooltip title="Add Friend" arrow>
             <PersonAddIcon
+              fontSize="small"
               onClick={() => setOpenAddFriend(true)}
               className={classes.chatMenuIcon}
             />
           </Tooltip>
           <Tooltip title="Rooms" arrow>
             <PeopleAltIcon
+              fontSize="small"
               onClick={() => setOpenRoomsMenu(true)}
               className={classes.chatMenuIcon}
             />
           </Tooltip>
           <Tooltip title="Edit Profile" arrow>
             <FaceIcon
+              fontSize="small"
               onClick={() => setOpenEditProfile(true)}
+              className={classes.chatMenuIcon}
+            />
+          </Tooltip>
+          <Tooltip title="Logout" arrow>
+            <LogoutIcon
+              fontSize="small"
+              onClick={async () => {
+                const { success } = await logoutUser();
+                if (success) {
+                  history.push('/login');
+                }
+              }}
               className={classes.chatMenuIcon}
             />
           </Tooltip>

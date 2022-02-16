@@ -44,7 +44,7 @@ const chatStyles = makeStyles({
     cursor: 'pointer',
     transition: '0.5s',
     '&:hover': {
-      transform: 'scale(1.1) translateY(-5px)',
+      transform: 'scale(1.1) translateY(-2.5px)',
     },
   },
 
