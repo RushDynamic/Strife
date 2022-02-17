@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.post('/register', handleUserRegistration);
 router.post('/login', handleUserLogin);
-router.get('/logout', handleUserLogout);
+router.post('/logout', handleUserLogout);
 router.post('/logged_in', handleCheckLoggedIn);
 export default router;

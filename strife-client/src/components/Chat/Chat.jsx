@@ -519,6 +519,7 @@ export default function Chat() {
             manageRooms={manageRooms}
             unseenMsgUsersList={unseenMsgUsersList}
             setUnseenMsgUsersList={setUnseenMsgUsersList}
+            setSidebarOpen={setSidebarOpen}
           />
           <FriendsList
             friendsList={friendsList}

@@ -15,6 +15,7 @@ function RoomsList(props) {
   );
 
   function handleChatButtonOnClick(roomname) {
+    props.setSidebarOpen(false);
     props.manageRooms('join', roomname, isUserInRoom);
   }
 

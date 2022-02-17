@@ -1,6 +1,6 @@
 import * as cryptoService from './crypto-service.js';
 
-export async function loginUser(currentUserData, setUser) {
+export async function loginUser(currentUserData) {
   const loginResponse = await fetch(
     `${process.env.REACT_APP_AM_API_URL}/account/login`,
     {
@@ -46,4 +46,20 @@ export async function checkLoggedIn() {
     };
   }
   return { username: null };
+}
+
+export async function logoutUser() {
+  const logoutResponse = await fetch(
+    `${process.env.REACT_APP_AM_API_URL}/account/logout`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    },
+  );
+  const logoutResult = await logoutResponse.json();
+  if (logoutResult.success) {
+    localStorage.removeItem('secureStorageKey');
+    return { success: true };
+  } else return { success: false };
 }

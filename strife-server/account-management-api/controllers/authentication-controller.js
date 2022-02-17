@@ -1,5 +1,9 @@
 import { registerUser } from '../services/registration-service.js';
-import { loginUser, checkLoggedIn } from '../services/login-service.js';
+import {
+  loginUser,
+  logoutUser,
+  checkLoggedIn,
+} from '../services/login-service.js';
 
 export async function handleUserRegistration(req, res) {
   const userInfo = {
@@ -87,14 +91,15 @@ export async function handleUserLogin(req, res) {
   }
 }
 
-export function handleUserLogout(req, res) {
-  res.status(200).send('Entered: handleUserRegistration()');
+export async function handleUserLogout(req, res) {
+  const logoutResult = await logoutUser(req, res);
+  res.status(200).json(logoutResult);
 }
 
 export async function handleCheckLoggedIn(req, res) {
   const refreshToken = req.cookies.refreshToken;
   const isUserLoggedIn = await checkLoggedIn(refreshToken);
-  if (isUserLoggedIn.success) {
+  if (isUserLoggedIn?.success) {
     res.status(200).json({
       ...isUserLoggedIn,
     });
