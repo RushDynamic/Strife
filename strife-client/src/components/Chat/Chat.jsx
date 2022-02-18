@@ -18,6 +18,7 @@ import LandingChatBox from './ChatBox/LandingChatBox.jsx';
 import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
 import changeCallData from '../../actions/calldata-actions.js';
+import { updateFriendsList } from '../../actions/friendslist-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 import Drawer from '@mui/material/Drawer';
@@ -38,8 +39,6 @@ export default function Chat() {
   const [onlineRoomsList, setOnlineRoomsList] = useState([]);
   const [onlineRoomsCount, setOnlineRoomsCount] = useState([]);
   const [onlineMembers, setOnlineMembers] = useState(new Map());
-  const [friendsList, setFriendsList] = useState([]);
-  const [unseenMsgUsersList, setUnseenMsgUsersList] = useState([]);
   // TODO: Convert msgList into a hashmap
   const [msgList, setMsgList] = useState([]);
   const msgMap = useRef(new Map());
@@ -120,7 +119,8 @@ export default function Chat() {
         // Receive friends list from server
         socket.current.on('friends-list', (friendsListFromServer) => {
           console.log('friendsListFromServer:', friendsListFromServer);
-          setFriendsList(friendsListFromServer);
+          dispatch(updateFriendsList(friendsListFromServer));
+          // setFriendsList(friendsListFromServer);
           setLoadingStages((oldList) => [...oldList, 'fetchedFriendsList']);
         });
 
@@ -517,14 +517,9 @@ export default function Chat() {
             onlineRoomsCount={onlineRoomsCount}
             roomsList={onlineRoomsList != null ? onlineRoomsList : []}
             manageRooms={manageRooms}
-            unseenMsgUsersList={unseenMsgUsersList}
-            setUnseenMsgUsersList={setUnseenMsgUsersList}
             setSidebarOpen={setSidebarOpen}
           />
           <FriendsList
-            friendsList={friendsList}
-            unseenMsgUsersList={unseenMsgUsersList}
-            setUnseenMsgUsersList={setUnseenMsgUsersList}
             createCall={createCall}
             acceptCall={acceptCall}
             setSidebarOpen={setSidebarOpen}

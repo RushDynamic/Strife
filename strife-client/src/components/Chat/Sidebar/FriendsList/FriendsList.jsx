@@ -9,10 +9,12 @@ import Avatar from '../../Avatar.jsx';
 import { deepCompare } from '../../../../utils/utils.js';
 function FriendsList(props) {
   const classes = useStyles();
+
   const unseenMsgUserList = useSelector(
     (state) => state.notifications.unseenMsgUserList,
   );
-  console.log('Friends list: ', props.friendsList);
+  const friendsList = useSelector((state) => state.friendsList);
+  console.log('Friends list: ', friendsList);
 
   function returnAvatar(status, avatarUrl) {
     if (status === 'offline') return <Avatar avatarUrl={avatarUrl} />;
@@ -37,20 +39,20 @@ function FriendsList(props) {
       transition={{ duration: 0.5 }}
       className={classes.onlineUsersCard}
     >
-      {props.friendsList.length > 0 ? (
+      {friendsList.length > 0 ? (
         <>
           <div className={classes.cardTitleTextContainer}>
             <Typography className={classes.cardTitleText}>friends</Typography>
             <Typography className={classes.cardSubTitleText}>
-              {props.friendsList
+              {friendsList
                 .filter((friend) => friend.status === 'online')
                 .reduce((total, friend) => total + 1, 0) +
                 ' / ' +
-                props.friendsList.length}
+                friendsList.length}
             </Typography>
           </div>
           <div>
-            {props.friendsList.map((friend) => (
+            {friendsList.map((friend) => (
               <div className={classes.singleRowContainer}>
                 <div className={classes.avatarNameContainer}>
                   {returnAvatar(friend.status, friend.avatar)}
