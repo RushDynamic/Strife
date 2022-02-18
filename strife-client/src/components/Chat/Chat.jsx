@@ -120,7 +120,6 @@ export default function Chat() {
         socket.current.on('friends-list', (friendsListFromServer) => {
           console.log('friendsListFromServer:', friendsListFromServer);
           dispatch(updateFriendsList(friendsListFromServer));
-          // setFriendsList(friendsListFromServer);
           setLoadingStages((oldList) => [...oldList, 'fetchedFriendsList']);
         });
 
