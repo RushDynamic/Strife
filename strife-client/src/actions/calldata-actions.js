@@ -1,4 +1,4 @@
-import { CHANGE_CALL_DATA } from './types.js';
+import { CHANGE_CALL_DATA } from '../types/calldata-types.js';
 
 const changeCallData = (callData) => {
   return {

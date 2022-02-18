@@ -1,4 +1,4 @@
-import { ADD_UNSEEN, REMOVE_UNSEEN } from '../actions/types.js';
+import { ADD_UNSEEN, REMOVE_UNSEEN } from '../types/notification-types.js';
 
 export default function notificationUpdate(
   state = { unseenMsgUserList: [] },

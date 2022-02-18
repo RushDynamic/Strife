@@ -1,4 +1,4 @@
-import { CHANGE_RECIPIENT } from './types.js';
+import { CHANGE_RECIPIENT } from '../types/recipient-types.js';
 
 const changeRecipient = (recipient) => {
   return {

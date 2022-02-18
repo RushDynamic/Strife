@@ -1,4 +1,4 @@
-import { CHANGE_CALL_DATA } from '../actions/types.js';
+import { CHANGE_CALL_DATA } from '../types/calldata-types.js';
 
 const initialState = {
   participant: '',
