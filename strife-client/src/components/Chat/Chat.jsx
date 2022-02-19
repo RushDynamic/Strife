@@ -19,6 +19,7 @@ import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
 import changeCallData from '../../actions/calldata-actions.js';
 import { updateFriendsList } from '../../actions/friendslist-actions.js';
+import { finishStage } from '../../actions/loading-actions.js';
 import { StrifeLive } from '../../services/strife-live.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 import Drawer from '@mui/material/Drawer';
@@ -33,8 +34,7 @@ export default function Chat() {
   const callData = useSelector((state) => state.callData);
   const socketConnected = useRef(false);
   const { user, setUser } = useContext(UserContext);
-  const [loadingStages, setLoadingStages] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const loading = useSelector((state) => state.loading);
   const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
   const [onlineRoomsList, setOnlineRoomsList] = useState([]);
   const [onlineRoomsCount, setOnlineRoomsCount] = useState([]);
@@ -61,16 +61,6 @@ export default function Chat() {
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
-  useEffect(() => {
-    // TODO: Probably find a better way to do this
-    if (
-      loadingStages.includes('loggedIn') &&
-      loadingStages.includes('socketConnected') &&
-      loadingStages.includes('fetchedFriendsList')
-    ) {
-      setLoaded(true);
-    }
-  }, [loadingStages]);
 
   useEffect(() => {
     (async function () {
@@ -84,7 +74,7 @@ export default function Chat() {
         isUserLoggedIn.username.length !== 0
       ) {
         console.log("You're logged in!");
-        setLoadingStages((oldList) => [...oldList, 'loggedIn']);
+        dispatch(finishStage(CONSTANTS.loading.loggedIn));
         setUser({ ...isUserLoggedIn });
         privateKey = isUserLoggedIn.privateKey;
         // If the user is logged in, setup the socket connection
@@ -92,7 +82,7 @@ export default function Chat() {
         socket.current.on('connect', () => {
           // Send username to server
           socket.current.emit('username', isUserLoggedIn.username);
-          setLoadingStages((oldList) => [...oldList, 'socketConnected']);
+          dispatch(finishStage(CONSTANTS.loading.socketConnected));
           socketConnected.current = true;
         });
 
@@ -120,7 +110,7 @@ export default function Chat() {
         socket.current.on('friends-list', (friendsListFromServer) => {
           console.log('friendsListFromServer:', friendsListFromServer);
           dispatch(updateFriendsList(friendsListFromServer));
-          setLoadingStages((oldList) => [...oldList, 'fetchedFriendsList']);
+          dispatch(finishStage(CONSTANTS.loading.fetchedFriendsList));
         });
 
         // Receive announcements from the server
@@ -559,12 +549,12 @@ export default function Chat() {
           <Header
             requestFriendsList={requestFriendsList}
             manageRooms={manageRooms}
-            loaded={loaded}
+            loaded={loading.loaded}
             handleDrawerToggle={handleDrawerToggle}
           />
         </Grid>
 
-        {loaded ? (
+        {loading.loaded ? (
           <>
             <Box
               component={Grid}
