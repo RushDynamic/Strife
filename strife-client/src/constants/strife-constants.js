@@ -18,3 +18,9 @@ export const urls = {
   notificationSoundSrc: `${process.env.REACT_APP_S3_BUCKET_URL}/static/media/notif1.mp3`,
   phoneCallSoundSrc: `${process.env.REACT_APP_S3_BUCKET_URL}/static/media/call-incoming1.mp3`,
 };
+
+export const loading = {
+  loggedIn: 'loggedIn',
+  socketConnected: 'socketConnected',
+  fetchedFriendsList: 'fetchedFriendsList',
+};
