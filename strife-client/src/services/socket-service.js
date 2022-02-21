@@ -29,9 +29,9 @@ const init = (dispatch, options) => {
   socket.on('rooms-list', (roomsList, totalRoomsCount) => {
     if (roomsList !== 'rooms-count-update') {
       roomsList = roomsList != null ? roomsList : [];
-      options.setOnlineRoomsList([...roomsList]);
+      options.setUserRoomsList([...roomsList]);
     }
-    options.setOnlineRoomsCount(totalRoomsCount);
+    options.setGlobalRoomsCount(totalRoomsCount);
   });
 
   // Receive updated room members list from server
@@ -40,8 +40,8 @@ const init = (dispatch, options) => {
       updatedMembersList !== null && updatedMembersList !== undefined
         ? updatedMembersList
         : [];
-    options.setOnlineMembers(
-      new Map(options.onlineMembers.set(roomname, updatedMembersList)),
+    options.setRoomMembers(
+      new Map(options.roomMembers.set(roomname, updatedMembersList)),
     );
   });
 

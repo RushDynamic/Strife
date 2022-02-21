@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  useCallback,
+} from 'react';
 import * as CONSTANTS from '../../constants/strife-constants.js';
 import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -22,9 +28,9 @@ import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 import Drawer from '@mui/material/Drawer';
 import useAudio from '../../hooks/useAudio.jsx';
 import usePhone from '../../hooks/usePhone.jsx';
+import useRoom from '../../hooks/useRoom.jsx';
 import * as socketService from '../../services/socket-service.js';
 
-var privateKey = '';
 export default function Chat() {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -34,9 +40,6 @@ export default function Chat() {
   const loading = useSelector((state) => state.loading);
   const socket = useSelector((state) => state.socket);
   const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
-  const [onlineRoomsList, setOnlineRoomsList] = useState([]);
-  const [onlineRoomsCount, setOnlineRoomsCount] = useState([]);
-  const [onlineMembers, setOnlineMembers] = useState(new Map());
   const [msgList, setMsgList] = useState([]);
   const msgMap = useRef(new Map());
   const [newMsg, setNewMsg] = useState({});
@@ -50,6 +53,7 @@ export default function Chat() {
     muteMic,
     { callError, setCallError },
   ] = usePhone(socket, remoteAudioRef);
+  const [manageRoom, roomMembers, roomsUser, roomsGlobal] = useRoom(user);
 
   const handleDrawerToggle = () => {
     setSidebarOpen(!sidebarOpen);
@@ -73,24 +77,20 @@ export default function Chat() {
         console.log("You're logged in!");
         dispatch(finishStage(CONSTANTS.loading.loggedIn));
         setUser({ ...isUserLoggedIn });
-        privateKey = isUserLoggedIn.privateKey;
 
         // If the user is logged in, setup the socket connection
         // TODO: clean this up
         const socketOptions = {
           username: isUserLoggedIn.username,
           setNewMsg: setNewMsg,
-          setOnlineRoomsList: setOnlineRoomsList,
-          setOnlineRoomsCount: setOnlineRoomsCount,
-          setOnlineMembers: setOnlineMembers,
-          onlineMembers: onlineMembers,
+          setUserRoomsList: roomsUser.set,
+          setGlobalRoomsCount: roomsGlobal.set,
+          setRoomMembers: roomMembers.set,
+          roomMembers: roomMembers.map,
           setShowChatAlreadyOpen: setShowChatAlreadyOpen,
         };
 
         dispatch(updateSocket(socketService.init(dispatch, socketOptions)));
-
-        // Encrypt and save msgHistory in local storage before page closes
-        window.addEventListener('beforeunload', exportEncryptedMsgMap);
       } else {
         console.log("You're NOT logged in!");
         setUser({ username: null, accessToken: null });
@@ -101,8 +101,11 @@ export default function Chat() {
 
   // Load message history once user is logged in
   useEffect(() => {
-    if (user.username !== null) {
+    if (user.username && user.privateKey) {
       importMsgMap();
+
+      // Encrypt and save msgHistory in local storage before page closes
+      window.addEventListener('beforeunload', exportEncryptedMsgMap);
     }
   }, [user]);
 
@@ -143,56 +146,6 @@ export default function Chat() {
     updateMessageList(newMsg);
   }, [newMsg]);
 
-  // TODO: fix socketService.emit params for args
-  function manageRooms(action, roomname, callback) {
-    switch (action) {
-      case 'join':
-        console.log('Joining room:', roomname);
-        socketService.emit(socket, 'join-room', roomname, [
-          user.username,
-          (response) => {
-            if (response.status === 'success') {
-              const updatedRoomMembers =
-                response.members !== null && response.members !== undefined
-                  ? response.members
-                  : [];
-              setOnlineMembers(
-                new Map(onlineMembers.set(roomname, updatedRoomMembers)),
-              );
-              callback(true, roomname);
-            } else callback(false, roomname);
-          },
-        ]);
-        break;
-
-      case 'create':
-        console.log('Creating room:', roomname);
-        socketService.emit(socket, 'create-room', roomname, [
-          user.username,
-          (response) => {
-            if (response.status === 'success') {
-              const updatedRoomMembers =
-                response.members !== null && response.members !== undefined
-                  ? response.members
-                  : [];
-              setOnlineMembers(
-                new Map(onlineMembers.set(roomname, updatedRoomMembers)),
-              );
-              callback(true, roomname);
-            } else callback(false, roomname);
-          },
-        ]);
-        break;
-
-      case 'leave':
-        console.log('Leaving room:', roomname);
-        socketService.emit(socket, 'leave-room', roomname, [user.username]);
-        break;
-      default:
-        console.log('Invalid room action');
-    }
-  }
-
   function requestFriendsList(usernameList) {
     socketService.emit(socket, 'request-friends-list', usernameList);
   }
@@ -230,7 +183,7 @@ export default function Chat() {
     msgMap.current = new Map([...msgMap.current, [keyUsername, curMsgList]]);
   }
 
-  function exportEncryptedMsgMap() {
+  const exportEncryptedMsgMap = useCallback(() => {
     /*  
             Convert msgMap to string
             Encrypt string with user.privateKey using symmetric enc
@@ -240,24 +193,24 @@ export default function Chat() {
       const msgMapObj = Object.fromEntries(msgMap.current);
       const encMsgMapStr = cryptoService.encryptSymmetric(
         JSON.stringify(msgMapObj),
-        privateKey,
+        user.privateKey,
         false,
       );
       localStorage.setItem('encryptedMsgMap', encMsgMapStr);
     }
-  }
+  }, [user.privateKey]);
 
-  function importMsgMap() {
+  const importMsgMap = useCallback(() => {
     const encMsgMapStr = localStorage.getItem('encryptedMsgMap');
     if (encMsgMapStr === null || encMsgMapStr.length === 0) return;
     const decMsgObjBase64 = cryptoService.decryptSymmetric(
       encMsgMapStr,
-      privateKey,
+      user.privateKey,
       false,
     );
     const decMsgObjStr = cryptoService.convertBase64toUTF8(decMsgObjBase64);
     msgMap.current = new Map(Object.entries(JSON.parse(decMsgObjStr)));
-  }
+  }, [user.privateKey]);
 
   const drawerContent = () => {
     return (
@@ -272,8 +225,8 @@ export default function Chat() {
 
         <Paper elevation={2} style={{ margin: '0 0.5rem 0.5rem 0.5rem' }}>
           <RoomsList
-            onlineRoomsCount={onlineRoomsCount}
-            roomsList={onlineRoomsList != null ? onlineRoomsList : []}
+            onlineRoomsCount={roomsGlobal.count}
+            roomsList={roomsUser.list != null ? roomsUser.list : []}
             setSidebarOpen={setSidebarOpen}
           />
           <FriendsList
@@ -316,7 +269,7 @@ export default function Chat() {
         >
           <Header
             requestFriendsList={requestFriendsList}
-            manageRooms={manageRooms}
+            manageRooms={manageRoom}
             loaded={loading.loaded}
             handleDrawerToggle={handleDrawerToggle}
           />
@@ -398,11 +351,11 @@ export default function Chat() {
                   sendMessage={sendMessage}
                   sender={user}
                   onlineMembers={
-                    onlineMembers.has(recipient.username)
-                      ? onlineMembers.get(recipient.username)
+                    roomMembers.map.has(recipient.username)
+                      ? roomMembers.map.get(recipient.username)
                       : [user.username]
                   }
-                  manageRooms={manageRooms}
+                  manageRooms={manageRoom}
                   callData={callData}
                   createCall={createCall}
                 />
