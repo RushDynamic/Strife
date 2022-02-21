@@ -173,6 +173,8 @@ export default function Chat() {
     let keyUsername =
       msgData.senderUsername === user.username
         ? msgData.recipientUsername
+        : msgData.isRoom
+        ? msgData.recipientUsername
         : msgData.senderUsername;
     let curMsgList = msgMap.current.has(keyUsername)
       ? msgMap.current.get(keyUsername)
@@ -225,7 +227,6 @@ export default function Chat() {
           <RoomsList
             onlineRoomsCount={roomsGlobal.count}
             roomsList={roomsUser.list != null ? roomsUser.list : []}
-            manageRooms={manageRoom}
             setSidebarOpen={setSidebarOpen}
           />
           <FriendsList
