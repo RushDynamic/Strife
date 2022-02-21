@@ -132,7 +132,7 @@ function returnCallButton(props, classes) {
       )}
       {props.callData.isCallActive && !props.callData.isCallConnected && (
         <IconButton
-          onClick={() => props.callOptions.broadcastAndEndCall()}
+          onClick={() => props.callOptions.endCall(true)}
           size="large"
           style={{
             backgroundColor: 'transparent',
@@ -149,23 +149,23 @@ function returnCallButton(props, classes) {
         <div className={classes.callOptionsContainer}>
           <IconButton
             onClick={() =>
-              props.micMuted
-                ? props.setMicMuted(false)
-                : props.setMicMuted(true)
+              props.muteMic.status
+                ? props.muteMic.toggle(false)
+                : props.muteMic.toggle(true)
             }
             size="large"
             style={{
               backgroundColor: 'transparent',
             }}
           >
-            {props.micMuted ? (
+            {props.muteMic.status ? (
               <BiMicrophoneOff fontSize="medium" style={{ color: '#BB2020' }} />
             ) : (
               <BiMicrophone fontSize="medium" style={{ color: '#A6BF4B' }} />
             )}
           </IconButton>
           <IconButton
-            onClick={() => props.callOptions.broadcastAndEndCall()}
+            onClick={() => props.callOptions.endCall(true)}
             size="large"
             style={{
               backgroundColor: 'transparent',

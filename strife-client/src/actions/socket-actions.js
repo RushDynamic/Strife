@@ -1,30 +1,10 @@
-import { CREATE, EMIT, LISTEN } from '../types/socket-types.js';
+import { UPDATE_SOCKET } from '../types/socket-types.js';
 
-const create = (socketApiUrl) => {
+const updateSocket = (socket) => {
   return {
-    type: CREATE,
-    payload: socketApiUrl,
+    type: UPDATE_SOCKET,
+    payload: socket,
   };
 };
 
-const emit = (e, msg) => {
-  return {
-    type: EMIT,
-    payload: {
-      event: e,
-      message: msg,
-    },
-  };
-};
-
-const listen = (e, cb) => {
-  return {
-    type: LISTEN,
-    payload: {
-      event: e,
-      callback: cb,
-    },
-  };
-};
-
-export { create, emit, listen };
+export { updateSocket };
