@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addUnseen, removeUnseen } from '../../actions/notification-actions.js';
 import { checkLoggedIn } from '../../services/login-service.js';
 import * as cryptoService from '../../services/crypto-service.js';
-import { io } from 'socket.io-client';
 import { Box, Paper, Button, Grid, Snackbar } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -17,42 +16,40 @@ import ChatBox from './ChatBox/ChatBox.jsx';
 import LandingChatBox from './ChatBox/LandingChatBox.jsx';
 import ChatAlreadyOpen from './ChatAlreadyOpen.jsx';
 import { UserContext } from '../../UserContext.js';
-import changeCallData from '../../actions/calldata-actions.js';
-import { updateFriendsList } from '../../actions/friendslist-actions.js';
 import { finishStage } from '../../actions/loading-actions.js';
-import { StrifeLive } from '../../services/strife-live.js';
+import { updateSocket } from '../../actions/socket-actions.js';
 import PhoneBox from './ChatBox/Recipient/PhoneBox.jsx';
 import Drawer from '@mui/material/Drawer';
 import useAudio from '../../hooks/useAudio.jsx';
+import usePhone from '../../hooks/usePhone.jsx';
+import * as socketService from '../../services/socket-service.js';
 
 var privateKey = '';
 export default function Chat() {
   const dispatch = useDispatch();
   const history = useHistory();
-  const socket = useRef();
+  const { user, setUser } = useContext(UserContext);
   const recipient = useSelector((state) => state.recipient);
   const callData = useSelector((state) => state.callData);
-  const socketConnected = useRef(false);
-  const { user, setUser } = useContext(UserContext);
   const loading = useSelector((state) => state.loading);
+  const socket = useSelector((state) => state.socket);
   const [showChatAlreadyOpen, setShowChatAlreadyOpen] = useState(false);
   const [onlineRoomsList, setOnlineRoomsList] = useState([]);
   const [onlineRoomsCount, setOnlineRoomsCount] = useState([]);
   const [onlineMembers, setOnlineMembers] = useState(new Map());
-  // TODO: Convert msgList into a hashmap
   const [msgList, setMsgList] = useState([]);
   const msgMap = useRef(new Map());
   const [newMsg, setNewMsg] = useState({});
-  const [peerConnection, setPeerConnection] = useState(null);
   const remoteAudioRef = useRef(null);
-  const [iceCandidates, setIceCandidates] = useState([]);
-  const [micMuted, setMicMuted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [callError, setCallError] = useState(false);
   const [msgNotify] = useAudio(CONSTANTS.urls.notificationSoundSrc);
-  const [callNotify, stopCallNotify] = useAudio(
-    CONSTANTS.urls.phoneCallSoundSrc,
-  );
+  const [
+    createCall,
+    acceptCall,
+    endCall,
+    muteMic,
+    { callError, setCallError },
+  ] = usePhone(socket, remoteAudioRef);
 
   const handleDrawerToggle = () => {
     setSidebarOpen(!sidebarOpen);
@@ -77,116 +74,20 @@ export default function Chat() {
         dispatch(finishStage(CONSTANTS.loading.loggedIn));
         setUser({ ...isUserLoggedIn });
         privateKey = isUserLoggedIn.privateKey;
+
         // If the user is logged in, setup the socket connection
-        socket.current = io.connect(process.env.REACT_APP_SC_API_URL);
-        socket.current.on('connect', () => {
-          // Send username to server
-          socket.current.emit('username', isUserLoggedIn.username);
-          dispatch(finishStage(CONSTANTS.loading.socketConnected));
-          socketConnected.current = true;
-        });
+        // TODO: clean this up
+        const socketOptions = {
+          username: isUserLoggedIn.username,
+          setNewMsg: setNewMsg,
+          setOnlineRoomsList: setOnlineRoomsList,
+          setOnlineRoomsCount: setOnlineRoomsCount,
+          setOnlineMembers: setOnlineMembers,
+          onlineMembers: onlineMembers,
+          setShowChatAlreadyOpen: setShowChatAlreadyOpen,
+        };
 
-        socket.current.on('error', (err) => {
-          console.log('Socket.IO Error');
-          console.log(err);
-        });
-
-        socket.current.on('connect_failed', () => {
-          console.log('Socket.IO Error');
-          console.log('connect_failed handler invoked');
-        });
-
-        // Receive new messages from the server
-        socket.current.on('echo-msg', (echoMessage) => {
-          setNewMsg(echoMessage);
-        });
-
-        socket.current.on('update-user-status', (newOnlineUsersList) => {
-          //console.log("newOnlineUsersList: ", newOnlineUsersList);
-          requestFriendsList([isUserLoggedIn.username]);
-        });
-
-        // Receive friends list from server
-        socket.current.on('friends-list', (friendsListFromServer) => {
-          console.log('friendsListFromServer:', friendsListFromServer);
-          dispatch(updateFriendsList(friendsListFromServer));
-          dispatch(finishStage(CONSTANTS.loading.fetchedFriendsList));
-        });
-
-        // Receive announcements from the server
-        socket.current.on('system-msg', (systemMsg) => {
-          const newSystemMsg = {
-            message: systemMsg,
-            avatar: null,
-            systemMsg: true,
-          };
-          updateMessageList(newSystemMsg);
-        });
-
-        // Receive rooms map from server
-        socket.current.on('rooms-list', (roomsList, totalRoomsCount) => {
-          if (roomsList !== 'rooms-count-update') {
-            roomsList = roomsList != null ? roomsList : [];
-            setOnlineRoomsList([...roomsList]);
-          }
-          setOnlineRoomsCount(totalRoomsCount);
-        });
-
-        // Receive updated room members list from server
-        socket.current.on(
-          'updated-room-members',
-          (roomname, updatedMembersList) => {
-            updatedMembersList =
-              updatedMembersList !== null && updatedMembersList !== undefined
-                ? updatedMembersList
-                : [];
-            setOnlineMembers(
-              new Map(onlineMembers.set(roomname, updatedMembersList)),
-            );
-          },
-        );
-
-        await setupPeerConnection();
-
-        // Receive updated ice candidates
-        socket.current.on('get-ice-candidate', async (candidateInfo) => {
-          console.log('Received new ICE candidate from server', candidateInfo);
-          if (callData.isCallIncoming || callData.isCallConnected) {
-            await StrifeLive.addIceCandidate(candidateInfo.candidate);
-          } else {
-            console.log('Offer not set, caching ICE candidate');
-            setIceCandidates((prev) => [...prev, candidateInfo.candidate]);
-          }
-        });
-
-        // Receive offer from incoming call
-        socket.current.on('get-offer', async (offerData) => {
-          changeCallData({
-            isCallActive: true,
-          });
-          console.log('Received offer from server:', offerData);
-
-          await StrifeLive.setOffer(offerData.offer);
-          dispatch(
-            changeCallData({
-              participant: offerData.caller.username,
-              callDuration: 0,
-              isCallIncoming: true,
-              isCallActive: true,
-              isCallConnected: false,
-            }),
-          );
-          callNotify(true);
-        });
-
-        socket.current.on('end-call', () => {
-          endCall();
-        });
-
-        // Receive error from server if user is already online elsewhere
-        socket.current.on('chat-already-open', () => {
-          setShowChatAlreadyOpen(true);
-        });
+        dispatch(updateSocket(socketService.init(dispatch, socketOptions)));
 
         // Encrypt and save msgHistory in local storage before page closes
         window.addEventListener('beforeunload', exportEncryptedMsgMap);
@@ -242,38 +143,12 @@ export default function Chat() {
     updateMessageList(newMsg);
   }, [newMsg]);
 
-  useEffect(() => {
-    if (!peerConnection) return;
-    peerConnection.onaddstream = (e) => {
-      console.log('Setting remote audio stream');
-      remoteAudioRef.current.srcObject = e?.stream;
-    };
-
-    if (callData.participant) {
-      peerConnection.onicecandidate = (e) => {
-        if (!e.candidate) return;
-        const candidateInfo = {
-          candidate: e.candidate,
-          receiver: callData.participant,
-        };
-        console.log('Sending ICE candidate to:', callData.participant);
-        socket.current.emit('new-ice-candidate', candidateInfo);
-      };
-    }
-  }, [peerConnection, callData]);
-
-  // Handle mic mute/unmute
-  useEffect(() => {
-    if (callData.isCallConnected) StrifeLive.muteAudio(!micMuted);
-  }, [micMuted]);
-
+  // TODO: fix socketService.emit params for args
   function manageRooms(action, roomname, callback) {
     switch (action) {
       case 'join':
         console.log('Joining room:', roomname);
-        socket.current.emit(
-          'join-room',
-          roomname,
+        socketService.emit(socket, 'join-room', roomname, [
           user.username,
           (response) => {
             if (response.status === 'success') {
@@ -287,14 +162,12 @@ export default function Chat() {
               callback(true, roomname);
             } else callback(false, roomname);
           },
-        );
+        ]);
         break;
 
       case 'create':
         console.log('Creating room:', roomname);
-        socket.current.emit(
-          'create-room',
-          roomname,
+        socketService.emit(socket, 'create-room', roomname, [
           user.username,
           (response) => {
             if (response.status === 'success') {
@@ -308,12 +181,12 @@ export default function Chat() {
               callback(true, roomname);
             } else callback(false, roomname);
           },
-        );
+        ]);
         break;
 
       case 'leave':
         console.log('Leaving room:', roomname);
-        socket.current.emit('leave-room', roomname, user.username);
+        socketService.emit(socket, 'leave-room', roomname, [user.username]);
         break;
       default:
         console.log('Invalid room action');
@@ -321,7 +194,7 @@ export default function Chat() {
   }
 
   function requestFriendsList(usernameList) {
-    socket.current.emit('request-friends-list', usernameList);
+    socketService.emit(socket, 'request-friends-list', usernameList);
   }
 
   function sendMessage(rawMsgData) {
@@ -337,114 +210,8 @@ export default function Chat() {
           user.privateKey,
         );
       }
-      socket.current.emit('add-msg', encMsg);
+      socketService.emit(socket, 'add-msg', encMsg);
     }
-  }
-
-  async function setupPeerConnection() {
-    let myAudioStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-    });
-    setPeerConnection(StrifeLive.createPeerConnection(myAudioStream));
-  }
-
-  async function createCall(recipientName) {
-    dispatch(
-      changeCallData({
-        participant: recipientName,
-        callDuration: 0,
-        isCallIncoming: false,
-        isCallActive: true,
-        isCallConnected: false,
-      }),
-    );
-    const offer = await StrifeLive.createOffer();
-    const offerData = {
-      caller: user,
-      receiver: recipientName,
-      offer: offer,
-    };
-
-    socket.current.on('get-answer', async (answerData) => {
-      console.log('Received answer from server');
-      await StrifeLive.setAnswer(answerData.answer);
-      dispatch(
-        changeCallData({
-          participant: recipientName,
-          callDuration: 0,
-          isCallIncoming: false,
-          isCallActive: true,
-          isCallConnected: true,
-        }),
-      );
-
-      if (iceCandidates.length > 0) {
-        console.log('Found cached ICE candidates');
-        iceCandidates.forEach(async (candidate) => {
-          await StrifeLive.addIceCandidate(candidate);
-        });
-        setIceCandidates([]);
-      }
-    });
-    socket.current.emit('get-offer', offerData, (status) => {
-      if (!status) {
-        // means the recipient is on another call
-        setCallError(true);
-        setTimeout(() => {
-          endCall();
-        }, 1000);
-      }
-    });
-    console.log('Sent offer to:', recipientName);
-  }
-
-  async function acceptCall() {
-    const answer = await StrifeLive.createAnswer();
-    const answerData = {
-      caller: callData.participant,
-      receiver: user.username,
-      answer: answer,
-    };
-
-    socket.current.emit('get-answer', answerData);
-    dispatch(
-      changeCallData({
-        participant: callData.participant,
-        callDuration: 0,
-        isCallIncoming: false,
-        isCallActive: true,
-        isCallConnected: true,
-      }),
-    );
-    stopCallNotify();
-
-    if (iceCandidates.length > 0) {
-      console.log('Found cached ICE candidates');
-      iceCandidates.forEach(async (candidate) => {
-        await StrifeLive.addIceCandidate(candidate);
-      });
-      setIceCandidates([]);
-    }
-  }
-
-  function broadcastAndEndCall() {
-    socket.current.emit('end-call');
-    endCall();
-  }
-
-  function endCall() {
-    StrifeLive.endCall();
-    dispatch(
-      changeCallData({
-        participant: '',
-        callDuration: 0,
-        isCallIncoming: false,
-        isCallActive: false,
-        isCallConnected: false,
-      }),
-    );
-    stopCallNotify();
-    setupPeerConnection();
   }
 
   function updateMessageList(msgData) {
@@ -617,10 +384,9 @@ export default function Chat() {
                   callOptions={{
                     createCall,
                     acceptCall,
-                    broadcastAndEndCall,
+                    endCall,
                   }}
-                  micMuted={micMuted}
-                  setMicMuted={setMicMuted}
+                  muteMic={muteMic}
                 />
               )}
               {recipient.username === '' ? (

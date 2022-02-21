@@ -45,10 +45,16 @@ export default function CreateMessage(props) {
   }
 
   const isRecipientOnline = () => {
-    return (
-      friendsList.filter((friend) => friend.username === recipient.username)[0]
-        .status === 'online'
-    );
+    try {
+      if (recipient.isRoom) return true;
+      return (
+        friendsList.filter(
+          (friend) => friend.username === recipient.username,
+        )[0].status === 'online'
+      );
+    } catch (err) {
+      return false;
+    }
   };
 
   return (
