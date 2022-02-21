@@ -66,4 +66,8 @@ const emit = (socket, event, message, args) => {
   socket.emit(event, message);
 };
 
-export { init, emit, addEventListener };
+const disconnect = (socket) => {
+  socket.disconnect();
+};
+
+export { init, emit, disconnect, addEventListener };
