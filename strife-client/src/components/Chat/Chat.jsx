@@ -280,7 +280,7 @@ export default function Chat() {
             <Box
               component={Grid}
               item
-              xs={2}
+              xs={2.3}
               sx={{
                 display: { xs: 'none', md: 'none', lg: 'block' },
               }}
@@ -300,6 +300,7 @@ export default function Chat() {
                 '& .MuiDrawer-paper': {
                   boxSizing: 'border-box',
                   width: 300,
+                  background: '#1B1D1E',
                 },
                 zIndex: '1500',
               }}
@@ -324,7 +325,7 @@ export default function Chat() {
               item
               xs={12}
               md={12}
-              lg={10}
+              lg={9.7}
               style={{
                 height: '80vh',
                 display: 'flex',

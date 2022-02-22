@@ -42,7 +42,10 @@ const sidebarStyles = makeStyles({
   },
 
   nameText: {
-    fontFamily: "'Rubik', sans-serif",
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: '700',
+    fontSize: '14px',
+    lineHeight: '21px',
     margin: '0.2rem 0 0.2rem 0.8rem',
   },
 

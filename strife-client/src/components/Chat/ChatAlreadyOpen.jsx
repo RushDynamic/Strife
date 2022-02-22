@@ -7,7 +7,12 @@ export default function ChatAlreadyOpen(props) {
       open={props.showChatAlreadyOpen}
       style={{
         backdropFilter: 'blur(15px)',
-        backgroundColor: 'rgba(0,0,30,0.4)',
+      }}
+      PaperProps={{
+        style: {
+          background: '#181818',
+          boxShadow: 'none',
+        },
       }}
     >
       <DialogTitle
@@ -15,7 +20,7 @@ export default function ChatAlreadyOpen(props) {
           fontWeight: 'bold',
           fontFamily: "'Syne', sans-serif",
           fontVariant: 'small-caps',
-          letterSpacing: '15px',
+          letterSpacing: '5px',
         }}
       >
         uh oh
@@ -36,17 +41,18 @@ export default function ChatAlreadyOpen(props) {
             width="150"
           />
           <Typography
-            variant="h4"
+            variant="h5"
             style={{
               fontWeight: 'bold',
               fontFamily: "'Syne', sans-serif",
+              padding: '0 0 1rem 0',
             }}
           >
-            You already have Strife open somewhere
+            Strife is already open
           </Typography>
           <Typography
             style={{
-              fontFamily: "'Rubik', sans-serif",
+              fontFamily: "'Inter', sans-serif",
             }}
           >
             You can only run one instance of Strife at a time :c

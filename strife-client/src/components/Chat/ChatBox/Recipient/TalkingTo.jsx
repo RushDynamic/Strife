@@ -9,7 +9,11 @@ export default function TalkingTo(props) {
   return (
     <div
       className={classes.talkingToContainer}
-      style={{ display: 'flex', alignItems: 'center' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 0 0.5rem 0.5rem',
+      }}
     >
       <img
         alt="user_avatar"
@@ -41,14 +45,22 @@ export default function TalkingTo(props) {
       {!props.callData?.isCallActive && (
         <IconButton
           onClick={() => props.createCall(props.recipient.username)}
-          size="large"
+          size="medium"
+          style={{
+            backgroundColor: 'transparent',
+          }}
         >
           <BiPhone />
         </IconButton>
       )}
       {props.recipient.isRoom && (
         <Tooltip title="Leave Room" arrow>
-          <IconButton size="large">
+          <IconButton
+            size="medium"
+            style={{
+              backgroundColor: 'transparent',
+            }}
+          >
             <ExitToAppIcon onClick={props.handleLeaveRoomClicked} />
           </IconButton>
         </Tooltip>
