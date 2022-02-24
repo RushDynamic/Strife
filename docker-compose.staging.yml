@@ -27,16 +27,3 @@ services:
       dockerfile: './Dockerfile.staging'
     ports:
       - '6000:6000'
-
-  nginx-config:
-    container_name: nginx-config-staging
-    build:
-      context: './nginx/'
-      dockerfile: './Dockerfile.staging'
-    volumes:
-      - /etc/letsencrypt/:/etc/letsencrypt/
-      - ./etc/nginx/conf.d/:./etc/nginx/conf.d/
-    depends_on:
-      - am-api
-      - ua-api
-      - sc-api
