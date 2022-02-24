@@ -27,16 +27,3 @@ services:
       dockerfile: './Dockerfile'
     ports:
       - '5000:5000'
-
-  nginx-config:
-    container_name: nginx-config
-    build:
-      context: './nginx/'
-      dockerfile: './Dockerfile'
-    volumes:
-      - /etc/letsencrypt/:/etc/letsencrypt/
-      - /etc/nginx/conf.d/:/etc/nginx/conf.d/
-    depends_on:
-      - am-api
-      - ua-api
-      - sc-api

@@ -88,6 +88,7 @@ const chatStyles = makeStyles({
   },
 
   expandOnHover: {
+    transitionDelay: '2s',
     transition: '1.5s',
     '&:hover': {
       transform: 'scale(1.1) translateY(-5px)',
@@ -95,6 +96,7 @@ const chatStyles = makeStyles({
   },
 
   expandFastOnHover: {
+    transitionDelay: '1s, 5ms',
     transition: '0.5s',
     '&:hover': {
       transform: 'scale(2)',

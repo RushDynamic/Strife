@@ -15,7 +15,7 @@ export default function Header(props) {
 
   const menuIconProps = {
     color: 'inherit',
-    ariaLabel: 'open drawer',
+    'aria-label': 'open drawer',
     edge: 'start',
     onClick: props.handleDrawerToggle,
     className: classes.menuIcon,
@@ -52,8 +52,8 @@ export default function Header(props) {
             marginBottom: '0px',
             background:
               '-webkit-linear-gradient(155deg, #7f5a83 0%, #1fd1f9 100%)',
-            '-webkit-background-clip': 'text',
-            '-webkit-text-fill-color': 'transparent',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}
         >
           strife

@@ -25,7 +25,7 @@ export default function MessageBox(props) {
         key={timestamp}
         className={classes.messageTextContainer}
         style={{
-          fontFamily: "'Rubik', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontSize: '1rem',
           margin: '2.5px',
         }}

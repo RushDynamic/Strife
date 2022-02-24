@@ -39,6 +39,8 @@ pipeline {
     stage('NGINX Reload') {
       steps {
         sh """
+          sudo rm -f /etc/nginx/conf.d/strife.chat.conf
+          sudo cp ./nginx/strife.chat.conf /etc/nginx/conf.d/strife.chat.conf
           sudo nginx -s reload
         """
       }

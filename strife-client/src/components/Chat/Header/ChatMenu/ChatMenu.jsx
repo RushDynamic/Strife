@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import changeRecipient from '../../../../actions/recipient-actions.js';
 import chatStyles from '../../../styles/chat-styles.js';
 import {
@@ -39,6 +39,7 @@ function ChatMenu(props) {
   const { user, setUser } = useContext(UserContext);
   const history = useHistory();
   const dispatch = useDispatch();
+  const socket = useSelector((state) => state.socket);
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [profileTabValue, setProfileTabValue] = useState(0);
   const [roomsTabValue, setRoomsTabValue] = useState(0);
@@ -183,7 +184,7 @@ function ChatMenu(props) {
             <LogoutIcon
               fontSize="small"
               onClick={async () => {
-                const { success } = await logoutUser();
+                const { success } = await logoutUser(socket);
                 if (success) {
                   history.push('/login');
                 }

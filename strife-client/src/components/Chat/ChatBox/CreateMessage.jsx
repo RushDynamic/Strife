@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import chatSyles from '../../styles/chat-styles';
 import { TextField, IconButton } from '@mui/material';
-import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import SendIcon from '@mui/icons-material/Send';
 
 export default function CreateMessage(props) {
   const classes = chatSyles();
   const recipient = useSelector((state) => state.recipient);
+  const friendsList = useSelector((state) => state.friendsList);
   const [msgText, setMsgText] = useState('');
-  // TODO: Remove this default avatar URL and fetch user's own avatar
   const [newMsg, setNewMsg] = useState({
     message: '',
     avatar: props.sender.avatar,
@@ -45,19 +44,37 @@ export default function CreateMessage(props) {
     setNewMsg({ message: '' });
   }
 
+  const isRecipientOnline = () => {
+    try {
+      if (recipient.isRoom) return true;
+      return (
+        friendsList.filter(
+          (friend) => friend.username === recipient.username,
+        )[0].status === 'online'
+      );
+    } catch (err) {
+      return false;
+    }
+  };
+
   return (
     <>
       <div className={classes.createMessageContainer}>
         <TextField
           id="filled-basic"
           value={msgText}
-          label="Say something"
+          label={
+            isRecipientOnline()
+              ? 'Say something'
+              : `${recipient.username} is offline`
+          }
           variant="filled"
           fullWidth
           onKeyDown={handleOnKeyDown}
           autoComplete="off"
           onChange={(event) => setMsgText(event.target.value)}
           autoFocus
+          disabled={!isRecipientOnline()}
         />
         <IconButton
           onClick={() => sendMessage()}

@@ -16,13 +16,7 @@ function RoomsList(props) {
 
   function handleChatButtonOnClick(roomname) {
     props.setSidebarOpen(false);
-    props.manageRooms('join', roomname, isUserInRoom);
-  }
-
-  function isUserInRoom(status, roomname) {
-    if (status) {
-      dispatch(changeRecipient({ username: roomname, isRoom: true }));
-    }
+    dispatch(changeRecipient({ username: roomname, isRoom: true }));
   }
 
   function returnChatButton(roomname) {

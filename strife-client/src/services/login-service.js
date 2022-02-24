@@ -1,4 +1,5 @@
 import * as cryptoService from './crypto-service.js';
+import * as socketService from './socket-service.js';
 
 export async function loginUser(currentUserData) {
   const loginResponse = await fetch(
@@ -48,7 +49,7 @@ export async function checkLoggedIn() {
   return { username: null };
 }
 
-export async function logoutUser() {
+export async function logoutUser(socket) {
   const logoutResponse = await fetch(
     `${process.env.REACT_APP_AM_API_URL}/account/logout`,
     {
@@ -59,6 +60,7 @@ export async function logoutUser() {
   );
   const logoutResult = await logoutResponse.json();
   if (logoutResult.success) {
+    socketService.disconnect(socket);
     localStorage.removeItem('secureStorageKey');
     return { success: true };
   } else return { success: false };
