@@ -14,7 +14,7 @@ pipeline {
   stages {
     stage('Stop Running Containers') {
       steps {
-        sh 'sudo docker-compose down'
+        sh 'sudo docker-compose down || echo "docker-compose down failed, still proceeding with the deployment"'
       }
     }
     stage('Setup Environment Variables') {
