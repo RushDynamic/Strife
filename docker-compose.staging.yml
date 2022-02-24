@@ -35,7 +35,7 @@ services:
       dockerfile: './Dockerfile.staging'
     volumes:
       - /etc/letsencrypt/:/etc/letsencrypt/
-      - /etc/nginx/conf.d/:./
+      - ./etc/nginx/conf.d/:./etc/nginx/conf.d/
     depends_on:
       - am-api
       - ua-api

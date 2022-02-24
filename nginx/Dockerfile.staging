@@ -1,6 +1,6 @@
 FROM alpine:latest
 RUN apk add --no-cache bash
-RUN rm ./strife.chat.staging.conf
-COPY strife.chat.conf /etc/nginx/conf.d/strife.chat.staging.conf
+RUN rm ./etc/nginx/conf.d/strife.chat.staging.conf
+COPY strife.chat.conf ./etc/nginx/conf.d/strife.chat.staging.conf
 CMD ["echo", "Copied staging NGINX config"]
 ENTRYPOINT ["echo", "Copied staging NGINX config"]
