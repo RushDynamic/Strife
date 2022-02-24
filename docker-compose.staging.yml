@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  am-api:
+    container_name: am-api-staging
+    env_file: './strife-server/account-management-api/.env'
+    build:
+      context: './strife-server/account-management-api'
+      dockerfile: './Dockerfile.staging'
+    ports:
+      - '4001:4001'
+
+  ua-api:
+    container_name: ua-api-staging
+    env_file: './strife-server/user-authorization-api/.env'
+    build:
+      context: './strife-server/user-authorization-api'
+      dockerfile: './Dockerfile.staging'
+    ports:
+      - '4002:4002'
+
+  sc-api:
+    container_name: sc-api-staging
+    env_file: './strife-server/strife-chat-api/.env'
+    build:
+      context: './strife-server/strife-chat-api'
+      dockerfile: './Dockerfile.staging'
+    ports:
+      - '6000:6000'
+
+  nginx-config:
+    container_name: nginx-config-staging
+    build:
+      context: './nginx/'
+      dockerfile: './Dockerfile.staging'
+    volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
+      - /etc/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - am-api
+      - ua-api
+      - sc-api
