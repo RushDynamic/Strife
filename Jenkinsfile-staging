@@ -33,7 +33,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh 'sudo docker-compose -f ./docker-compose.staging.yml up --build -d --no-cache'
+        sh 'sudo docker-compose -f ./docker-compose.staging.yml up --build -d --force-recreate'
       }
     }
     stage('NGINX Reload') {
