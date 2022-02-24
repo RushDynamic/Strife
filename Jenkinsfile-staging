@@ -39,8 +39,8 @@ pipeline {
     stage('NGINX Configuration') {
       steps {
         sh """
-          sudo rm -f ./etc/nginx/conf.d/strife.chat.staging.conf
-          sudo cp ./nginx/strife.chat.staging.conf ./etc/nginx/conf.d/strife.chat.staging.conf
+          sudo rm -f /etc/nginx/conf.d/strife.chat.staging.conf
+          sudo cp ./nginx/strife.chat.staging.conf /etc/nginx/conf.d/strife.chat.staging.conf
           sudo nginx -s reload
         """
       }
