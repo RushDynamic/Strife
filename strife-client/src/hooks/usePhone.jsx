@@ -11,6 +11,7 @@ const usePhone = (socket, remoteAudioRef) => {
   const dispatch = useDispatch();
   const callData = useSelector((state) => state.callData);
   const { user } = useContext(UserContext);
+  const [twilioToken, setTwilioToken] = useState(null);
   const [peerConnection, setPeerConnection] = useState(null);
   const [iceCandidates, setIceCandidates] = useState([]);
   const [callError, setCallError] = useState(false);
@@ -21,7 +22,22 @@ const usePhone = (socket, remoteAudioRef) => {
 
   useEffect(() => {
     (async function () {
+      if (!twilioToken) return;
+      await setupPeerConnection(twilioToken);
+      console.log('Finished setting up peer connection');
+    })();
+  }, [twilioToken]);
+
+  useEffect(() => {
+    (async function () {
       if (!socket) return;
+
+      // emit get-twilio-token here
+      // pass token.iceServer to setupPeerConnection();
+      socketService.emit(socket, 'get-twilio-token', (token) => {
+        setTwilioToken(token);
+        console.log('Received token:', token);
+      });
 
       // Receive updated ice candidates
       socketService.addEventListener(
@@ -189,11 +205,11 @@ const usePhone = (socket, remoteAudioRef) => {
     setupPeerConnection();
   }
 
-  async function setupPeerConnection() {
+  async function setupPeerConnection(config) {
     let myAudioStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
     });
-    setPeerConnection(StrifeLive.createPeerConnection(myAudioStream));
+    setPeerConnection(StrifeLive.createPeerConnection(myAudioStream, config));
   }
 
   const muteMic = {
