@@ -1,6 +1,9 @@
 require('dotenv').config();
 const accountMgmtApiClient = require('./clients/account-management-api-client.js');
-
+const twilio = require('twilio')(
+  process.env.TWILIO_ACC_SID,
+  process.env.TWILIO_AUTH_TOKEN,
+);
 const io = require('socket.io')(5000, {
   cors: {
     origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
@@ -72,6 +75,11 @@ io.on('connect', (socket) => {
       `${msgData.senderUsername} says: "${msgData.message}" to ${msgData.recipientUsername}`,
     );
     updateMsgList(newMsg);
+  });
+
+  socket.on('get-twilio-token', async (callback) => {
+    const token = await twilio.tokens.create();
+    callback(token.iceServers);
   });
 
   socket.on('new-ice-candidate', (candidateInfo) => {
