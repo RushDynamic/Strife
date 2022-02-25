@@ -13,15 +13,16 @@ import friendRoutes from './routes/friend-routes.js';
 import profileRoutes from './routes/profile-routes.js';
 
 const app = express();
-
+var env = process.env.NODE_ENV || 'staging';
+const port = env === 'production' ? 3001 : 4001;
 mongoose
   .connect(process.env.MONGODB_CONNECTION_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => {
-    app.listen(3001, () => {
-      console.log('Account Management API started listening on port 3001');
+    app.listen(port, () => {
+      console.log('Account Management API started listening on port:', port);
     });
   })
   .catch((err) => {
