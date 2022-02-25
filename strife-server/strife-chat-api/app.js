@@ -1,7 +1,9 @@
 require('dotenv').config();
 const accountMgmtApiClient = require('./clients/account-management-api-client.js');
 
-const io = require('socket.io')(5000, {
+var env = process.env.NODE_ENV || 'staging';
+const port = env === 'production' ? 5000 : 6000;
+const io = require('socket.io')(port, {
   cors: {
     origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
   },
