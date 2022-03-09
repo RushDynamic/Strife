@@ -7,11 +7,15 @@ const twilio = Twilio(
   process.env.TWILIO_AUTH_TOKEN,
 );
 
-const io = require('socket.io')(5000, {
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+const httpServer = createServer();
+const io = new Server(httpServer, {
   cors: {
     origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
   },
 });
+httpServer.listen(5000);
 
 var onlineRoomsMap = new Map();
 var onlineUsersMap = new Map();
