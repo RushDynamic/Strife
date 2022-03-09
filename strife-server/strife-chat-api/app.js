@@ -1,9 +1,12 @@
-require('dotenv').config();
-const accountMgmtApiClient = require('./clients/account-management-api-client.js');
-const twilio = require('twilio')(
+import dotenv from 'dotenv';
+dotenv.config();
+import * as accountMgmtApiClient from './clients/account-management-api-client.js';
+import Twilio from 'twilio';
+const twilio = Twilio(
   process.env.TWILIO_ACC_SID,
   process.env.TWILIO_AUTH_TOKEN,
 );
+
 const io = require('socket.io')(5000, {
   cors: {
     origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
