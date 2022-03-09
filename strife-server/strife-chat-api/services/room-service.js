@@ -2,7 +2,7 @@ var onlineRoomsMap = new Map();
 var userRoomsMap = new Map();
 
 export const getTotalRooms = () => {
-  return onlineRoomsMap.size();
+  return onlineRoomsMap.size;
 };
 
 export const getUserRooms = (username) => {
@@ -24,13 +24,14 @@ const create = (roomname, username, callback) => {
   }
 };
 
-const remove = (roomname) => {
-  onlineRoomsMap.delete(roomname);
-  if (userMessagesMap.has(roomname)) {
-    userMessagesMap.delete(roomname);
-  }
-  io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
-};
+// TODO: fix this after creating messaging service (userMessagesMap is not defined)
+// const remove = (roomname) => {
+//   onlineRoomsMap.delete(roomname);
+//   if (userMessagesMap.has(roomname)) {
+//     userMessagesMap.delete(roomname);
+//   }
+//   io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
+// };
 
 const join = (roomname, socket, callback) => {
   if (onlineRoomsMap.has(roomname)) {
@@ -74,14 +75,15 @@ const leave = (roomname, socket) => {
       (user) => user != socket.username,
     );
 
-    // Disband room if no one is online
-    if (onlineUsersInRoom.length == 0) {
-      onlineRoomsMap.delete(roomname);
-      if (userMessagesMap.has(roomname)) {
-        userMessagesMap.delete(roomname);
-      }
-      io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
-    } else onlineRoomsMap.set(roomname, onlineUsersInRoom);
+    // TODO: disband room if no one is online
+    // if (onlineUsersInRoom.length == 0) {
+    //   onlineRoomsMap.delete(roomname);
+    //   if (userMessagesMap.has(roomname)) {
+    //     userMessagesMap.delete(roomname);
+    //   }
+    //   io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
+    // } else
+    onlineRoomsMap.set(roomname, onlineUsersInRoom);
 
     // Update userRoomsMap as well
     var userRoomsList = [];
@@ -98,7 +100,7 @@ const leave = (roomname, socket) => {
 };
 
 const leaveAll = (socket) => {
-  if (!userRoomsMap.has(socket.username)) return;
+  if (!userRoomsMap.has(socket?.username)) return;
   const userRoomsList = userRoomsMap.get(socket.username);
   userRoomsList.map((room) => {
     socket.leave(room);
@@ -110,13 +112,13 @@ const leaveAll = (socket) => {
 
     // Disband room if no one is online
     if (onlineUsersInRoom.length == 0) {
-      delete room;
+      //remove(room);
     } else onlineRoomsMap.set(room, onlineUsersInRoom);
   });
   userRoomsMap.delete(socket.username);
 };
 
-export default manage = (action, roomname, socket, callback) => {
+export const manage = (action, roomname, socket, callback) => {
   switch (action) {
     case 'create':
       create(roomname, socket.username, callback);
@@ -129,8 +131,8 @@ export default manage = (action, roomname, socket, callback) => {
       break;
     case 'leaveAll':
       leaveAll(socket);
-    case 'remove':
-      remove(roomname);
-      break;
+    // case 'remove':
+    //   remove(roomname);
+    //   break;
   }
 };
