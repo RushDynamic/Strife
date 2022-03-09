@@ -9,14 +9,19 @@ const twilio = Twilio(
 
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+
+import * as roomService from './services/room-service.js';
+import { Callback } from './types/common-types';
+import { Message } from './types/socket-types';
+import { IceCandidate, OfferData, AnswerData } from './types/phone-types';
+
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CORS_ORIGIN_URL_ARRAY.split(','),
+    origin: (process.env.CORS_ORIGIN_URL_ARRAY || '').split(','),
   },
 });
 httpServer.listen(5000);
-import * as roomService from './services/room-service.js';
 
 var onlineUsersMap = new Map();
 var userMessagesMap = new Map();
@@ -25,8 +30,8 @@ var messagesMap = new Map();
 
 // io.emit
 // socket.broadcast.emit
-io.on('connect', (socket) => {
-  socket.on('error', function (err) {
+io.on('connect', (socket: any) => {
+  socket.on('error', function (err: string) {
     console.log('Socket.IO Error');
     console.log(err);
   });
@@ -36,7 +41,7 @@ io.on('connect', (socket) => {
     console.log('connect_failed handler invoked');
   });
 
-  socket.on('username', (username) => {
+  socket.on('username', (username: string) => {
     if (onlineUsersMap.has(username)) {
       socket.emit('chat-already-open');
       return;
@@ -67,7 +72,7 @@ io.on('connect', (socket) => {
   });
 
   console.log('New connection ', socket.id);
-  socket.on('add-msg', (msgData) => {
+  socket.on('add-msg', (msgData: Message) => {
     const newMsg = {
       systemMsg: false,
       ...msgData,
@@ -87,12 +92,12 @@ io.on('connect', (socket) => {
     updateMsgList(newMsg);
   });
 
-  socket.on('get-twilio-token', async (callback) => {
+  socket.on('get-twilio-token', async (callback: Callback) => {
     const token = await twilio.tokens.create();
     callback(token.iceServers);
   });
 
-  socket.on('new-ice-candidate', (candidateInfo) => {
+  socket.on('new-ice-candidate', (candidateInfo: IceCandidate) => {
     console.log('Received new ICE candidates for:', candidateInfo.receiver);
     candidateInfo.sender = socket.username;
     socket
@@ -100,7 +105,7 @@ io.on('connect', (socket) => {
       .emit('get-ice-candidate', candidateInfo);
   });
 
-  socket.on('get-offer', (offerData, callback) => {
+  socket.on('get-offer', (offerData: OfferData, callback: Callback) => {
     if (userCallsMap.has(offerData.receiver)) {
       callback(false);
     } else {
@@ -112,7 +117,7 @@ io.on('connect', (socket) => {
     }
   });
 
-  socket.on('get-answer', (answerData) => {
+  socket.on('get-answer', (answerData: AnswerData) => {
     socket
       .to(onlineUsersMap.get(answerData.caller))
       .emit('get-answer', answerData);
@@ -124,24 +129,30 @@ io.on('connect', (socket) => {
 
   // Send updated friendslist everytime a user connects/disconnects
   // usernameList required to update friendsList for both parties after adding/removing a friend
-  socket.on('request-friends-list', (usernameList) => {
+  socket.on('request-friends-list', (usernameList: []) => {
     sendUpdatedFriendsList(usernameList, socket);
   });
 
   // TODO: remove username from input
   //Create a room
-  socket.on('create-room', (roomname, username, callback) => {
-    roomService.manage('create', roomname, socket, callback);
-    io.emit('rooms-list', 'rooms-count-update', roomService.getTotalRooms());
-  });
+  socket.on(
+    'create-room',
+    (roomname: string, username: string, callback: Callback) => {
+      roomService.manage('create', roomname, socket, callback);
+      io.emit('rooms-list', 'rooms-count-update', roomService.getTotalRooms());
+    },
+  );
 
   // Join a room when user clicks on Chat button
-  socket.on('join-room', (roomname, username, callback) => {
-    roomService.manage('join', roomname, socket, callback);
-  });
+  socket.on(
+    'join-room',
+    (roomname: string, username: string, callback: Callback) => {
+      roomService.manage('join', roomname, socket, callback);
+    },
+  );
 
   // Leave room
-  socket.on('leave-room', (roomname, username) => {
+  socket.on('leave-room', (roomname: string, username: string) => {
     console.log(`Leaving room ${roomname}`, username);
     roomService.manage('leave', roomname, socket);
   });

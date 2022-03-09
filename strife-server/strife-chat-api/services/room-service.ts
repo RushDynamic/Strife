@@ -1,3 +1,11 @@
+import {
+  GenericAction,
+  GetUserRooms,
+  Leave,
+  LeaveAll,
+  Manage,
+} from '../types/room-types';
+
 var onlineRoomsMap = new Map();
 var userRoomsMap = new Map();
 
@@ -5,20 +13,20 @@ export const getTotalRooms = () => {
   return onlineRoomsMap.size;
 };
 
-export const getUserRooms = (username) => {
+export const getUserRooms: GetUserRooms = (username) => {
   return userRoomsMap.get(username);
 };
 
-const create = (roomname, username, callback) => {
+const create: GenericAction = (roomname, username, callback) => {
   console.log('Creating room:', roomname);
   if (!onlineRoomsMap.has(roomname)) {
     onlineRoomsMap.set(roomname, []);
-    callback({
+    callback?.({
       status: 'success',
       members: [username],
     });
   } else {
-    callback({
+    callback?.({
       status: 'failure',
     });
   }
@@ -33,7 +41,7 @@ const create = (roomname, username, callback) => {
 //   io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
 // };
 
-const join = (roomname, socket, callback) => {
+const join: GenericAction = (roomname, socket, callback) => {
   if (onlineRoomsMap.has(roomname)) {
     socket.join(roomname);
     if (!onlineRoomsMap.get(roomname).includes(socket.username)) {
@@ -53,18 +61,18 @@ const join = (roomname, socket, callback) => {
     socket
       .to(roomname)
       .emit('updated-room-members', roomname, onlineRoomsMap.get(roomname));
-    callback({
+    callback?.({
       status: 'success',
       members: onlineRoomsMap.get(roomname),
     });
   } else {
-    callback({
+    callback?.({
       status: 'failure',
     });
   }
 };
 
-const leave = (roomname, socket) => {
+const leave: Leave = (roomname, socket) => {
   if (
     onlineRoomsMap.has(roomname) &&
     onlineRoomsMap.get(roomname).includes(socket.username)
@@ -72,7 +80,7 @@ const leave = (roomname, socket) => {
     socket.leave(roomname);
     var onlineUsersInRoom = onlineRoomsMap.get(roomname);
     onlineUsersInRoom = onlineUsersInRoom.filter(
-      (user) => user != socket.username,
+      (user: string) => user != socket.username,
     );
 
     // TODO: disband room if no one is online
@@ -89,7 +97,7 @@ const leave = (roomname, socket) => {
     var userRoomsList = [];
     if (userRoomsMap.has(socket.username))
       userRoomsList = userRoomsMap.get(socket.username);
-    userRoomsList = userRoomsList.filter((room) => room != roomname);
+    userRoomsList = userRoomsList.filter((room: string) => room != roomname);
     userRoomsMap.set(socket.username, userRoomsList);
 
     // Send updated memberslist to client
@@ -99,14 +107,14 @@ const leave = (roomname, socket) => {
   }
 };
 
-const leaveAll = (socket) => {
+const leaveAll: LeaveAll = (socket) => {
   if (!userRoomsMap.has(socket?.username)) return;
   const userRoomsList = userRoomsMap.get(socket.username);
-  userRoomsList.map((room) => {
+  userRoomsList.map((room: string) => {
     socket.leave(room);
     var onlineUsersInRoom = onlineRoomsMap.get(room);
     onlineUsersInRoom = onlineUsersInRoom.filter(
-      (user) => user != socket.username,
+      (user: string) => user != socket.username,
     );
     socket.to(room).emit('updated-room-members', room, onlineUsersInRoom);
 
@@ -118,7 +126,7 @@ const leaveAll = (socket) => {
   userRoomsMap.delete(socket.username);
 };
 
-export const manage = (action, roomname, socket, callback) => {
+export const manage: Manage = (action, roomname, socket, callback) => {
   switch (action) {
     case 'create':
       create(roomname, socket.username, callback);
