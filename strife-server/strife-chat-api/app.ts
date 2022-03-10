@@ -94,17 +94,6 @@ io.on('connect', (socket: any) => {
     updateMsgList(newMsg);
   });
 
-  // export interface Message {
-  // message: string;
-  // avatar: string;
-  // systemMsg?: false;
-  // recipientUsername: string;
-  // senderUsername: string;
-  // senderPubKey: string;
-  // timestamp: string;
-  // isRoom: boolean;
-  // }
-
   socket.on('get-twilio-token', async (callback: Callback) => {
     const token = await twilio.tokens.create();
     callback(token.iceServers);
@@ -176,7 +165,6 @@ io.on('connect', (socket: any) => {
     //socket.broadcast.emit('system-msg', userLeftAnnouncementMsg)
 
     // Leave all connected rooms
-    //leaveAllRooms(socket.username, socket);
     roomService.manage('leaveAll', socket);
 
     // Delete message history
@@ -295,32 +283,3 @@ const updateOnlineUsers: UpdateOnlineUsers = (op, user, sid) => {
       break;
   }
 };
-
-// async function fetchFriendsList(username) {
-//   return await accountMgmtApiClient.fetchFriendsList(username);
-// }
-
-// function getOnlineFriends(friendsList) {
-//   return friendsList
-//     .filter((value) =>
-//       Array.from(onlineUsersMap.keys()).includes(value.username),
-//     )
-//     .map((result) => result.username);
-// }
-
-// function prepareFriendsList(friendsList) {
-//   const onlineFriends = getOnlineFriends(friendsList);
-//   const friendsListWithStatus = [];
-//   friendsList.map((friend) => {
-//     const friendStatus = {
-//       ...friend,
-//       status: onlineFriends.includes(friend.username) ? 'online' : 'offline',
-//     };
-//     friendsListWithStatus.push(friendStatus);
-//   });
-//   friendsListWithStatus.sort((a) => {
-//     if (a.status == 'offline') return 1;
-//     else return -1;
-//   });
-//   return friendsListWithStatus;
-// }
