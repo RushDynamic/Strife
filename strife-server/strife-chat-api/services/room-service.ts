@@ -17,13 +17,13 @@ export const getUserRooms: GetUserRooms = (username) => {
   return userRoomsMap.get(username);
 };
 
-const create: GenericAction = (roomname, username, callback) => {
+const create: GenericAction = (socket, roomname, callback) => {
   console.log('Creating room:', roomname);
   if (!onlineRoomsMap.has(roomname)) {
     onlineRoomsMap.set(roomname, []);
     callback?.({
       status: 'success',
-      members: [username],
+      members: [socket.username],
     });
   } else {
     callback?.({
@@ -41,7 +41,7 @@ const create: GenericAction = (roomname, username, callback) => {
 //   io.emit('rooms-list', 'rooms-count-update', onlineRoomsMap.size);
 // };
 
-const join: GenericAction = (roomname, socket, callback) => {
+const join: GenericAction = (socket, roomname, callback) => {
   if (onlineRoomsMap.has(roomname)) {
     socket.join(roomname);
     if (!onlineRoomsMap.get(roomname).includes(socket.username)) {
@@ -72,7 +72,7 @@ const join: GenericAction = (roomname, socket, callback) => {
   }
 };
 
-const leave: Leave = (roomname, socket) => {
+const leave: Leave = (socket, roomname) => {
   if (
     onlineRoomsMap.has(roomname) &&
     onlineRoomsMap.get(roomname).includes(socket.username)
@@ -126,16 +126,16 @@ const leaveAll: LeaveAll = (socket) => {
   userRoomsMap.delete(socket.username);
 };
 
-export const manage: Manage = (action, roomname, socket, callback) => {
+export const manage: Manage = (action, socket, roomname, callback) => {
   switch (action) {
     case 'create':
-      create(roomname, socket.username, callback);
+      create(socket, roomname, callback);
       break;
     case 'join':
-      join(roomname, socket, callback);
+      join(socket, roomname, callback);
       break;
     case 'leave':
-      leave(roomname, socket);
+      leave(socket, roomname);
       break;
     case 'leaveAll':
       leaveAll(socket);

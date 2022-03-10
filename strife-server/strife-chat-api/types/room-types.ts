@@ -2,16 +2,16 @@ import { Callback } from './common-types';
 
 export type Manage = (
   action: string,
-  roomname: string,
   socket: any,
+  roomname?: string,
   callback?: Callback,
 ) => void;
 
-export type Leave = (roomname: string, socket: any) => void;
+export type Leave = (socket: any, roomname?: string) => void;
 export type LeaveAll = (socket: any) => void;
 export type GenericAction = (
-  roomname: string,
   socket: any,
+  roomname?: string,
   callback?: Callback,
 ) => void;
 export type GetUserRooms = (username: string) => void;

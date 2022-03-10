@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import fetch from 'node-fetch';
+import { Friend } from '../types/friend-types';
 
-export const fetchFriendsList = async (username) => {
+type FetchFriendsList = (username: string) => Promise<Array<Friend>>;
+export const fetchFriendsList: FetchFriendsList = async (username) => {
   const fetchFriendsListResponse = await fetch(
     `${process.env.AM_API_URL}/friend/fetch`,
     {

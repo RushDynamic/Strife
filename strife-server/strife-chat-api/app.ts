@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import * as accountMgmtApiClient from './clients/account-management-api-client.js';
 import Twilio from 'twilio';
 const twilio = Twilio(
   process.env.TWILIO_ACC_SID,
@@ -10,7 +9,8 @@ const twilio = Twilio(
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import * as roomService from './services/room-service.js';
+import * as roomService from './services/room-service';
+import * as friendService from './services/friend-service';
 import { Callback } from './types/common-types';
 import { Message } from './types/socket-types';
 import { IceCandidate, OfferData, AnswerData } from './types/phone-types';
@@ -21,7 +21,9 @@ const io = new Server(httpServer, {
     origin: (process.env.CORS_ORIGIN_URL_ARRAY || '').split(','),
   },
 });
-httpServer.listen(5000);
+httpServer.listen(5000, () => {
+  console.log('Strife Chat API started listening on port 5000');
+});
 
 var onlineUsersMap = new Map();
 var userMessagesMap = new Map();
@@ -54,9 +56,9 @@ io.on('connect', (socket: any) => {
     socket.username = username;
 
     // Send friends list
-    fetchFriendsList(username)
-      .then((friends) => {
-        const onlineFriends = prepareFriendsList(friends.friendsList);
+    friendService
+      .prepareFriendsList(username, onlineUsersMap)
+      .then((onlineFriends) => {
         socket.emit('friends-list', onlineFriends);
       })
       .catch((err) =>
@@ -73,7 +75,7 @@ io.on('connect', (socket: any) => {
 
   console.log('New connection ', socket.id);
   socket.on('add-msg', (msgData: Message) => {
-    const newMsg = {
+    const newMsg: Message = {
       systemMsg: false,
       ...msgData,
     };
@@ -91,6 +93,17 @@ io.on('connect', (socket: any) => {
     );
     updateMsgList(newMsg);
   });
+
+  // export interface Message {
+  // message: string;
+  // avatar: string;
+  // systemMsg?: false;
+  // recipientUsername: string;
+  // senderUsername: string;
+  // senderPubKey: string;
+  // timestamp: string;
+  // isRoom: boolean;
+  // }
 
   socket.on('get-twilio-token', async (callback: Callback) => {
     const token = await twilio.tokens.create();
@@ -138,7 +151,7 @@ io.on('connect', (socket: any) => {
   socket.on(
     'create-room',
     (roomname: string, username: string, callback: Callback) => {
-      roomService.manage('create', roomname, socket, callback);
+      roomService.manage('create', socket, roomname, callback);
       io.emit('rooms-list', 'rooms-count-update', roomService.getTotalRooms());
     },
   );
@@ -147,14 +160,14 @@ io.on('connect', (socket: any) => {
   socket.on(
     'join-room',
     (roomname: string, username: string, callback: Callback) => {
-      roomService.manage('join', roomname, socket, callback);
+      roomService.manage('join', socket, roomname, callback);
     },
   );
 
   // Leave room
   socket.on('leave-room', (roomname: string, username: string) => {
     console.log(`Leaving room ${roomname}`, username);
-    roomService.manage('leave', roomname, socket);
+    roomService.manage('leave', socket, roomname);
   });
 
   socket.on('disconnect', () => {
@@ -180,25 +193,34 @@ io.on('connect', (socket: any) => {
   });
 });
 
-function sendUpdatedFriendsList(usernameList, socket) {
-  usernameList.map((username) => {
-    fetchFriendsList(username)
-      .then((friends) => {
-        const onlineFriends = prepareFriendsList(friends.friendsList);
-        if (onlineUsersMap.get(username) == socket.id)
+type SendUpdatedFriendsList = (
+  usernameList: Array<string>,
+  socket: any,
+) => void;
+const sendUpdatedFriendsList: SendUpdatedFriendsList = (
+  usernameList,
+  socket,
+) => {
+  usernameList.map((username: string) => {
+    friendService
+      .prepareFriendsList(username, onlineUsersMap)
+      .then((onlineFriends) => {
+        // TODO: revisit this if-else logic
+        if (onlineUsersMap.get(username) == socket.id) {
           socket.emit('friends-list', onlineFriends);
-        else
+        } else {
           socket
             .to(onlineUsersMap.get(username))
             .emit('friends-list', onlineFriends);
+        }
       })
       .catch((err) =>
         console.log('An error occurred while sending friends list', err),
       );
   });
-}
+};
 
-function deleteUserMsgHistory(username) {
+function deleteUserMsgHistory(username: string) {
   const onlineUsers = Array.from(onlineUsersMap.keys());
   if (userMessagesMap.has(username)) {
     const recipientUsersList = Array.from(userMessagesMap.get(username).keys());
@@ -217,14 +239,14 @@ function deleteUserMsgHistory(username) {
   }
 }
 
-function endCallIfActive(socket) {
+function endCallIfActive(socket: any) {
   const receiver = userCallsMap.get(socket.username);
   socket.to(onlineUsersMap.get(receiver))?.emit('end-call');
   userCallsMap.delete(socket.username);
   userCallsMap.delete(receiver);
 }
 
-function updateMsgList(newMsg) {
+const updateMsgList = (newMsg: Message) => {
   // TODO: Clean up and optimize this code
   if (newMsg.isRoom) {
     if (userMessagesMap.has(newMsg.recipientUsername)) {
@@ -252,44 +274,53 @@ function updateMsgList(newMsg) {
   }
   //getMsgList(senderUsername, recipientUsername);
   //console.log("Updated UserMessagesMap:", userMessagesMap.get(newMsg.senderUsername));
-}
+};
 
-function updateOnlineUsers(operation, username, socketid) {
+interface Operation {
+  addUser?: boolean;
+  removeUser?: boolean;
+}
+type UpdateOnlineUsers = (
+  operation: Operation,
+  username: string,
+  socketid: string,
+) => void;
+const updateOnlineUsers: UpdateOnlineUsers = (op, user, sid) => {
   switch (true) {
-    case operation.addUser:
-      onlineUsersMap.set(username, socketid);
+    case op.addUser:
+      onlineUsersMap.set(user, sid);
       break;
-    case operation.removeUser:
-      onlineUsersMap.delete(username);
+    case op.removeUser:
+      onlineUsersMap.delete(user);
       break;
   }
-}
+};
 
-async function fetchFriendsList(username) {
-  return await accountMgmtApiClient.fetchFriendsList(username);
-}
+// async function fetchFriendsList(username) {
+//   return await accountMgmtApiClient.fetchFriendsList(username);
+// }
 
-function getOnlineFriends(friendsList) {
-  return friendsList
-    .filter((value) =>
-      Array.from(onlineUsersMap.keys()).includes(value.username),
-    )
-    .map((result) => result.username);
-}
+// function getOnlineFriends(friendsList) {
+//   return friendsList
+//     .filter((value) =>
+//       Array.from(onlineUsersMap.keys()).includes(value.username),
+//     )
+//     .map((result) => result.username);
+// }
 
-function prepareFriendsList(friendsList) {
-  const onlineFriends = getOnlineFriends(friendsList);
-  const friendsListWithStatus = [];
-  friendsList.map((friend) => {
-    const friendStatus = {
-      ...friend,
-      status: onlineFriends.includes(friend.username) ? 'online' : 'offline',
-    };
-    friendsListWithStatus.push(friendStatus);
-  });
-  friendsListWithStatus.sort((a) => {
-    if (a.status == 'offline') return 1;
-    else return -1;
-  });
-  return friendsListWithStatus;
-}
+// function prepareFriendsList(friendsList) {
+//   const onlineFriends = getOnlineFriends(friendsList);
+//   const friendsListWithStatus = [];
+//   friendsList.map((friend) => {
+//     const friendStatus = {
+//       ...friend,
+//       status: onlineFriends.includes(friend.username) ? 'online' : 'offline',
+//     };
+//     friendsListWithStatus.push(friendStatus);
+//   });
+//   friendsListWithStatus.sort((a) => {
+//     if (a.status == 'offline') return 1;
+//     else return -1;
+//   });
+//   return friendsListWithStatus;
+// }
